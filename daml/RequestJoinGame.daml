@@ -1,0 +1,42 @@
+daml 1.2
+
+module RequestJoinGame where
+
+import Chips
+import Lobby
+-- import Seed
+
+template Seed
+    with
+        player : Party
+        dealer : Party
+        seed : Int
+    where
+        signatory dealer
+
+        key (player, dealer) : (Party, Party)
+        maintainer (snd key)
+
+        controller dealer can 
+            UseSeed : Int
+                do return seed
+
+template RequestJoinGame
+    with
+        player : Party
+        dealer : Party
+        seed : Int
+        stack : ContractId Chips
+    where
+        signatory player
+        observer dealer
+
+        key (player, dealer) : (Party, Party)
+        maintainer (fst key)
+
+        controller dealer can
+            AcceptRequestJoinGame : ContractId Lobby
+                do
+                    create Seed with player, dealer, seed
+                    -- exerciseByKey @Seed dealer AddSeed with seed
+                    exerciseByKey @Lobby dealer AddPlayer with player, stack

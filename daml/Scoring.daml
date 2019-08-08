@@ -1,0 +1,168 @@
+daml 1.2
+
+module Scoring where
+
+import Cards
+import DA.Optional (mapOptional)
+import DA.Foldable (maximum)
+import DA.List (sortOn, sort, group, groupBy, sortBy, head, dedup, last, foldr1, filter)
+import DA.Assert ((===))
+
+-- frequencies : (Ord a) => [a] -> M.Map a Int
+-- frequencies = M.fromListWith (+) . map (,1)
+
+byFrequency : (Ord a) => [a] -> [(a, Int)]
+byFrequency = sortOn snd . map (\x -> ((head x), length x)) . group . sort
+
+maxFrequency : (Ord a) => [a] -> a
+maxFrequency = fst . last . byFrequency
+
+maximumOn : Ord b => (a -> b) -> [a] -> a
+maximumOn f = foldr1 (\acc x -> if (f acc > f x) then acc else x)
+
+data HandRank
+    = HighCard
+    | Pair
+    | TwoPair
+    | ThreeOfAKind
+    | Straight
+    | Flush
+    | FullHouse
+    | FourOfAKind
+    | StraightFlush
+    deriving (Eq, Ord, Show)
+
+
+suits : [Card] -> [Suit]    
+suits = map (.suit)
+
+values : [Card] -> [Value]
+values = map (.value)
+
+ofAKind : [Card] -> Optional (HandRank, [Value])
+ofAKind cards = 
+    case reverse (byFrequency (values cards)) of
+        (v, 4) :: _ ->           
+            Some (FourOfAKind, [v])
+
+        (v, 3) :: (_, 3) :: _ -> 
+            Some (FullHouse, [v])
+
+        (v, 3) :: (_, 2) :: _ -> 
+            Some (FullHouse, [v])
+
+        (v, 3) :: _ ->           
+            Some (ThreeOfAKind, [v])
+
+        (v1, 2) :: (v2, 2) :: (v3, _) :: _ -> 
+            Some (TwoPair, [v1, v2, v3])
+
+        (v1, 2) :: (v2, 1) :: (v3, 1) :: (v4, 1) :: _ -> 
+            Some (Pair, [v1, v2, v3, v4])
+
+        _ -> None
+
+consecutive : Value -> Value -> Bool
+consecutive Ace Two = True
+consecutive Ace _ = False
+consecutive a b = succ a == b
+
+sortValues : [Value] -> [Value]
+sortValues values = if (elem Ace values) then
+                        Ace :: dedup (sort values)
+                    else 
+                        dedup (sort values)
+
+groupByConsecutive : (a -> a -> Bool) -> [a] -> [[a]]
+groupByConsecutive _ [] = []
+groupByConsecutive f (x :: xs) = 
+    (x :: (map snd ys)) :: groupByConsecutive f (map snd zs)
+    where (ys, zs) = span (uncurry f) $ zip (x :: xs) xs
+
+straightRun : [Value] -> Optional Value
+straightRun = fmap last . 
+                find ((5 <=) . length) . 
+                groupByConsecutive consecutive . sortValues
+
+straight : [Card] -> Optional (HandRank, [Value])
+straight = fmap (\high -> (Straight, [high])) . straightRun . values
+
+bySuit : Suit -> [Card] -> [Value]
+bySuit suit = mapOptional (\card -> if card.suit == suit then Some card.value else None)
+
+ofASuit : [Card] -> Optional (HandRank, [Value])
+ofASuit cards =
+    let 
+        values = bySuit (maxFrequency (suits cards)) cards
+    in
+        case straightRun values of
+            Some highValue -> Some (StraightFlush, [highValue])
+            None ->
+                if (length values >= 5) then
+                    Some (Flush, sort values)
+                else
+                    None
+
+handRank : [Card] -> (HandRank, [Value])
+handRank cards = 
+    maximum $ 
+        (HighCard, sort (values cards)) ::
+            mapOptional (\f -> f cards) [ofAKind, ofASuit, straight]
+
+on : (b -> b -> c) -> (a -> b) -> a -> a -> c
+(.*.) `on` f = \x y -> f x .*. f y
+
+groupSortOn : Ord b => (a -> b) -> [a] -> [[a]]
+groupSortOn f = map (map snd) . groupBy ((==) `on` fst) . sortBy (compare `on` fst) . map (\x -> (f x, x)) 
+
+winningHands : [Card] -> [(Card, Card)] -> [(Card, Card)]
+winningHands community =  
+    last . groupSortOn rank 
+    where rank (c1, c2) = handRank (c1 :: c2 :: community)
+
+test = scenario do
+    let foakAce = handRank [Card Two Spade,
+                          Card Ace Club, 
+                          Card Ace Diamond,
+                          Card Ace Heart,
+                          Card Ace Spade]
+
+    foakAce === (FourOfAKind, [Ace])    
+
+    let foakTen = handRank [Card Two Spade,
+                            Card Ten Club, 
+                            Card Ten Diamond,
+                            Card Ten Heart,
+                            Card Ten Spade]
+
+    foakTen === (FourOfAKind, [Ten])    
+
+    let fh = handRank [Card Two Spade,
+                       Card Two Club, 
+                       Card Ace Diamond,
+                       Card Ace Heart,
+                       Card Ace Spade]
+                       
+    fh === (FullHouse, [Ace])
+
+    assert $ foakAce > fh
+
+    assert $ foakAce > foakTen
+
+
+    -- assert (
+    --     handRank
+    --         [Card Two Spade,
+    --          Card Two Club, 
+    --          Card Ace Diamond,
+    --          Card Ace Heart,
+    --          Card Ace Spade] <
+    --     handRank
+    --         [Card Two Spade,
+    --          Card Two Club, 
+    --          Card Ace Diamond,
+    --          Card Ace Heart,
+    --          Card Ace Spade])
+
+
+     

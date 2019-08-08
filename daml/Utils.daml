@@ -1,0 +1,22 @@
+daml 1.2
+
+module Utils where
+
+deleteAt : Int -> [a] -> [a]
+deleteAt index xs = (take index xs) ++ (drop (index + 1) xs)
+
+allEqual : (Eq a) => [a] -> Bool
+allEqual [] = True
+allEqual (x :: xs) = all (x ==) xs
+
+rotate : [a] -> [a]
+rotate [] = []
+rotate (x :: xs) = xs ++ [x]
+
+findNextLoop : (a -> Bool) -> [a] -> Optional a
+findNextLoop f xs =
+    fmap snd $ find (f . fst) $ zip xs (rotate xs)
+
+-- findPrevLoop : (a -> Bool) -> [a] -> Optional a
+-- findPrevLoop f xs =
+--     fmap snd $ find (f . fst) $ zip xs (rotate xs)

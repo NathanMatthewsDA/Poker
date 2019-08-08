@@ -1,0 +1,89 @@
+daml 1.2
+
+module Showdown where
+
+import Cards
+
+template Showdown 
+    with
+        pot : Int
+        remaining : [Party]
+        winning : [(Party, Card, Card)]
+        house : Party
+        community : [Card]
+        id : Int
+    where
+        signatory remaining, house
+
+        -- controller head remaining can
+            -- Show : Either [ContractId Chips] (ContractId Showdown)
+                
+            -- Fold : Either [ContractId Chips] (ContractId Showdown)
+
+-- import Game
+-- import Scoring
+-- import DA.Optional
+
+-- data ShowdownNext =
+--     Winners [ContractId Chips] | 
+--     Next (ContractId Showdown)
+
+-- splitPot : Int -> Int -> [Int]
+-- splitPot = _
+
+-- shareWinnings : Int -> [Party] -> Update [ContractId Chips]
+-- shareWinnings pot winners house =
+--     do
+--         mapA (\(player, quantity) -> create Chips with house, player, quantity) $
+--                 zip winners $ splitPot pot (length winners)
+
+-- findWinners : [Card] -> [(Party, (Card, Card))] -> [Party]
+-- findWinners _ [] = []
+-- findWinners community hands = map (\(player, (hole1, hole2)) -> handRank hole1 :: hole2 :: community) 
+
+
+-- shownHands : [(Party, Optional (Card, Card))] -> [(Party, (Card, Card))]
+-- shownHands = catOptionals . map (\(player, hand) -> case hand of 
+--                                                             Some h -> Some (player, h)
+--                                                             None -> None)
+
+-- next : Showdown -> Optional (Card, Card) -> Update ShowdownNext 
+-- next showdown hand =
+--     case showdown.unplayed of 
+--         [last] ->
+--             do
+--                 let shownWinners = findWinners showdown.community
+--                     $ shownHands $ showdown.hands :: (last, hand)
+
+--                 let winners = if (winners == []) then [last] else shownWinners
+ 
+--                 fmap Winners $ shareWinnings showdown.pot winners showdown.house
+
+--         player :: unplayed ->
+--             do
+--                 fmap Next $ create showdown with unplayed
+--                                 hands = (player, hand) :: showdown.hands
+
+-- template Showdown
+--     with
+--         game : Game
+--         unplayed : [Party]
+--         hands : [(Party, Optional (Card, Card))]
+--     where
+--         signatory game.house, unplayed
+
+--         controller head unplayed can
+--             Fold : ShowdownStartNext
+--                 do
+--                     next this None
+
+--             Show : ShowdownStartNext
+--                 with
+--                     cards : ContractId Hand
+--                 do
+--                     c <- fetch cards
+
+--                     assert $ c.holder == head unplayed
+--                     assert $ c.shuffle == game.shuffle
+
+--                     next this (Some c.hand)

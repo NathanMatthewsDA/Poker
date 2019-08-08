@@ -1,0 +1,61 @@
+daml 1.2
+
+module Random where
+
+import DA.List ((!!))
+-- based off https://en.wikipedia.org/wiki/Linear_congruential_generator#Parameters_in_common_use
+
+a = 1664525
+c = 1013904223
+m = 4294967296
+
+next : Int -> Int
+next seed = (a * seed + c) % m
+
+iterate : (a -> a) -> a -> Int -> [a]
+iterate f x 0 = []
+iterate f x n = x :: iterate f (f x) (n - 1)
+
+random : Int -> Int -> [Int]
+random = iterate next
+
+randomIndices : Int -> Int -> [Int]
+randomIndices seed count = fmap (\x -> x % count) $ random seed count
+
+pairs : [a] -> [(a, a)]
+pairs [] = []
+pairs (x :: []) = []
+pairs (a :: b :: xs) = (a, b) :: pairs xs
+
+setAt : Int -> a -> [a] -> [a]
+setAt index value xs = (take index xs) ++ (value :: (drop (index + 1) xs))
+
+swap : [a] -> (Int, Int) -> [a]
+swap xs (a, b) = setAt a (xs !! b) $ setAt b (xs !! a) $ xs
+
+modList : Int -> [Int] -> [Int]
+modList m = fmap (\x -> x % m)
+
+shuffle : Int -> [a] -> [a]
+shuffle seed xs =
+    foldl swap xs swaps
+    where
+        swaps = pairs $ modList (length xs) $ random seed (length xs * 2)
+
+template DebugList
+  with
+    party : Party
+    list : [Int]
+  where
+    signatory party
+    
+test = scenario do
+    let xs = [0 .. 52]
+
+--    assert (xs == [1, 2]) -- shuffle 1977 xs)
+
+    party <- getParty "debugger"
+
+    submit party do
+        create DebugList with party, list = shuffle 1977 xs
+    return ()

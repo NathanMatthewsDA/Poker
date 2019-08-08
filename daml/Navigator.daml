@@ -1,0 +1,70 @@
+daml 1.2
+
+module Navigator where
+
+import Lobby
+import Chips
+import Dealer
+import RequestJoinGame
+
+template Join
+    with
+        player : Party
+        dealer : Party
+        stack : ContractId Chips
+    where
+        signatory player
+        
+        controller player can
+          RequestJoin : ContractId RequestJoinGame
+            with seed : Int
+            do
+                stack <- exercise stack AddObserver_Chips with obs = dealer
+
+                create RequestJoinGame with
+                    player
+                    dealer
+                    seed
+                    stack
+
+setupPlayer : Party -> Party -> Int -> Text -> Scenario (ContractId Join)
+setupPlayer house dealer quantity player  =
+    scenario do
+        player <- getParty player
+        
+        transfer <- submit house do
+                    chips <- create Chips with 
+                                owner = house
+                                house
+                                quantity 
+                                observers = [dealer]
+                        
+                    exercise chips Transfer_Chips with
+                        newOwner = player
+
+        submit player do
+            stack <- exercise transfer Accept_TransferChips 
+
+            create Join with
+                player
+                dealer
+                stack
+
+
+bootstrap = scenario do
+    house <- getParty "House"
+    dealer <- getParty "Dealer"
+    
+    dealerInvitation <- submit house do
+                            create DealerInvitation with house, dealer
+                            
+    lobby <- submit dealer do
+                create Dealer with dealer, id = 0, house, undealt = []
+                exercise dealerInvitation CreateLobby
+                    with smallBlind = 5, bigBlind = 10
+
+    let playerNames = ["Alice", "Bob", "Eve", "Mallory", "Trent"]
+
+    mapA (setupPlayer house dealer 200) playerNames
+
+    return ()

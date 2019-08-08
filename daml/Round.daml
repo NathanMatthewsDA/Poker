@@ -1,0 +1,201 @@
+daml 1.2
+
+module Round where
+
+import Cards
+import Chips
+import DA.Foldable (maximum)
+import DA.Optional (fromSome)
+import DA.List (last, head)
+import Utils
+import Showdown
+
+data Player = Player with
+    player : Party
+    stack : Int
+    bet : Int
+        deriving (Eq, Show)
+
+playerBet : Int -> Player -> Player
+playerBet amount player =
+    player with stack = player.stack - amount, bet = player.bet + amount
+
+updatePlayer : Int -> Party -> [Player] -> [Player]
+updatePlayer amount player =
+    map (\p -> if p.player == player then playerBet amount p else p)
+
+data Next =
+    Winner (ContractId Chips) |
+--    DealerTurn (ContractId DealerPlay) |
+    ShowdownRound with
+        stakes : [ContractId Chips]
+        showdown : ContractId Showdown |
+    NextPlayer (ContractId Round)
+
+requiredBet : Round -> Int
+requiredBet round = 
+    maximum (map (.bet) round.players) - (current round).bet
+
+bet1 : Int -> Round -> Update Round
+bet1 amount round =
+    do
+        let required = amount + requiredBet round
+
+        assert $ required <= (current round).stack
+
+        return $ round with
+                        pot = round.pot + required
+                        players = updatePlayer required round.turn round.players
+                        turn = nextTurn round
+
+nextTurn : Round -> Party
+nextTurn round =
+    fromSome $ findNextLoop (round.turn ==) $ map (.player) round.players
+
+current : Round -> Player
+current round = fromSome $ find (\p -> p.player == round.turn) round.players
+
+allBetsEqual : Round -> Bool
+allBetsEqual round = allEqual $ map (.bet) round.players
+
+finishRound : Round -> Update Next
+finishRound round =
+    do
+        if length round.community < 5 then
+            fmap NextPlayer $ create round with turn = round.dealer
+        else
+            do
+                showdown <- create Showdown with
+                                            pot = round.pot
+                                            house = round.house
+                                            remaining = map (.player) round.players
+                                            community = round.community
+                                            winning = []
+                                            id = 0
+
+                return $ ShowdownRound with stakes = [], showdown
+
+without : Round -> [Player]
+without round = filter (\p -> p.player /= round.turn) round.players
+
+fold : Round -> Update Next
+fold round =
+    do
+        case without round of
+            [winner] ->
+                do
+                    takings <- create Chips with 
+                                    quantity = winner.stack + round.pot
+                                    owner = winner.player
+                                    house = round.house
+                                    observers = []
+
+                    return $ Winner takings
+
+            players ->
+                do
+                    let n = round with players, turn = nextTurn round
+
+                    if lastCheck round || lastCall round then
+                        finishRound n
+                    else
+                        fmap NextPlayer $ create n
+
+lastCall : Round -> Bool
+lastCall round = 
+    allEqual otherBets && not (any (bet ==) otherBets)
+    where
+        bet = (current round).bet
+        otherBets = map (.bet) (without round)
+
+lastCheck : Round -> Bool
+lastCheck round = allBetsEqual round && 
+                    round.turn == (last round.players).player
+
+returnStack : Round -> Update ReturnStack
+returnStack round =
+    do
+        let quantity = (current round).stack
+        
+        if quantity == 0 then
+            return None
+        else
+            do
+                chips <-
+                    create Chips with 
+                        quantity
+                        owner = round.turn
+                        house = round.house
+                        observers = []
+                return $ Some chips
+
+-- template DealerPlay 
+--     with 
+--         round : Round
+--     where
+--         signatory round.house, map (.player) round.players
+
+--         controller round.dealer can
+
+--             AddCommunityCard : ContractId Round
+--                 with
+--                     card : Card
+--                 do
+--                     assert $ length round.community < 5
+--                     assert $ round.turn == (head round.players).player
+--                     create round
+
+template Round
+    with        
+        pot : Int
+        players : [Player]
+        house : Party
+        community : [Card]
+        dealer : Party
+        turn : Party
+        id : Int    
+    where
+        signatory house, map (.player) players
+        
+        key (id, house, dealer) : (Int, Party, Party)
+
+        maintainer key._2
+
+        controller turn can
+            DealCommunityCard : ContractId Round
+                with
+                    card : Card
+                do
+                    assert $ turn == dealer
+
+                    create this with
+                        community = card :: community
+                        turn = (head players).player
+
+            CallOrCheck : Next
+                do
+                    assert $ turn /= dealer
+                    round <- bet1 0 this
+
+                    if lastCheck this || lastCall this then
+                        finishRound round
+                    else
+                        fmap NextPlayer $ create round
+                
+            Raise : ContractId Round
+                with
+                    amount : Int
+                do
+                    assert $ turn /= dealer
+                    assert $ amount > 0
+                    round <- bet1 amount this
+                    create round
+
+            Fold : (ReturnStack, Next)
+                do
+                    assert $ turn /= dealer
+                    next <- fold this
+                    toReturn <- returnStack this 
+
+                    return (toReturn, next)
+

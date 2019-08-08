@@ -1,0 +1,53 @@
+daml 1.2
+
+module Dealer where
+
+import Random
+import Cards
+import Lobby
+import RequestJoinGame
+import Round
+import HoleCard
+
+template Dealer
+    with
+        dealer : Party
+        house : Party
+        id : Int
+        undealt : [Card]
+    where
+        signatory dealer
+
+        -- key dealer : Party
+
+        -- maintainer key
+
+        controller dealer can
+
+            DealCard : ContractId Dealer
+                do
+                    let (card :: cards) = undealt
+                    exerciseByKey @Round (id, house, dealer) DealCommunityCard with card
+
+                    create this with undealt = cards
+
+            StartGame : ContractId Dealer
+                do                    
+                    (lobbyId, lobby) <- fetchByKey @Lobby dealer
+                                        
+                    create this with id = id + 1
+
+                    seeds <- mapA (\player -> exerciseByKey @Seed (player, dealer) UseSeed) lobby.players
+
+                    let shuffled = shuffle (sum seeds) deck
+
+                    let seed = sum seeds
+                    
+                    let dealOrder = lobby.players ++ lobby.players
+
+                    mapA (\(holder, card) -> create HoleCard with dealer, holder, card, id) $ 
+                        zip dealOrder shuffled
+
+                    exercise lobbyId StartBetting with id
+
+                    create this with undealt = drop (length dealOrder) shuffled

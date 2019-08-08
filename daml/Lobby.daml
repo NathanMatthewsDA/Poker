@@ -1,0 +1,100 @@
+daml 1.2
+
+module Lobby where
+
+import Chips
+import Round
+import DA.List (head)
+
+template DealerInvitation
+    with
+        house : Party
+        dealer : Party
+    where
+        signatory house
+
+        controller dealer can
+            nonconsuming CreateLobby : ContractId Lobby
+                with
+                    smallBlind : Int
+                    bigBlind : Int
+                do
+                    assert $ smallBlind > 0
+                    assert $ bigBlind > smallBlind
+
+                    create Lobby with
+                        players = []
+                        stacks = []
+                        smallBlind
+                        bigBlind
+                        dealer
+                        house
+
+template Lobby
+    with
+        players : [Party]
+        stacks : [ContractId Chips]
+        house : Party
+        dealer : Party
+        smallBlind : Int
+        bigBlind : Int
+    where
+        signatory house, players, dealer
+
+        key dealer : Party
+
+        maintainer key
+
+        choice AddPlayer : ContractId Lobby
+            with
+                player : Party
+                stack : ContractId Chips
+            controller dealer, player
+            do
+                assert $ notElem player players
+
+                create this with
+                    players = player :: players
+                    stacks = stack :: stacks
+        
+        controller dealer can
+            
+            StartBetting : ContractId Round
+                with 
+                    id : Int
+                do                
+                    create this with players = [], stacks = []
+
+                    assert $ length players >= 2
+
+                    fetched <- mapA fetch stacks
+
+                    mapA (\s -> exercise s Archive) stacks
+                
+                    round <- create Round with
+                                pot = 0
+                                players = map (\(player, stack) -> Player with player, stack, bet = 0) $ zip players (map (.quantity) fetched)
+                                house
+                                community = []
+                                dealer
+                                turn = head players
+                                id
+                    
+                    round <- exercise round Raise with amount = smallBlind
+
+                    round <- exercise round Raise with amount = bigBlind - smallBlind
+
+                    return round
+
+-- requestJoinGame : Party -> ContractId Chips -> Int -> Update (ContractId RequestJoinGame)
+-- requestJoinGame dealer stack seed =
+--     do
+--         player <- fmap (.owner) $ fetch stack
+        
+--         stack <- exercise stack AddObserver_Chips with obs = dealer
+
+--         create RequestJoinGame with
+--             player
+--             dealer
+--             seed
+--             stack

@@ -1,0 +1,44 @@
+daml 1.2
+
+module Cards where
+
+-- import DA.Set qualified as Set
+-- import DA.Set (Set)
+-- import DA.Next.Map (MapKey, keyToText, keyFromText)
+-- import DA.Text 
+
+data Suit = Club | 
+            Heart | 
+            Diamond | 
+            Spade deriving (Eq, Ord, Enum, Show, Bounded)
+
+data Value 
+  = Two
+  | Three
+  | Four
+  | Five
+  | Six
+  | Seven
+  | Eight
+  | Nine
+  | Ten
+  | Jack
+  | Queen
+  | King 
+  | Ace deriving (Eq, Ord, Enum, Bounded, Show)
+
+-- instance MapKey Rank where
+--   keyToText = show 
+--   keyFromText = undefined
+
+data Card = Card with
+    value : Value
+    suit : Suit
+  deriving (Eq, Ord, Show)
+
+-- instance Show Card where
+--    show _ = " of "
+
+deck : [Card]
+--deck = Set.fromList $ Card <$> enumerate <*> enumerate
+deck = [Card rank suit | rank <- enumerate, suit <- enumerate]

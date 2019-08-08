@@ -1,0 +1,16 @@
+daml 1.2
+
+module HoleCard where
+
+import Cards
+
+template HoleCard
+    with
+        card : Card
+        dealer : Party
+        holder : Party
+        id : Int
+    where
+        signatory dealer
+        observer holder
+

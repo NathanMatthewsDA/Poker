@@ -1,0 +1,18 @@
+daml 1.2
+
+module Hand where
+
+import Cards
+
+template Hand
+    with
+        dealer : Party
+        holder : Party
+        cards : (Card, Card)
+        game : Int
+    where
+        signatory dealer
+        observer holder
+
+
+        

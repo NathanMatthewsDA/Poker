@@ -1,0 +1,95 @@
+daml 1.2
+
+module Chips where
+
+import DA.List
+import DA.Assert ((===))
+import DA.Optional (fromSome)
+import Utils
+
+template TransferChips
+    with
+        chips : Chips
+        newOwner : Party
+    where
+        signatory chips.owner
+
+        controller newOwner can
+            Accept_TransferChips : ContractId Chips
+                do create chips with owner = newOwner
+            
+            RejectTransfer : ContractId Chips 
+                do create chips
+
+        controller chips.owner can
+            CancelTransfer : ContractId Chips
+                do create chips 
+            
+template Chips 
+    with 
+        owner : Party
+        house : Party
+        quantity : Int
+        observers : [Party]
+    where
+        signatory house, owner
+        observer observers
+        
+        controller owner can
+
+            AddObserver_Chips : ContractId Chips
+                with
+                    obs : Party
+                do
+                    create this with observers = dedup $ obs :: observers
+
+            RemoveObserver_Chips : ContractId Chips
+                with
+                    obs : Party
+                do
+                    create this with observers = delete obs observers
+
+            Split : (ContractId Chips, ContractId Chips)
+                with
+                    amount : Int
+                do
+                    assert $ amount < quantity
+
+                    l <- create this with quantity = amount
+                    r <- create this with quantity = (quantity - amount)
+
+                    return (l, r)
+
+            Merge : ContractId Chips
+                with
+                    other : ContractId Chips
+                do
+                    chips <- fetch other
+                    exercise other Archive
+
+                    create this with quantity = quantity + chips.quantity
+
+            Transfer_Chips : ContractId TransferChips
+                with
+                    newOwner : Party
+                do
+                    create TransferChips with chips = this, newOwner
+            
+type ReturnStack = Optional (ContractId Chips) 
+
+createChips : Party -> Party -> [Party] -> Int -> Scenario (ContractId Chips)
+createChips house player observers quantity =
+    scenario do
+       chips <- submit house do
+                    create Chips with
+                        owner = house
+                        house
+                        quantity
+                        observers
+                                            
+       transfer <- submit house do
+                    exercise chips Transfer_Chips with
+                        newOwner = player
+
+       submit player do
+            exercise transfer Accept_TransferChips
