@@ -84,25 +84,11 @@ finishRound players round =
             fmap NextPlayer $ create round with turn = round.dealer
         else
             do
-                -- error $ show $ map (.player) players
-                -- error $ show $ nextTurn round
-
-                let phase = Showdown with revealed = [], remaining = map (.player) players
-
---                error $ show $ phase
-
-                let s = round with phase, turn = nextTurn round
-
-                showdown <- create s
-
-                error "Foobar"
-
                 showdown <- create round with 
                                 phase = Showdown with 
                                             revealed = []
                                             remaining = map (.player) players
-
-                                    --turn = nextTurn round
+                                turn = nextTurn round
 
 
                 stakes <- mapA (returnStack round.house) players

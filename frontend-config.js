@@ -116,8 +116,28 @@ export const customViews = (userId, party, role) => {
                 ]
             }];
         } else {
-            return {};
+            return [ 
+                {
+                    type: 'table-view',
+                    title: "Hand",
+                    source: { type: 'contracts', filter: [ { field: "template.id", value: ":Hand@" } ], search: "", sort: [ { field: "id", direction: "ASCENDING" } ] },
+                    columns: [
+                        createColumn("value", "Value 1", x => x.argument.card1.value, 20),
+                        createColumn("suit", "Suit 1", x => x.argument.card1.suit, 20),
+                        createColumn("value", "Value 2", x => x.argument.card2.value, 20),
+                        createColumn("suit", "Suit 2", x => x.argument.card2.suit, 20),
+                    ]
+                },
+                {
+                    type: 'table-view',
+                    title: "Game",
+                    source: { type: 'contracts', filter: [ { field: "template.id", value: ":Round@" } ], search: "", sort: [ { field: "id", direction: "ASCENDING" } ] },
+                    columns: [
+                        createColumn("turn", "Turn", x => x.argument.turn, 20),
+                        createColumn("pot", "Pot", x => x.argument.pot, 20),
+                        createColumn("community", "Community", x => x.argument.community(0), 20),
+                    ]
+                }
+            ];
     }
 }
-
-
