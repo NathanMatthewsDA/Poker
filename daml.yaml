@@ -1,13 +1,16 @@
-sdk-version: 0.13.13
+sdk-version: 0.13.18
 name: Poker
 version: 1.0.0
-source: daml/Main.daml
-scenario: Main:mainScenario
+source: daml/Navigator.daml
+scenario: Navigator:bootstrap
 parties:
 - Alice
 - Bob
+- Eve
+- Mallory
+- Trent
 exposed-modules:
-- Main
+- Navigator
 dependencies:
 - daml-prim
 - daml-stdlib
