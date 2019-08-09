@@ -2,6 +2,8 @@ daml 1.2
 
 module Utils where
 
+import DA.Foldable (maximum)
+
 deleteAt : Int -> [a] -> [a]
 deleteAt index xs = (take index xs) ++ (drop (index + 1) xs)
 
@@ -12,6 +14,11 @@ allEqual (x :: xs) = all (x ==) xs
 rotate : [a] -> [a]
 rotate [] = []
 rotate (x :: xs) = xs ++ [x]
+
+maxOn : (Ord b) => (a -> b) -> [a] -> [a]
+maxOn f xs = 
+    filter ((m ==) . f) xs 
+    where m = maximum $ map f xs
 
 findNextLoop : (a -> Bool) -> [a] -> Optional a
 findNextLoop f xs =

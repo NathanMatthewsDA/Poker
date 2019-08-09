@@ -7,7 +7,7 @@ import Cards
 import Lobby
 import RequestJoinGame
 import Round
-import HoleCard
+import Hand
 
 template Dealer
     with
@@ -26,10 +26,31 @@ template Dealer
 
             DealCard : ContractId Dealer
                 do
-                    let (card :: cards) = undealt
-                    exerciseByKey @Round (id, house, dealer) DealCommunityCard with card
+                    (roundId, round) <- fetchByKey @Round (id, house, dealer)
 
-                    create this with undealt = cards
+                    case length (round.community) of
+                        0 -> do
+                                let card1 :: card2 :: card3 :: rest = undealt
+
+                                exercise roundId DealFlop with card1, card2, card3
+                                
+                                create this with undealt = rest
+
+                        3 -> do
+                                let card :: rest = undealt
+
+                                exercise roundId DealTurn with card
+                                
+                                create this with undealt = rest
+                                
+                        4 -> do
+                                let card :: rest = undealt
+
+                                exercise roundId DealRiver with card
+                                
+                                create this with undealt = rest
+
+                        _ -> error "Game already has five cards dealt"
 
             StartGame : ContractId Dealer
                 do                    
@@ -41,13 +62,13 @@ template Dealer
 
                     let shuffled = shuffle (sum seeds) deck
 
-                    let seed = sum seeds
-                    
-                    let dealOrder = lobby.players ++ lobby.players
+                    let n = length lobby.players
 
-                    mapA (\(holder, card) -> create HoleCard with dealer, holder, card, id) $ 
-                        zip dealOrder shuffled
+                    let pairs = zip (take n shuffled) (drop n shuffled)
+
+                    mapA (\(holder, (card1, card2)) ->
+                             create Hand with dealer, holder, card1, card2, id) $ zip lobby.players pairs
 
                     exercise lobbyId StartBetting with id
 
-                    create this with undealt = drop (length dealOrder) shuffled
+                    create this with undealt = drop (n + n) shuffled

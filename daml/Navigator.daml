@@ -6,6 +6,7 @@ import Lobby
 import Chips
 import Dealer
 import RequestJoinGame
+import Round
 
 template Join
     with
@@ -27,11 +28,9 @@ template Join
                     seed
                     stack
 
-setupPlayer : Party -> Party -> Int -> Text -> Scenario (ContractId Join)
+setupPlayer : Party -> Party -> Int -> Party -> Scenario (ContractId Join)
 setupPlayer house dealer quantity player  =
-    scenario do
-        player <- getParty player
-        
+    scenario do        
         transfer <- submit house do
                     chips <- create Chips with 
                                 owner = house
@@ -50,6 +49,17 @@ setupPlayer house dealer quantity player  =
                 dealer
                 stack
 
+addPlayerToLobby : Party -> ContractId Join -> Int -> Scenario (ContractId Lobby)
+addPlayerToLobby player join seed =
+    scenario do
+        dealer <- submit player do
+            fmap (.dealer) $ fetch join
+
+        req <- submit player do
+            exercise join RequestJoin with seed
+
+        submit dealer do
+            exercise req AcceptRequestJoinGame       
 
 bootstrap = scenario do
     house <- getParty "House"
@@ -57,14 +67,96 @@ bootstrap = scenario do
     
     dealerInvitation <- submit house do
                             create DealerInvitation with house, dealer
-                            
-    lobby <- submit dealer do
+
+    d <- submit dealer do
                 create Dealer with dealer, id = 0, house, undealt = []
+
+    lobby <- submit dealer do
                 exercise dealerInvitation CreateLobby
                     with smallBlind = 5, bigBlind = 10
 
     let playerNames = ["Alice", "Bob", "Eve", "Mallory", "Trent"]
 
-    mapA (setupPlayer house dealer 200) playerNames
+    players@[alice, bob, eve, mallory, trent] <- mapA getParty playerNames
+
+    joins <- mapA (setupPlayer house dealer 200) players
+
+    let seeds = [1000, 2000, 3000, 4000, 5000]
+
+    sequence $ zipWith3 addPlayerToLobby players joins seeds 
+
+    let roundKey = (0, house, dealer)
+
+    d <- submit dealer do
+        exercise d StartGame
+
+    submit eve do
+        exerciseByKey @Round roundKey CallOrCheck
+    
+    submit bob do
+        exerciseByKey @Round roundKey CallOrCheck
+
+    submit alice do
+        exerciseByKey @Round roundKey CallOrCheck
+
+    submit trent do
+        exerciseByKey @Round roundKey CallOrCheck
+
+    d <- submit dealer do
+        exercise d DealCard
+
+    submit trent do
+        exerciseByKey @Round roundKey CallOrCheck
+
+    submit mallory do
+        exerciseByKey @Round roundKey CallOrCheck
+
+    submit eve do
+        exerciseByKey @Round roundKey CallOrCheck
+
+    submit bob do
+        exerciseByKey @Round roundKey CallOrCheck
+
+    submit alice do
+        exerciseByKey @Round roundKey CallOrCheck
+
+    d <- submit dealer do
+        exercise d DealCard
+
+    submit trent do
+        exerciseByKey @Round roundKey CallOrCheck
+
+    submit mallory do
+        exerciseByKey @Round roundKey CallOrCheck
+
+    submit eve do
+        exerciseByKey @Round roundKey CallOrCheck
+
+    submit bob do
+        exerciseByKey @Round roundKey CallOrCheck
+
+    submit alice do
+        exerciseByKey @Round roundKey CallOrCheck
+
+    d <- submit dealer do
+        exercise d DealCard
+
+    submit trent do
+        exerciseByKey @Round roundKey CallOrCheck
+
+    submit mallory do
+        exerciseByKey @Round roundKey CallOrCheck
+
+    submit eve do 
+        exerciseByKey @Round roundKey CallOrCheck
+
+    submit bob do
+        exerciseByKey @Round roundKey CallOrCheck
+
+    submit alice do
+        exerciseByKey @Round roundKey CallOrCheck
+
+    -- submit trent do
+    --     exerciseByKey @Showdown roundKey Reveal
 
     return ()

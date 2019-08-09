@@ -5,10 +5,11 @@ module Round where
 import Cards
 import Chips
 import DA.Foldable (maximum)
-import DA.Optional (fromSome)
-import DA.List (last, head)
+import DA.Optional (fromSome, catOptionals)
+import DA.List (last, head, tail, replicate)
 import Utils
-import Showdown
+import Hand
+import Scoring
 
 data Player = Player with
     player : Party
@@ -25,162 +26,260 @@ updatePlayer amount player =
     map (\p -> if p.player == player then playerBet amount p else p)
 
 data Next =
-    Winner (ContractId Chips) |
+    Winners [ContractId Chips] |
 --    DealerTurn (ContractId DealerPlay) |
     ShowdownRound with
         stakes : [ContractId Chips]
-        showdown : ContractId Showdown |
+        showdown : ContractId Round |
     NextPlayer (ContractId Round)
 
-requiredBet : Round -> Int
-requiredBet round = 
-    maximum (map (.bet) round.players) - (current round).bet
+current : Party -> [Player] -> Player
+current turn players = 
+    case find (\p -> p.player == turn) players of
+        Some player -> player
+        None -> error "Couldnt find player"
+
+currentBet : Party -> [Player] -> Int
+currentBet turn players = (current turn players).bet
+
+currentStack : Party -> [Player] -> Int
+currentStack turn players = (current turn players).stack
+
+requiredBet : Party -> [Player] -> Int
+requiredBet turn players = 
+    maximum (map (.bet) players) - currentBet turn players
 
 bet1 : Int -> Round -> Update Round
 bet1 amount round =
-    do
-        let required = amount + requiredBet round
+    case round.phase of
+        Betting players -> 
+            do
+                let required = amount + requiredBet round.turn players
 
-        assert $ required <= (current round).stack
+                assert $ required <= currentStack round.turn players
 
-        return $ round with
-                        pot = round.pot + required
-                        players = updatePlayer required round.turn round.players
-                        turn = nextTurn round
+                return $ round with
+                                pot = round.pot + required
+                                phase = Betting $ updatePlayer required round.turn players
+                                turn = nextTurn round
+            
+        Showdown {} -> error "Cannot Raise Call or Check in Showdown"
 
 nextTurn : Round -> Party
 nextTurn round =
-    fromSome $ findNextLoop (round.turn ==) $ map (.player) round.players
+    case round.phase of    
+        Betting players ->
+            fromSome $ findNextLoop (round.turn ==) $ map (.player) players
+        Showdown {remaining} ->
+            head remaining
 
-current : Round -> Player
-current round = fromSome $ find (\p -> p.player == round.turn) round.players
+allBetsEqual : [Player] -> Bool
+allBetsEqual players = allEqual $ map (.bet) players
 
-allBetsEqual : Round -> Bool
-allBetsEqual round = allEqual $ map (.bet) round.players
 
-finishRound : Round -> Update Next
-finishRound round =
+finishRound : [Player] -> Round -> Update Next
+finishRound players round =
     do
         if length round.community < 5 then
             fmap NextPlayer $ create round with turn = round.dealer
         else
             do
-                showdown <- create Showdown with
-                                            pot = round.pot
-                                            house = round.house
-                                            remaining = map (.player) round.players
-                                            community = round.community
-                                            winning = []
-                                            id = 0
+                -- error $ show $ map (.player) players
+                -- error $ show $ nextTurn round
 
-                return $ ShowdownRound with stakes = [], showdown
+                let phase = Showdown with revealed = [], remaining = map (.player) players
 
-without : Round -> [Player]
-without round = filter (\p -> p.player /= round.turn) round.players
+--                error $ show $ phase
+
+                let s = round with phase, turn = nextTurn round
+
+                showdown <- create s
+
+                error "Foobar"
+
+                showdown <- create round with 
+                                phase = Showdown with 
+                                            revealed = []
+                                            remaining = map (.player) players
+
+                                    --turn = nextTurn round
+
+
+                stakes <- mapA (returnStack round.house) players
+
+                return $ ShowdownRound with
+                            stakes = catOptionals stakes
+                            showdown 
+
+without : Party -> [Player] -> [Player]
+without player players = filter (\p -> p.player /= player) players
 
 fold : Round -> Update Next
 fold round =
-    do
-        case without round of
-            [winner] ->
-                do
-                    takings <- create Chips with 
-                                    quantity = winner.stack + round.pot
-                                    owner = winner.player
-                                    house = round.house
-                                    observers = []
+    case round.phase of
+        Betting players ->
+            do        
+                case without round.turn players of
+                    [winner] ->
+                        do
+                            takings <- create Chips with 
+                                            quantity = winner.stack + round.pot
+                                            owner = winner.player
+                                            house = round.house
+                                            observers = []
 
-                    return $ Winner takings
+                            return $ Winners [takings]
 
-            players ->
-                do
-                    let n = round with players, turn = nextTurn round
+                    players ->
+                        do
+                            let n = round with 
+                                        phase = Betting players
+                                        turn = nextTurn round
 
-                    if lastCheck round || lastCall round then
-                        finishRound n
-                    else
-                        fmap NextPlayer $ create n
+                            if lastCheck round.turn players || lastCall round.turn players then
+                                finishRound players n
+                            else
+                                fmap NextPlayer $ create n
+        
+        showdown@Showdown {revealed, remaining} ->
+            if tail remaining == [] then
+                fmap Winners $ splitPot round.house round.pot $ winning round.community revealed 
+            else
+                fmap NextPlayer $ create round with phase = showdown with remaining = tail remaining
 
-lastCall : Round -> Bool
-lastCall round = 
+
+lastCall : Party -> [Player] -> Bool
+lastCall turn players = 
     allEqual otherBets && not (any (bet ==) otherBets)
     where
-        bet = (current round).bet
-        otherBets = map (.bet) (without round)
+        bet = currentBet turn players
+        otherBets = map (.bet) $ without turn players
 
-lastCheck : Round -> Bool
-lastCheck round = allBetsEqual round && 
-                    round.turn == (last round.players).player
+lastCheck : Party -> [Player] -> Bool
+lastCheck turn players = allBetsEqual players && turn == (last players).player
 
-returnStack : Round -> Update ReturnStack
-returnStack round =
+returnStack : Party -> Player -> Update ReturnStack
+returnStack house (Player {stack, player}) = 
     do
-        let quantity = (current round).stack
-        
-        if quantity == 0 then
+        if stack == 0 then
             return None
         else
             do
                 chips <-
                     create Chips with 
-                        quantity
-                        owner = round.turn
-                        house = round.house
+                        quantity = stack
+                        owner = player
+                        house = house
                         observers = []
                 return $ Some chips
+        
+returnCurrentStack : Round -> Update ReturnStack
+returnCurrentStack round =
+    case round.phase of
+        Betting players ->
+            returnStack round.house (fromSome $ find (\p -> p.player == round.turn) players)
+        Showdown {} ->
+            return None
 
--- template DealerPlay 
---     with 
---         round : Round
---     where
---         signatory round.house, map (.player) round.players
+data Phase =
+    Betting [Player] |
+    Showdown with
+        revealed : [(Party, Card, Card)]
+        remaining : [Party]
+            deriving (Eq, Show)
 
---         controller round.dealer can
+winning : [Card] -> [(Party, Card, Card)] -> [Party]
+winning community revealed =
+    map (\(p, _, _) -> p) $ maxOn (\(_, c1, c2) -> handRank (c1 :: c2 :: community)) revealed
 
---             AddCommunityCard : ContractId Round
---                 with
---                     card : Card
---                 do
---                     assert $ length round.community < 5
---                     assert $ round.turn == (head round.players).player
---                     create round
+intSplit : Int -> Int -> [Int]
+intSplit numer denom =
+    replicate extra (share + 1) ++ replicate (denom - extra) share
+    where
+        extra = numer % denom
+        share = numer / denom
+
+splitPot : Party -> Int -> [Party] -> Update [ContractId Chips]
+splitPot house amount parties =     
+    sequence $ zipWith (\owner quantity -> create Chips with owner, quantity, house, observers = []) 
+        parties (intSplit amount (length parties))
+
+signatories : Round -> [Party]
+signatories round =
+    round.house :: (case round.phase of
+                        Betting players -> 
+                            map (.player) players
+                        Showdown {revealed, remaining} -> 
+                            winning round.community revealed ++ remaining)
+
+addCommunityCards : [Card] -> Round -> Update (ContractId Round)
+addCommunityCards cards round = 
+    case round.phase of
+        Betting players ->
+            do
+                assert $ round.turn == round.dealer
+
+                create round with
+                    community = cards ++ round.community
+                    turn = (head players).player
+        Showdown {} ->
+            error ""
 
 template Round
     with        
         pot : Int
-        players : [Player]
+        phase : Phase
+        -- players : [Player]
         house : Party
         community : [Card]
         dealer : Party
         turn : Party
         id : Int    
     where
-        signatory house, map (.player) players
+        signatory signatories this
         
         key (id, house, dealer) : (Int, Party, Party)
 
         maintainer key._2
 
         controller turn can
-            DealCommunityCard : ContractId Round
+            DealFlop : ContractId Round
+                with
+                    card1 : Card
+                    card2 : Card
+                    card3 : Card
+                do
+                    assert $ community == []
+                    addCommunityCards [card1, card2, card3] this
+
+            DealTurn : ContractId Round
                 with
                     card : Card
                 do
-                    assert $ turn == dealer
+                    assert $ length community == 3
+                    addCommunityCards [card] this
 
-                    create this with
-                        community = card :: community
-                        turn = (head players).player
-
-            CallOrCheck : Next
+            DealRiver : ContractId Round
+                with
+                    card : Card
                 do
-                    assert $ turn /= dealer
-                    round <- bet1 0 this
+                    assert $ length community == 4
+                    addCommunityCards [card] this
 
-                    if lastCheck this || lastCall this then
-                        finishRound round
-                    else
-                        fmap NextPlayer $ create round
+            CallOrCheck : Next                
+                do
+                    case phase of
+                        Betting players ->
+                            do
+                                assert $ turn /= dealer
+                                round <- bet1 0 this
+
+                                if lastCheck turn players || lastCall turn players then
+                                    finishRound players round
+                                else
+                                    fmap NextPlayer $ create round
+                        Showdown {} ->
+                            error "Can't call or check in showdown"
                 
             Raise : ContractId Round
                 with
@@ -190,12 +289,29 @@ template Round
                     assert $ amount > 0
                     round <- bet1 amount this
                     create round
+            
+            Reveal : Next
+                do
+                    case phase of
+                        Betting _ ->
+                            error "Cannot reveal hand before Showdown"              
+                        Showdown {revealed, remaining} ->
+                            do
+                                (handId, hand) <- fetchByKey @Hand (id, head remaining, dealer)
+
+                                let r = (head remaining, hand.card1, hand.card2) :: revealed
+                                
+                                if tail remaining == [] then                        
+                                    fmap Winners $ splitPot house pot $ winning community r
+                                else
+                                    fmap NextPlayer $ create this with phase = Showdown with
+                                                                                    revealed = r
+                                                                                    remaining = tail remaining
 
             Fold : (ReturnStack, Next)
                 do
                     assert $ turn /= dealer
                     next <- fold this
-                    toReturn <- returnStack this 
+                    toReturn <- returnCurrentStack this
 
                     return (toReturn, next)
-

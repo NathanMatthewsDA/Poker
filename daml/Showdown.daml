@@ -3,22 +3,53 @@ daml 1.2
 module Showdown where
 
 import Cards
+import DA.List (head, tail)
+import Chips
+import Utils
+import Hand
+
+winning : [Card] -> [(Party, Card, Card)] -> [Party]
+winning community hands = []
+
+splitPot : Showdown -> Update [ContractId Chips]
+splitPot showdown = do return []
 
 template Showdown 
     with
         pot : Int
+        dealer : Party
         remaining : [Party]
-        winning : [(Party, Card, Card)]
+        shown : [(Party, Card, Card)]
         house : Party
         community : [Card]
         id : Int
     where
-        signatory remaining, house
+        signatory winning community shown, remaining, house
 
-        -- controller head remaining can
-            -- Show : Either [ContractId Chips] (ContractId Showdown)
-                
-            -- Fold : Either [ContractId Chips] (ContractId Showdown)
+        key (id, house, dealer) : (Int, Party, Party)
+
+        maintainer key._2
+
+        controller head remaining can
+            Reveal : Either [ContractId Chips] (ContractId Showdown)
+                do
+                    (handId, hand) <- fetchByKey @Hand (id, head remaining, dealer)
+                    
+                    let next = this with
+                            shown = (head remaining, hand.card1, hand.card2) :: shown
+                            remaining = tail remaining
+
+                    if tail remaining == [] then                        
+                        fmap Left $ splitPot next
+                    else
+                        fmap Right $ create next
+
+            FoldHand : Either [ContractId Chips] (ContractId Showdown)
+                do
+                    if tail remaining == [] then
+                        fmap Left $ splitPot this
+                    else
+                        fmap Right $ create this with remaining = tail remaining
 
 -- import Game
 -- import Scoring

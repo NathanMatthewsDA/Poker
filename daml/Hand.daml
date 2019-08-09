@@ -6,13 +6,16 @@ import Cards
 
 template Hand
     with
-        dealer : Party
         holder : Party
-        cards : (Card, Card)
-        game : Int
+        dealer : Party
+        id : Int
+        card1 : Card
+        card2 : Card
     where
         signatory dealer
         observer holder
+        
+        key (id, holder, dealer) : (Int, Party, Party)
 
-
+        maintainer key._3
         
