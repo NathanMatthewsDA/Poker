@@ -32,21 +32,23 @@ template Dealer
                         0 -> do
                                 let card1 :: card2 :: card3 :: rest = undealt
 
-                                exercise roundId DealFlop with card1, card2, card3
+                                roundId <- exercise roundId DealCommunity with card = card1
+                                roundId <- exercise roundId DealCommunity with card = card2
+                                roundId <- exercise roundId DealCommunity with card = card3
                                 
                                 create this with undealt = rest
 
                         3 -> do
                                 let card :: rest = undealt
 
-                                exercise roundId DealTurn with card
+                                exercise roundId DealCommunity with card
                                 
                                 create this with undealt = rest
                                 
                         4 -> do
                                 let card :: rest = undealt
 
-                                exercise roundId DealRiver with card
+                                exercise roundId DealCommunity with card
                                 
                                 create this with undealt = rest
 

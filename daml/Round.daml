@@ -61,7 +61,9 @@ finishRound round =
 
             return $ ShowdownRound with stakes, showdown
     else
-        fmap NextPlayer $ create round with current = round.dealer
+        fmap NextPlayer $ create round with 
+                            phase = CheckRound
+                            current = round.dealer
 
 next : Round -> Update Next
 next round =
@@ -175,24 +177,20 @@ signatories round =
             Showdown revealed -> winning round.community revealed
             _ -> []
 
-addCommunityCards : [Card] -> Round -> Update (ContractId Round)
-addCommunityCards cards round = 
+addCommunityCard : Card -> Round -> Update (ContractId Round)
+addCommunityCard card round = 
     do
         assert $ round.current == round.dealer
 
+        let community = card :: round.community
+
         create round with 
-            community = cards ++ round.community
+            community
             phase = CheckRound
-            current = head round.players
-
--- currentTurn : Round -> Party
--- currentTurn round =
---     case round.phase of
---         Showdown _ -> head round.players
---         Betting {awaiting = Player index} -> round.players !! index
---         Betting {awaiting = CommunityCard} -> round.dealer
-
---createWinners : Round -> Update Next
+            current = if length community < 3 then
+                        round.dealer
+                      else 
+                        head round.players
 
 template Round
     with        
@@ -213,29 +211,11 @@ template Round
         maintainer key._2
 
         controller current can
-            DealFlop : ContractId Round
-                with
-                    card1 : Card
-                    card2 : Card
-                    card3 : Card
-                do
-                    assert $ community == []
-
-                    addCommunityCards [card1, card2, card3] this
-
-            DealTurn : ContractId Round
+            DealCommunity : ContractId Round
                 with
                     card : Card
                 do
-                    assert $ length community == 3
-                    addCommunityCards [card] this
-
-            DealRiver : ContractId Round
-                with
-                    card : Card
-                do
-                    assert $ length community == 4
-                    addCommunityCards [card] this
+                    addCommunityCard card this
 
             CallOrCheck : Next                
                 do
