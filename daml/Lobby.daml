@@ -74,10 +74,13 @@ template Lobby
                     round <- create Round with
                                 pot = 0
                                 house
-                                phase = Betting $ map (\(player, stack) -> Player with player, stack, bet = 0) $ zip players (map (.quantity) fetched)
+                                stacks = map (.quantity) fetched
+                                phase = BettingRound $
+                                                replicate (length fetched) 0
                                 community = []
                                 dealer
-                                turn = head players
+                                players
+                                current = head players
                                 id
                     
                     round <- exercise round Raise with amount = smallBlind

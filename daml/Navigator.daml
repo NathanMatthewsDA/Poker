@@ -64,7 +64,7 @@ addPlayerToLobby player join seed =
 bootstrap = scenario do
     house <- getParty "House"
     dealer <- getParty "Dealer"
-    
+                
     dealerInvitation <- submit house do
                             create DealerInvitation with house, dealer
 
@@ -93,70 +93,73 @@ bootstrap = scenario do
     submit eve do
         exerciseByKey @Round roundKey CallOrCheck
     
-    submit bob do
-        exerciseByKey @Round roundKey CallOrCheck
+    -- submit bob do
+    --     exerciseByKey @Round roundKey CallOrCheck
 
-    submit alice do
-        exerciseByKey @Round roundKey CallOrCheck
-
-    submit trent do
-        exerciseByKey @Round roundKey CallOrCheck
-
-    d <- submit dealer do
-        exercise d DealCard
-
-    submit trent do
-        exerciseByKey @Round roundKey CallOrCheck
-
-    submit mallory do
-        exerciseByKey @Round roundKey CallOrCheck
-
-    submit eve do
-        exerciseByKey @Round roundKey CallOrCheck
-
-    submit bob do
-        exerciseByKey @Round roundKey CallOrCheck
-
-    submit alice do
-        exerciseByKey @Round roundKey CallOrCheck
-
-    d <- submit dealer do
-        exercise d DealCard
-
-    submit trent do
-        exerciseByKey @Round roundKey CallOrCheck
-
-    submit mallory do
-        exerciseByKey @Round roundKey CallOrCheck
-
-    submit eve do
-        exerciseByKey @Round roundKey CallOrCheck
-
-    submit bob do
-        exerciseByKey @Round roundKey CallOrCheck
-
-    submit alice do
-        exerciseByKey @Round roundKey CallOrCheck
-
-    d <- submit dealer do
-        exercise d DealCard
-
-    submit trent do
-        exerciseByKey @Round roundKey CallOrCheck
-
-    submit mallory do
-        exerciseByKey @Round roundKey CallOrCheck
-
-    submit eve do 
-        exerciseByKey @Round roundKey CallOrCheck
-
-    submit bob do
-        exerciseByKey @Round roundKey CallOrCheck
-
-    submit alice do
-        exerciseByKey @Round roundKey CallOrCheck
+    -- submit alice do
+    --     exerciseByKey @Round roundKey CallOrCheck
 
     -- submit trent do
-    --     exerciseByKey @Showdown roundKey Reveal
+    --     exerciseByKey @Round roundKey CallOrCheck
+
+    -- d <- submit dealer do
+    --     exercise d DealCard
+
+    -- submit trent do
+    --     exerciseByKey @Round roundKey CallOrCheck
+
+    -- submit mallory do
+    --     exerciseByKey @Round roundKey CallOrCheck
+
+    -- submit eve do
+    --     exerciseByKey @Round roundKey CallOrCheck
+
+    -- submit bob do
+    --     exerciseByKey @Round roundKey CallOrCheck
+
+    -- submit alice do
+    --     exerciseByKey @Round roundKey CallOrCheck
+
+    -- d <- submit dealer do
+    --     exercise d DealCard
+
+    -- submit trent do
+    --     exerciseByKey @Round roundKey CallOrCheck
+
+    -- submit mallory do
+    --     exerciseByKey @Round roundKey CallOrCheck
+
+    -- submit eve do
+    --     exerciseByKey @Round roundKey CallOrCheck
+
+    -- submit bob do
+    --     exerciseByKey @Round roundKey CallOrCheck
+
+    -- submit alice do
+    --     exerciseByKey @Round roundKey CallOrCheck
+
+    -- d <- submit dealer do
+    --     exercise d DealCard
+
+    -- submit trent do
+    --     exerciseByKey @Round roundKey CallOrCheck
+
+    -- submit mallory do
+    --     exerciseByKey @Round roundKey CallOrCheck
+
+    -- submit eve do 
+    --     exerciseByKey @Round roundKey CallOrCheck
+
+    -- submit bob do
+    --     exerciseByKey @Round roundKey CallOrCheck
+
+    -- submit alice do
+    --     exerciseByKey @Round roundKey CallOrCheck
+
+    -- submit trent do
+    --     exerciseByKey @Round roundKey Reveal
+
+    -- submit trent do
+    --     exerciseByKey @Round roundKey Reveal
 
     return ()
