@@ -6,7 +6,7 @@ import Lobby
 import Chips
 import Dealer
 import RequestJoinGame
-import Round
+import Table
 
 template Join
     with
@@ -91,7 +91,7 @@ bootstrap = scenario do
         exercise d StartGame
 
     submit eve do
-        exerciseByKey @Round roundKey CallOrCheck
+        exerciseByKey @Table roundKey CallOrCheck
     
     -- submit bob do
     --     exerciseByKey @Round roundKey CallOrCheck

@@ -6,7 +6,7 @@ import Random
 import Cards
 import Lobby
 import RequestJoinGame
-import Round
+import Table
 import Hand
 
 template Dealer
@@ -26,7 +26,7 @@ template Dealer
 
             DealCard : ContractId Dealer
                 do
-                    (roundId, round) <- fetchByKey @Round (id, house, dealer)
+                    (roundId, round) <- fetchByKey @Table (id, house, dealer)
 
                     case length (round.community) of
                         0 -> do

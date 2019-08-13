@@ -3,7 +3,7 @@ daml 1.2
 module Lobby where
 
 import Chips
-import Round
+import Table
 import DA.List (head)
 
 template DealerInvitation
@@ -59,7 +59,7 @@ template Lobby
         
         controller dealer can
             
-            StartBetting : ContractId Round
+            StartBetting : ContractId Table
                 with 
                     id : Int
                 do                
@@ -71,15 +71,20 @@ template Lobby
 
                     mapA (\s -> exercise s Archive) stacks
                 
-                    round <- create Round with
-                                pot = 0
+                    round <- create Table with
+                                seats = zipWith (\player stack ->
+                                                    Seat with
+                                                        folded = False
+                                                        player
+                                                        stack
+                                                        bet = 0
+                                                        holeCards = None)
+                                           players 
+                                           $ map (.quantity) fetched   
                                 house
-                                stacks = map (.quantity) fetched
-                                phase = BettingRound $
-                                                replicate (length fetched) 0
+                                phase = BettingRound
                                 community = []
                                 dealer
-                                players
                                 current = head players
                                 id
                     

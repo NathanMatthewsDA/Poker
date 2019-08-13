@@ -1,0 +1,258 @@
+daml 1.2
+
+module Table where
+
+import Cards
+import Chips
+import DA.Foldable (maximum)
+import DA.Optional (fromSome, catOptionals)
+import DA.List
+import Utils
+import Hand
+import Scoring
+
+data Phase =
+    BettingRound |
+    CheckRound |
+    Showdown
+        deriving (Eq, Show)
+
+data Next =
+    Winners [ContractId Chips] |
+    ShowdownRound with
+        stakes : [ContractId Chips]
+        showdown : ContractId Table |
+    NextPlayer (ContractId Table)
+
+data Seat = Seat with
+    folded : Bool
+    holeCards : Optional (Card, Card)
+    player : Party
+    bet : Int
+    stack : Int
+        deriving (Eq, Show)
+
+finishRound : Table -> Update Next
+finishRound table =
+    if length table.community == 5 then
+        do
+            showdown <- create table with phase = Showdown
+
+            stakes <- mapA (\s -> create Chips with 
+                            owner = s.player
+                            quantity = s.stack 
+                            house = table.house
+                            observers = []) 
+                    $ activeSeats table.seats
+
+            return $ ShowdownRound with stakes, showdown
+    else
+        fmap NextPlayer $ create table with 
+                            phase = CheckRound
+                            current = table.dealer
+
+next : Table -> Update Next
+next table =
+    case table.phase of
+        CheckRound | table.current == (head (table.seats)).player ->
+            finishRound table
+        BettingRound | allEqual (map (.bet) (activeSeats table.seats)) ->
+            finishRound table
+        Showdown  ->
+            case table.seats of
+                -- [last] | revealed == [] ->
+                --     do
+                --         winnings <- create Chips with   
+                --                         owner = last
+                --                         house = round.house
+                --                         quantity = round.pot
+                --                         observers = []
+
+                --         return $ Winners [winnings]
+                -- [] ->
+                --     do
+                --         let winners = winning round.community revealed
+
+                --         winnings <- splitPot round.house round.pot winners
+
+                --         return $ Winners winnings
+                _ ->
+                    do fmap NextPlayer $ create table
+        _ -> 
+            fmap NextPlayer $ create table
+
+seatBet : Int -> Seat -> Seat
+seatBet amount seat =
+    seat with bet = seat.bet + amount, stack = seat.stack - amount
+
+applyBet : Int -> Table -> Table
+applyBet amount table =
+    table with
+        seats = updateAt index (seatBet bet) table.seats
+        current = nextActivePlayer table.current table.seats
+    where
+        index = currentSeatIndex table
+        seat = table.seats !! index
+        bet = min seat.stack (amount + maximum (map (.bet) table.seats) - seat.bet)
+
+loopFrom : Int -> [a] -> [a]
+loopFrom i xs = drop i xs ++ take i xs
+
+nextSeat : Party -> [Seat] -> Seat
+nextSeat player seats = 
+    fromSome $ findNextLoop (\s -> s.player == player) seats
+
+currentSeatIndex : Table -> Int
+currentSeatIndex table =
+    fromSome $ findIndex ((table.current ==) . (.player)) table.seats
+
+playOrder : Party -> [Seat] -> [Seat]
+playOrder current seats = 
+    loopFrom (fromSome $ findIndex ((current ==) . (.player)) seats) seats
+
+activeSeats : [Seat] -> [Seat]
+activeSeats = filter (\s -> s.stack > 0)
+
+nextActiveSeat : Party -> [Seat] -> Optional Seat
+nextActiveSeat player seats = 
+    find (\s -> s.stack > 0) $ tail (playOrder player seats)
+
+nextActivePlayer : Party -> [Seat] -> Party
+nextActivePlayer player seats = 
+    (fromSome $ nextActiveSeat player seats).player
+
+deletePlayer : Party -> Table -> Table
+deletePlayer player table =
+    table with
+        seats = filter (\s -> s.player /= table.current) table.seats
+        current = if table.current == player then
+                    nextActivePlayer table.current table.seats
+                  else
+                    table.current
+        
+winning : [Card] -> [(Party, Card, Card)] -> [Party]
+winning community revealed =
+    map (\(p, _, _) -> p) $ maxOn (\(_, c1, c2) -> handRank (c1 :: c2 :: community)) revealed
+
+intSplit : Int -> Int -> [Int]
+intSplit numer denom =
+    replicate extra (share + 1) ++ replicate (denom - extra) share
+    where
+        extra = numer % denom
+        share = numer / denom
+
+splitPot : Party -> Int -> [Party] -> Update [ContractId Chips]
+splitPot house amount parties =     
+    sequence $ zipWith (\owner quantity -> create Chips with owner, quantity, house, observers = []) 
+        parties (intSplit amount (length parties))
+
+signatories : Table -> [Party]
+signatories table =
+    table.house :: 
+        case table.phase of
+            Showdown -> 
+                (map (.player) $ filter (\s -> not s.folded && s.holeCards == None) table.seats) ++
+                    error "TODO"
+            _ ->
+                map (.player) $ filter (\s -> not s.folded) table.seats
+
+addCommunityCard : Card -> Table -> Update (ContractId Table)
+addCommunityCard card round = 
+    do
+        assert $ round.current == round.dealer
+
+        let community = card :: round.community
+
+        create round with 
+            community
+            phase = CheckRound
+            current = if length community < 3 then
+                        round.dealer
+                      else 
+                        (head round.seats).player
+
+updateCurrent : (Seat -> Seat) -> Table -> Table
+updateCurrent f table = error "TODO"
+
+nextTurn : Table -> Table
+nextTurn table = error "TODO"
+
+template Table
+    with        
+        seats : [Seat]
+        phase : Phase
+        house : Party
+        community : [Card]
+        dealer : Party
+        id : Int
+        current : Party
+    where
+        signatory signatories this
+        
+        key (id, house, dealer) : (Int, Party, Party)
+
+        maintainer key._2
+
+        choice Fold : (ContractId Chips, Next)
+            with
+                player : Party
+            controller player
+            do
+                case find (\s -> s.player == player) seats of
+                    Some seat ->
+                        do
+                            assert $ seat.stack > 0
+
+                            toReturn <- create Chips with
+                                                owner = player
+                                                house
+                                                quantity = seat.stack
+                                                observers = []
+
+                            round <- next (deletePlayer player this)
+
+                            return (toReturn, round)
+                    
+                    None -> do error "Player was not found"
+
+        controller current can
+            DealCommunity : ContractId Table
+                with
+                    card : Card
+                do
+                    addCommunityCard card this
+
+            CallOrCheck : Next                
+                do
+                    assert $ current /= dealer
+
+                    next $ applyBet 0 this
+
+            Raise : ContractId Table
+                with
+                    amount : Int
+                do
+                    assert $ current /= dealer
+                    assert $ amount > 0
+
+                    create $ applyBet amount this
+            
+            AllIn : ContractId Table
+                do
+                    create this
+
+            Reveal : Next
+                do
+                    (handId, hand) <- fetchByKey @Hand (id, current, dealer)
+
+                    let folded = case phase of
+                                 Showdown -> False
+                                 BettingRound -> True
+                                 CheckRound -> True
+
+                    next $
+                        nextTurn $
+                            updateCurrent
+                                (\s -> s with holeCards = Some (hand.card1, hand.card2), folded)
+                                this
+                                                                                    
