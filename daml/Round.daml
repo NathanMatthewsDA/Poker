@@ -11,8 +11,6 @@ import Utils
 import Hand
 import Scoring
 
--- data Awaiting = CommunityCard | Player Int deriving (Eq, Show)
-
 data Phase =
     BettingRound [Int] |
     CheckRound |
@@ -28,9 +26,6 @@ data Next =
 
 currentPlayerIndex : Round -> Optional Int
 currentPlayerIndex round = elemIndex round.current round.players
-
--- button : Round -> Boolean
--- button round = round.current == last (round.players)
 
 nextTurn : Round -> Party
 nextTurn round =
@@ -75,30 +70,28 @@ next round =
             finishRound round
         BettingRound bets | allEqual bets ->
             finishRound round
+        Showdown revealed ->
+            case round.players of
+                [last] | revealed == [] ->
+                    do
+                        winnings <- create Chips with   
+                                        owner = last
+                                        house = round.house
+                                        quantity = round.pot
+                                        observers = []
+
+                        return $ Winners [winnings]
+                [] ->
+                    do
+                        let winners = winning round.community revealed
+
+                        winnings <- splitPot round.house round.pot winners
+
+                        return $ Winners winnings
+                _ ->
+                    do fmap NextPlayer $ create round
         _ -> 
             fmap NextPlayer $ create round
-
-        -- Showdown revealed ->
-        --     case round.players of
-        --         [last] | revealed == [] ->
-        --             do
-        --                 winnings <- create Chips with   
-        --                                 owner = last
-        --                                 house = round.house
-        --                                 quantity = round.pot
-        --                                 observers = []
-
-        --                 return $ Winners [winnings]
-        --         [] ->
-        --             do
-        --                 let winners = winning round.community revealed
-
-        --                 winnings <- splitPot round.house round.pot winners
-
-        --                 return $ Winners winnings
-        --         _ ->
-        --             do fmap NextPlayer $ create round
-
 
 applyBet : Int -> Round -> Update Round
 applyBet amount round =
@@ -131,64 +124,15 @@ applyBet amount round =
 
 deletePlayer : Round -> Round
 deletePlayer round =
-    case round.phase of
-        BettingRound bets ->
-            round with
-                current = players !! newIndex
-                stacks = deleteAt index round.stacks
-                players
-                phase = BettingRound (deleteAt index bets)
-            where
-                index = fromSome $ currentPlayerIndex round
-                players = deleteAt index round.players
-                newIndex = index % (length players)
-        Showdown _  -> 
-            round with 
-                players = tail round.players
-                current = head (tail round.players)
-
-
-
--- fold : Round -> Update Next
--- fold round =
---     case round.phase of
---         Betting {awaiting = Player index, stacks, bets} ->
---             if length round.players == 1 then
---                 do
---                     takings <- create Chips with 
---                                     quantity = head stacks + round.pot
---                                     owner = head round.players
---                                     house = round.house
---                                     observers = []
-
---                     return $ Winners [takings]
---             else
---                 next (allEqual bets) round
-        
---         Showdown revealed ->
---             if tail remaining == [] then
---                 fmap Winners $ splitPot round.house round.pot $ winning round.community revealed 
---             else
---                 fmap NextPlayer $ create round with 
---                                                 phase = Showdown with
---                                                             remaining = tail remaining
---                                                             revealed
---                                                 turn = head remaining
-
--- returnStack : Party -> Player -> Update ReturnStack
--- returnStack house (Player {stack, player}) = 
---     do
---         if stack == 0 then
---             return None
---         else
---             do
---                 chips <-
---                     create Chips with 
---                         quantity = stack
---                         owner = player
---                         house = house
---                         observers = []
---                 return $ Some chips
+    round with
+        players = deleteAt index round.players
+        stacks = deleteAt index round.stacks
+        phase = case round.phase of
+                    BettingRound bets -> BettingRound (deleteAt index bets)
+                    phase -> phase
+        current = round.players !! ((index + 1) % length round.players)
+    where
+        index = fromSome $ currentPlayerIndex round
         
 returnCurrentStack : Round -> Update ReturnStack
 returnCurrentStack round =
@@ -207,7 +151,6 @@ returnCurrentStack round =
                     return $ Some chips
         None ->
             error ""
-
 
 winning : [Card] -> [(Party, Card, Card)] -> [Party]
 winning community revealed =
@@ -237,7 +180,10 @@ addCommunityCards cards round =
     do
         assert $ round.current == round.dealer
 
-        create round with community = cards ++ round.community
+        create round with 
+            community = cards ++ round.community
+            phase = CheckRound
+            current = head round.players
 
 -- currentTurn : Round -> Party
 -- currentTurn round =
@@ -247,8 +193,6 @@ addCommunityCards cards round =
 --         Betting {awaiting = CommunityCard} -> round.dealer
 
 --createWinners : Round -> Update Next
-
-
 
 template Round
     with        
