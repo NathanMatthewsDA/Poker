@@ -10,172 +10,168 @@ import DA.List
 import Utils
 import Hand
 import Scoring
+import Seat
+
+data Round = CheckRound | BettingRound | ShowdownRound deriving (Eq, Show)
 
 data Phase =
-    BettingRound |
-    CheckRound |
-    Showdown
+    DealerTurn |
+    PlayerTurn with current : Party, currentRound : Round |
+    Finished [(Party, Int)]
         deriving (Eq, Show)
 
-data Next =
-    Winners [ContractId Chips] |
-    ShowdownRound with
-        stakes : [ContractId Chips]
-        showdown : ContractId Table |
-    NextPlayer (ContractId Table)
+playerTurn : Phase -> Party
+playerTurn phase =
+    case phase of   
+        PlayerTurn {current} -> current
+        _ -> error ""
 
-data Seat = Seat with
-    folded : Bool
-    holeCards : Optional (Card, Card)
-    player : Party
-    bet : Int
-    stack : Int
-        deriving (Eq, Show)
+roundType : Phase -> Round
+roundType (PlayerTurn {currentRound}) = currentRound
+roundType DealerTurn = error ""
+roundType (Finished _) = error ""
 
-finishRound : Table -> Update Next
-finishRound table =
-    if length table.community == 5 then
-        do
-            showdown <- create table with phase = Showdown
 
-            stakes <- mapA (\s -> create Chips with 
-                            owner = s.player
-                            quantity = s.stack 
-                            house = table.house
-                            observers = []) 
-                    $ activeSeats table.seats
+-- seatBet : Int -> Seat -> Seat
+-- seatBet amount seat =
+--     seat with bet = seat.bet + amount, stack = seat.stack - amount
 
-            return $ ShowdownRound with stakes, showdown
-    else
-        fmap NextPlayer $ create table with 
-                            phase = CheckRound
-                            current = table.dealer
+-- applyBet : Int -> Table -> Table
+-- applyBet amount table =
+--     table with
+--         seats = updateAt index (seatBet bet) table.seats
+--         current = nextActivePlayer table.current table.seats
+--     where
+--         index = currentSeatIndex table
+--         seat = table.seats !! index
+--         bet = min seat.stack (amount + maximum (map (.bet) table.seats) - seat.bet)
 
-next : Table -> Update Next
-next table =
-    case table.phase of
-        CheckRound | table.current == (head (table.seats)).player ->
-            finishRound table
-        BettingRound | allEqual (map (.bet) (activeSeats table.seats)) ->
-            finishRound table
-        Showdown  ->
-            case table.seats of
-                -- [last] | revealed == [] ->
-                --     do
-                --         winnings <- create Chips with   
-                --                         owner = last
-                --                         house = round.house
-                --                         quantity = round.pot
-                --                         observers = []
+-- loopFrom : Int -> [a] -> [a]
+-- loopFrom i xs = drop i xs ++ take i xs
 
-                --         return $ Winners [winnings]
-                -- [] ->
-                --     do
-                --         let winners = winning round.community revealed
+-- nextSeat : Party -> [Seat] -> Seat
+-- nextSeat player seats = 
+--     fromSome $ findNextLoop (\s -> s.player == player) seats
 
-                --         winnings <- splitPot round.house round.pot winners
+-- currentSeatIndex : Table -> Int
+-- currentSeatIndex table =
+--     fromSome $ findIndex ((table.current ==) . (.player)) table.seats
 
-                --         return $ Winners winnings
-                _ ->
-                    do fmap NextPlayer $ create table
-        _ -> 
-            fmap NextPlayer $ create table
+-- playOrder : Party -> [Seat] -> [Seat]
+-- playOrder current seats = 
+--     loopFrom (fromSome $ findIndex ((current ==) . (.player)) seats) seats
 
-seatBet : Int -> Seat -> Seat
-seatBet amount seat =
-    seat with bet = seat.bet + amount, stack = seat.stack - amount
+-- activeSeats : [Seat] -> [Seat]
+-- activeSeats = filter (\s -> s.stack > 0)
 
-applyBet : Int -> Table -> Table
-applyBet amount table =
-    table with
-        seats = updateAt index (seatBet bet) table.seats
-        current = nextActivePlayer table.current table.seats
-    where
-        index = currentSeatIndex table
-        seat = table.seats !! index
-        bet = min seat.stack (amount + maximum (map (.bet) table.seats) - seat.bet)
+-- nextActiveSeat : Party -> [Seat] -> Optional Seat
+-- nextActiveSeat player seats = 
+--     find (\s -> s.stack > 0) $ tail (playOrder player seats)
 
-loopFrom : Int -> [a] -> [a]
-loopFrom i xs = drop i xs ++ take i xs
-
-nextSeat : Party -> [Seat] -> Seat
-nextSeat player seats = 
-    fromSome $ findNextLoop (\s -> s.player == player) seats
-
-currentSeatIndex : Table -> Int
-currentSeatIndex table =
-    fromSome $ findIndex ((table.current ==) . (.player)) table.seats
-
-playOrder : Party -> [Seat] -> [Seat]
-playOrder current seats = 
-    loopFrom (fromSome $ findIndex ((current ==) . (.player)) seats) seats
-
-activeSeats : [Seat] -> [Seat]
-activeSeats = filter (\s -> s.stack > 0)
-
-nextActiveSeat : Party -> [Seat] -> Optional Seat
-nextActiveSeat player seats = 
-    find (\s -> s.stack > 0) $ tail (playOrder player seats)
-
-nextActivePlayer : Party -> [Seat] -> Party
-nextActivePlayer player seats = 
-    (fromSome $ nextActiveSeat player seats).player
-
-deletePlayer : Party -> Table -> Table
-deletePlayer player table =
-    table with
-        seats = filter (\s -> s.player /= table.current) table.seats
-        current = if table.current == player then
-                    nextActivePlayer table.current table.seats
-                  else
-                    table.current
+-- nextActivePlayer : Party -> [Seat] -> Party
+-- nextActivePlayer player seats = 
+--     (fromSome $ nextActiveSeat player seats).player
         
-winning : [Card] -> [(Party, Card, Card)] -> [Party]
-winning community revealed =
-    map (\(p, _, _) -> p) $ maxOn (\(_, c1, c2) -> handRank (c1 :: c2 :: community)) revealed
+-- winning : [Card] -> [(Party, Card, Card)] -> [Party]
+-- winning community revealed =
+--     map (\(p, _, _) -> p) $ maxOn (\(_, c1, c2) -> handRank (c1 :: c2 :: community)) revealed
 
-intSplit : Int -> Int -> [Int]
-intSplit numer denom =
-    replicate extra (share + 1) ++ replicate (denom - extra) share
-    where
-        extra = numer % denom
-        share = numer / denom
+-- intSplit : Int -> Int -> [Int]
+-- intSplit numer denom =
+--     replicate extra (share + 1) ++ replicate (denom - extra) share
+--     where
+--         extra = numer % denom
+--         share = numer / denom
 
-splitPot : Party -> Int -> [Party] -> Update [ContractId Chips]
-splitPot house amount parties =     
-    sequence $ zipWith (\owner quantity -> create Chips with owner, quantity, house, observers = []) 
-        parties (intSplit amount (length parties))
+-- splitPot : Party -> Int -> [Party] -> Update [ContractId Chips]
+-- splitPot house amount parties =     
+--     sequence $ zipWith (\owner quantity -> create Chips with owner, quantity, house, observers = []) 
+--         parties (intSplit amount (length parties))
 
-signatories : Table -> [Party]
-signatories table =
-    table.house :: 
-        case table.phase of
-            Showdown -> 
-                (map (.player) $ filter (\s -> not s.folded && s.holeCards == None) table.seats) ++
-                    error "TODO"
-            _ ->
-                map (.player) $ filter (\s -> not s.folded) table.seats
+withNextTurn : Table -> table
+withNextTurn table = error "TODO"
 
-addCommunityCard : Card -> Table -> Update (ContractId Table)
-addCommunityCard card round = 
+toShowdown : Table -> Update (ContractId Table)
+toShowdown table =
     do
-        assert $ round.current == round.dealer
+        mapA (refundStack table.house) $
+            filter (\s -> s.stack - s.bet > 0) $
+            table.seats
 
-        let community = card :: round.community
+        create table with 
+            phase = ShowdownRound
+            seats = map (\s -> s with stack = s.bet) table.seats
 
-        create round with 
-            community
-            phase = CheckRound
-            current = if length community < 3 then
-                        round.dealer
-                      else 
-                        (head round.seats).player
+refundStack : Party -> Seat -> Update (ContractId Chips)
+refundStack house seat = 
+    do create Chips with 
+                owner = seat.player
+                quantity = seat.stack - seat.bet
+                house
+                observers = []
 
-updateCurrent : (Seat -> Seat) -> Table -> Table
-updateCurrent f table = error "TODO"
+finishTurn : Table -> Update (ContractId Table)
+finishTurn table = 
+    do
+        case winners table.seats of 
+            [] ->
+                case table.phase of
+                    DealerTurn | length activeSeats < 2 && communityFull -> 
+                        toShowdown table
 
-nextTurn : Table -> Table
-nextTurn table = error "TODO"
+                    DealerTurn | length activeSeats < 2 ->
+                        create table with phase = DealerTurn
+
+                    DealerTurn ->
+                        create table with
+                            phase = 
+                                PlayerTurn with 
+                                    current = (.player) $ head activeSeats
+                                    currentRound = CheckRound
+
+                    PlayerTurn {current, currentRound} ->
+                        case currentRound of
+                            CheckRound | not betsEqual -> 
+                                create table with phase = BettingRound
+
+                            CheckRound | table.current == firstActive && communityFull ->
+                                toShowdown table 
+
+                            CheckRound | table.current == firstActive ->
+                                create table with phase = DealerTurn                    
+
+                            BettingRound | betsEqual && communityFull -> 
+                                toShowdown table
+
+                            BettingRound | betsEqual -> 
+                                create table with phase = DealerTurn
+                            
+
+                    _ -> create table
+                where
+                    activeSeats = filter active table.seats
+                    firstActive = (.player) $ head activeSeats
+                    betsEqual = allEqual $ map (.bet) $ activeSeats
+                    communityFull = length table.community == 5
+
+            winners ->
+                do
+                    mapA 
+                        (\(owner, quantity) -> 
+                            create Chips with owner, quantity, house = table.house, observers = [])
+                        winners                        
+                    create table with phase = Finished winners
+            
+nextPhase : [Card] -> [Seat] -> Phase -> Phase
+nextPhase community seats phase = 
+    case phase of
+        DealerTurn -> error "TODO"
+        PlayerTurn {current, currentRound} ->
+            case currentRound of
+                CheckRound -> error "TODO"
+                BettingRound -> error "TODO"
+                ShowdownRound -> error "TODO"
+        Finished _ -> error "TODO"
 
 template Table
     with        
@@ -185,74 +181,104 @@ template Table
         community : [Card]
         dealer : Party
         id : Int
-        current : Party
+        -- current : Party
     where
-        signatory signatories this
-        
+        signatory house, winning seats
+        observer map (.player) seats
+
         key (id, house, dealer) : (Int, Party, Party)
 
         maintainer key._2
 
-        choice Fold : (ContractId Chips, Next)
+        choice Fold : ContractId Chips
             with
                 player : Party
+                revealHand : Bool
             controller player
-            do
-                case find (\s -> s.player == player) seats of
-                    Some seat ->
-                        do
-                            assert $ seat.stack > 0
+                do
+                    -- assert $ phase /= Finished _
 
-                            toReturn <- create Chips with
-                                                owner = player
-                                                house
-                                                quantity = seat.stack
-                                                observers = []
+                    holeCards <- if revealHand then
+                                    do                                
+                                        hand <- fmap snd $ fetchByKey @Hand (id, current, dealer)
+                                        return $ Some (hand.card1, hand.card2)
+                                else
+                                    do return None
 
-                            round <- next (deletePlayer player this)
+                    let (stack, newSeats) = fold player holeCards seats
 
-                            return (toReturn, round)
-                    
-                    None -> do error "Player was not found"
+                    let table = this with seats = newSeats
 
-        controller current can
+                    finishTurn $ 
+                        if player == current then
+                            withNextTurn table
+                        else
+                            table
+    
+                    create 
+                        Chips with 
+                                    owner = player
+                                    quantity = stack
+                                    house
+                                    observers = []
+                        
+        controller dealer can
             DealCommunity : ContractId Table
                 with
                     card : Card
                 do
-                    addCommunityCard card this
+                    assert $ phase == DealerTurn
 
-            CallOrCheck : Next                
+                    finishTurn $ withNextTurn $ this with community = card :: community 
+
+        controller playerTurn phase can
+            Check : ()
                 do
-                    assert $ current /= dealer
+                    assert $ roundType phase == CheckRound
 
-                    next $ applyBet 0 this
+                    finishTurn $ withNextTurn this
 
-            Raise : ContractId Table
+                    return ()
+
+            Call : ()               
+                do
+                    assert $ roundType phase == BettingRound
+
+                    seats <- call current seats
+
+                    finishTurn $ withNextTurn this with seats
+
+                    return ()
+
+            Raise : ()
                 with
                     amount : Int
                 do
-                    assert $ current /= dealer
+                    assert $ roundType phase == BettingRound || roundType phase == CheckRound
                     assert $ amount > 0
 
-                    create $ applyBet amount this
-            
-            AllIn : ContractId Table
-                do
-                    create this
+                    finishTurn $ withNextTurn $
+                        this with seats = raise amount current seats
 
-            Reveal : Next
+                    return ()
+
+            AllIn : ()
                 do
+                    assert $ roundType phase == BettingRound
+
+                    finishTurn $ withNextTurn this with seats = allIn current seats
+
+                    return ()
+
+            Reveal : ()
+                do
+                    assert $ roundType phase == ShowdownRound
+
                     (handId, hand) <- fetchByKey @Hand (id, current, dealer)
 
-                    let folded = case phase of
-                                 Showdown -> False
-                                 BettingRound -> True
-                                 CheckRound -> True
+                    let holeCards = (hand.card1, hand.card2)
 
-                    next $
-                        nextTurn $
-                            updateCurrent
-                                (\s -> s with holeCards = Some (hand.card1, hand.card2), folded)
-                                this
-                                                                                    
+                    finishTurn $ withNextTurn $ 
+                        this with seats = reveal current holeCards seats
+
+                    return ()

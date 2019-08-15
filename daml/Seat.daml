@@ -1,0 +1,81 @@
+daml 1.2
+
+module Seat where
+
+import Cards
+import DA.Optional
+import DA.List
+import DA.Foldable (maximum)
+import Chips
+
+data Seat = Seat with
+    folded : Bool
+    holeCards : Optional (Card, Card)
+    player : Party
+    bet : Int
+    stack : Int
+        deriving (Eq, Show)
+
+playerSeat : Party -> [Seat] -> Seat
+playerSeat player seats =
+    fromSome $ find (\s -> s.player == player) seats
+
+active : Seat -> Bool
+active seat = seat.stack > 0 && not seat.folded
+
+nextActivePlayer : Party -> [Seat] -> Party
+nextActivePlayer player seats = 
+    (.player) $
+    head $
+    filter active $
+    tail $
+    dropWhile (\s -> s.player /= player) $ 
+    seats ++ seats
+
+nextPlayer : Party -> [Seat] -> Party
+nextPlayer player seats = 
+    (.player) $
+    head $
+    filter (not . (.folded)) $
+    tail $
+    dropWhile (\s -> s.player /= player) $ 
+    seats ++ seats
+
+biggestBet : [Seat] -> Int
+biggestBet = maximum . map (.bet)
+
+requiredBet : Party -> [Seat] -> Int
+requiredBet player seats = 
+    error "TODO"
+    --biggestBet seats - (.bet) $ playerSeat player seats
+
+activeBets : [Seat] -> [Int]
+activeBets = map (.bet) . filter active
+
+call : Party -> [Seat] -> Update [Seat]
+call = error "TODO"
+
+-- check round complete when all active players are on maximum bet
+
+fold : Party -> Optional (Card, Card) -> [Seat] -> (Int, [Seat])
+fold = error "TODO"
+
+raise : Int -> Party -> [Seat] -> [Seat]
+raise = error "TODO"
+
+allIn : Party -> [Seat] -> [Seat]
+allIn = error "TODO"
+
+-- assert $ elem player $ activePlayers seats
+
+calculateWinners : [Seat] -> Update [(Party, Int)]
+calculateWinners seats = error "TODO"
+
+reveal : Party -> (Card, Card) -> [Seat] -> [Seat]
+reveal player hand seats = error "TODO"
+
+winners : [Seat] -> [(Party, Int)]
+winners = error "TODO"
+
+winning : [Seat] -> [Party]
+winning = error "TODO"
