@@ -32,6 +32,7 @@ data HandRank
     | StraightFlush
     deriving (Eq, Ord, Show)
 
+type Scored = (HandRank, [Value]) 
 
 suits : [Card] -> [Suit]    
 suits = map (.suit)
@@ -39,7 +40,7 @@ suits = map (.suit)
 values : [Card] -> [Value]
 values = map (.value)
 
-ofAKind : [Card] -> Optional (HandRank, [Value])
+ofAKind : [Card] -> Optional Scored
 ofAKind cards = 
     case reverse (byFrequency (values cards)) of
         (v, 4) :: _ ->           
@@ -84,13 +85,13 @@ straightRun = fmap last .
                 find ((5 <=) . length) . 
                 groupByConsecutive consecutive . sortValues
 
-straight : [Card] -> Optional (HandRank, [Value])
+straight : [Card] -> Optional Scored
 straight = fmap (\high -> (Straight, [high])) . straightRun . values
 
 bySuit : Suit -> [Card] -> [Value]
 bySuit suit = mapOptional (\card -> if card.suit == suit then Some card.value else None)
 
-ofASuit : [Card] -> Optional (HandRank, [Value])
+ofASuit : [Card] -> Optional Scored
 ofASuit cards =
     let 
         values = bySuit (maxFrequency (suits cards)) cards
@@ -103,7 +104,7 @@ ofASuit cards =
                 else
                     None
 
-handRank : [Card] -> (HandRank, [Value])
+handRank : [Card] -> Scored
 handRank cards = 
     maximum $ 
         (HighCard, sort (values cards)) ::

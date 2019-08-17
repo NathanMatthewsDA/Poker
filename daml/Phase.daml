@@ -1,0 +1,83 @@
+daml 1.2
+
+module Phase where
+
+import Cards
+import Seat
+import Utils
+import DA.Optional
+import DA.List
+
+data Round = CheckRound | BettingRound | ShowdownRound deriving (Eq, Show)
+
+data Phase =
+    DealerTurn |
+    PlayerTurn (Party, Round) |
+    Finished [(Party, Int)]
+        deriving (Eq, Show)
+
+roundType : Phase -> Round
+roundType (PlayerTurn (_, round)) = round
+roundType DealerTurn = error ""
+roundType (Finished _) = error ""
+
+inTurn : Party -> Phase -> Bool
+inTurn _ DealerTurn = False
+inTurn _ (Finished _) = False
+inTurn player (PlayerTurn (turn, _)) = player == turn
+
+nextPhase : [Card] -> [Seat] -> Phase -> Phase
+nextPhase community seats phase = 
+    case winners community seats of
+        [] ->
+            case phase of
+                Finished _ -> error "TODO"
+
+                DealerTurn | length activeSeats < 2 && communityFull -> 
+                    PlayerTurn (firstActive, ShowdownRound)
+
+                DealerTurn | length activeSeats < 2 -> DealerTurn
+
+                DealerTurn ->
+                    PlayerTurn (firstActive, CheckRound) 
+                
+                PlayerTurn (current, round) ->
+                    case round of
+                        CheckRound | not betsEqual ->
+                            PlayerTurn (nextActive, BettingRound)
+                        
+                        CheckRound | current == lastActive && communityFull ->
+                            PlayerTurn (nextNonFolded, ShowdownRound)
+
+                        CheckRound | current == lastActive ->
+                            DealerTurn
+
+                        CheckRound ->
+                            PlayerTurn (nextActive, CheckRound)
+
+                        BettingRound | betsEqual && communityFull -> 
+                            PlayerTurn (nextNonFolded, ShowdownRound)
+
+                        BettingRound | betsEqual -> 
+                            DealerTurn
+
+                        BettingRound ->
+                            PlayerTurn (nextActive, BettingRound)
+
+                        ShowdownRound ->
+                            PlayerTurn (nextNonFolded, ShowdownRound)
+                        
+                    where
+                        lastActive = (.player) $ last activeSeats
+                        afterCurrent = loopAfter (\s -> s.player == current) seats
+                        notFolded = (not . (.folded))
+                        nextNonFolded = (.player) $ fromSome $ find notFolded afterCurrent
+                        nextActive = (.player) $ fromSome $ find active afterCurrent
+
+            where
+                activeSeats = filter active seats
+                firstActive = (.player) $ head activeSeats
+                betsEqual = allEqual $ map (.bet) $ activeSeats
+                communityFull = length community == 5
+
+        winners -> Finished winners

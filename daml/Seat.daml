@@ -6,7 +6,8 @@ import Cards
 import DA.Optional
 import DA.List
 import DA.Foldable (maximum)
-import Chips
+import Scoring
+import DA.Either
 
 data Seat = Seat with
     folded : Bool
@@ -46,36 +47,95 @@ biggestBet = maximum . map (.bet)
 
 requiredBet : Party -> [Seat] -> Int
 requiredBet player seats = 
-    error "TODO"
-    --biggestBet seats - (.bet) $ playerSeat player seats
+    biggestBet seats - ((.bet) $ playerSeat player seats)
 
 activeBets : [Seat] -> [Int]
 activeBets = map (.bet) . filter active
 
+remaining : Seat -> Int
+remaining seat = seat.stack - seat.bet
+
+updateSeat : Party -> (Seat -> Seat) -> [Seat] -> [Seat]
+updateSeat player f = 
+    map (\s -> if s.player == player then f s else s)
+
+placeBet : Int -> Party -> [Seat] -> Update [Seat]
+placeBet amount player seats =
+    do
+        assert $ remaining seat >= required
+
+        return $ updateSeat player (\s -> s with bet = s.bet + required) seats
+    where
+        seat = findSeat player seats
+        required = amount + requiredBet player seats
+
 call : Party -> [Seat] -> Update [Seat]
-call = error "TODO"
+call player seats = do placeBet 0 player seats
 
--- check round complete when all active players are on maximum bet
+raise : Int -> Party -> [Seat] -> Update [Seat]
+raise amount player seats = do placeBet amount player seats
 
-fold : Party -> Optional (Card, Card) -> [Seat] -> (Int, [Seat])
-fold = error "TODO"
-
-raise : Int -> Party -> [Seat] -> [Seat]
-raise = error "TODO"
+fold : Party -> [Seat] -> [Seat]
+fold player = updateSeat player (\s -> s with folded = True, stack = s.bet)
 
 allIn : Party -> [Seat] -> [Seat]
-allIn = error "TODO"
+allIn player = updateSeat player (\s -> s with bet = s.stack)
 
--- assert $ elem player $ activePlayers seats
-
-calculateWinners : [Seat] -> Update [(Party, Int)]
-calculateWinners seats = error "TODO"
+pot : [Seat] -> Int
+pot = sum . map (.bet)
 
 reveal : Party -> (Card, Card) -> [Seat] -> [Seat]
-reveal player hand seats = error "TODO"
+reveal player hand = 
+    updateSeat player (\s -> s with holeCards = Some hand)
+    
+separate : (a -> Bool) -> [a] -> ([a], [a])
+separate f xs = error "TODO"
+    -- (lefts m, rights m)
+    -- where
+    --     m = map f xs
 
-winners : [Seat] -> [(Party, Int)]
-winners = error "TODO"
+scored : [Card] -> [Seat] -> [(Party, Int, Scored)]
+scored = error "TODO"
 
-winning : [Seat] -> [Party]
-winning = error "TODO"
+calulateWinners : [Int] -> [(Party, Int, Scored)] -> [(Party, Int)]
+calulateWinners folded scored = 
+    groupBy () $ sortBy () scored
+
+winners : [Card] -> [Seat] -> [(Party, Int)]
+winners community seats =
+    case unfolded of
+        [winner] ->
+            [(winner.player, error "TODO")]
+        _ ->
+            if any (\s -> s.holeCards == None) unfolded then
+                []
+            else
+                calulateWinners
+                    (map (.bet) folded)
+                    (scored community unfolded)
+    where
+        (folded, unfolded) = separate (.folded) seats
+
+-- returnRemaining : [Seat] -> [Seat]
+-- returnRemaining = map (\s -> s with stack = s.bet)
+
+findSeat : Party -> [Seat] -> Seat
+findSeat player = fromSome . find (\s -> player == s.player)
+
+inGame : [Seat] -> [Party]
+inGame = map (.player) . filter (not . (.folded))
+
+loopAfter : (a -> Bool) -> [a] -> [a]
+loopAfter f xs = 
+    begin ++ (x :: end) where (end, x :: begin) = break f xs
+
+afterPlayer : Party -> [Seat] -> [Seat]
+afterPlayer player = loopAfter (\s -> s.player == player)
+
+nextInGame : Party -> [Seat] -> Party
+nextInGame player =
+    (.player) . fromSome . find (not . (.folded)) . afterPlayer player
+
+activePlayers : [Seat] -> [Party]
+activePlayers = map (.player) . filter (\s -> not s.folded && s.stack > s.bet)
+
