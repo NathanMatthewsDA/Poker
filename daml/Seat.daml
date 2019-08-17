@@ -6,8 +6,6 @@ import Cards
 import DA.Optional
 import DA.List
 import DA.Foldable (maximum)
-import Scoring
-import DA.Either
 
 data Seat = Seat with
     folded : Bool
@@ -88,34 +86,6 @@ reveal : Party -> (Card, Card) -> [Seat] -> [Seat]
 reveal player hand = 
     updateSeat player (\s -> s with holeCards = Some hand)
     
-separate : (a -> Bool) -> [a] -> ([a], [a])
-separate f xs = error "TODO"
-    -- (lefts m, rights m)
-    -- where
-    --     m = map f xs
-
-scored : [Card] -> [Seat] -> [(Party, Int, Scored)]
-scored = error "TODO"
-
-calulateWinners : [Int] -> [(Party, Int, Scored)] -> [(Party, Int)]
-calulateWinners folded scored = 
-    groupBy () $ sortBy () scored
-
-winners : [Card] -> [Seat] -> [(Party, Int)]
-winners community seats =
-    case unfolded of
-        [winner] ->
-            [(winner.player, error "TODO")]
-        _ ->
-            if any (\s -> s.holeCards == None) unfolded then
-                []
-            else
-                calulateWinners
-                    (map (.bet) folded)
-                    (scored community unfolded)
-    where
-        (folded, unfolded) = separate (.folded) seats
-
 -- returnRemaining : [Seat] -> [Seat]
 -- returnRemaining = map (\s -> s with stack = s.bet)
 
@@ -138,4 +108,3 @@ nextInGame player =
 
 activePlayers : [Seat] -> [Party]
 activePlayers = map (.player) . filter (\s -> not s.folded && s.stack > s.bet)
-

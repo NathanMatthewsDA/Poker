@@ -7,6 +7,7 @@ import Seat
 import Utils
 import DA.Optional
 import DA.List
+import SidePot
 
 data Round = CheckRound | BettingRound | ShowdownRound deriving (Eq, Show)
 
@@ -28,7 +29,7 @@ inTurn player (PlayerTurn (turn, _)) = player == turn
 
 nextPhase : [Card] -> [Seat] -> Phase -> Phase
 nextPhase community seats phase = 
-    case winners community seats of
+    case findWinners community seats of
         [] ->
             case phase of
                 Finished _ -> error "TODO"

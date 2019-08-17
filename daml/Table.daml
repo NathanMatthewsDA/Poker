@@ -12,41 +12,21 @@ import Hand
 import Scoring
 import Seat
 import Phase
+import SidePot
 
 playerTurn : Phase -> Party
 playerTurn phase =
     case phase of   
-        PlayerTurn (current,_) -> current
+        PlayerTurn (current, _) -> current
         _ -> error ""
 
-applyActions : Party -> Phase -> [Seat] -> Update [Seat]
-applyActions house phase seats = 
-    case phase of
-        Finished winners ->
-            do
-                mapA (\(owner, quantity) -> 
-                        create Chips with owner,quantity, house, observers = [])
-                    winners
-
-                return seats
-
-        PlayerTurn (_, ShowdownRound) ->
-            do
-                mapA (\s -> 
-                        create Chips with 
-                            owner = s.player
-                            quantity = s.stack - s.bet
-                            house
-                            observers = [])
-                    $ filter (\s -> s.stack > s.bet) $ seats
-                
-                return $ map (\s -> s with stack = s.bet) seats
-
-        _ -> do return seats
-
+inShowdown : Phase -> Bool
+inShowdown (PlayerTurn (_, ShowdownRound)) = True
+inShowdown _ = False
+    
 next : Table -> Update (ContractId Table)
 next table =
-    case winners table.community table.seats of
+    case findWinners table.community table.seats of
         [] ->
             do
                 let phase = nextPhase
@@ -54,57 +34,23 @@ next table =
                                 table.seats
                                 table.phase
         
-                create $ table with phase
+                seats <- if inShowdown phase then
+                            do returnAllRemaining table.house table.seats
+                         else
+                            do return $ table.seats
+
+                create $ table with phase, seats
         winners ->
+            do
+                mapA (\(owner, quantity) -> 
+                        create Chips with 
+                            owner
+                            quantity
+                            house = table.house
+                            observers = [])
+                    winners
 
-            error "determine winners..."
-
--- nextAnyPlayer : Party -> Table -> Update (ContractId Table)
--- nextAnyPlayer player table = 
---     if inTurn player table.phase then
---         next table
---     else
---         create table
-
--- doFold : Party -> Table -> Update ()
--- doFold player table = 
---     do
---         assert $ elem player $ inGame table.seats
-        
---         let r = remaining $ findSeat player table.seats
-
---         -- quantity <-
---             -- all other players have folded
---         if inGame table.seats == [player] then 
---             do
---                 let p = pot table.seats
-
---                 create table with 
---                     phase = Finished [(player, p)]
---                     seats = returnRemaining table.seats
-
---                 create Chips with 
---                     owner = player
---                     quantity = r + p
---                     house = table.house
---                     observers = []
---                 return ()
---         else do
---             nextAnyPlayer 
---                 player
---                 table with seats = fold player table.seats
-            
---             if r > 0 then
---                 do
---                     create Chips with 
---                         owner = player
---                         quantity = r
---                         house = table.house
---                         observers = []
---                     return ()
---             else
---                 do
---                     return ()
+                create $ table with phase = Finished winners
 
 nextShowdownTurn : Party -> Phase -> Bool
 nextShowdownTurn player (PlayerTurn (turn, ShowdownRound)) = player == turn
@@ -115,21 +61,26 @@ nextPlayerTurn player (PlayerTurn (turn, _)) = player == turn
 nextPlayerTurn _ _ = False
 
 outOfTurnFold : Table -> Update (ContractId Table)
-outOfTurnFold = error "TODO"
+outOfTurnFold = error ""
 
-returnRemaining : Party -> Party -> [Seat] -> Update (Optional (ContractId Chips))
-returnRemaining house player seats =
+returnAllRemaining : Party -> [Seat] -> Update [Seat]
+returnAllRemaining house seats =
+    do
+        mapA (returnRemaining house) seats
+
+        return $ map (\s -> s with stack = s.bet) seats
+
+returnRemaining : Party -> Seat -> Update (Optional (ContractId Chips))
+returnRemaining house seat =
     if seat.stack > seat.bet then
         do
             fmap Some $ create Chips with
-                owner = player
+                owner = seat.player
                 house
                 quantity = seat.stack - seat.bet
                 observers = []
     else
         do return None
-    where
-        seat = playerSeat player seats
 
 finished : Phase -> Bool
 finished (Finished _) = True
@@ -176,7 +127,7 @@ template Table
                 assert $ not $ finished phase
                 assert $ elem player $ map (.player) $ filter (not . (.folded)) seats
                 
-                returnRemaining house player seats
+                returnRemaining house $ playerSeat player seats
 
                 let table = this with seats = fold player seats
 

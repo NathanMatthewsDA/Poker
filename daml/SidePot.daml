@@ -1,0 +1,90 @@
+daml 1.2
+
+module SidePot where
+
+import Cards
+import DA.Optional
+import DA.Foldable (maximum)
+import Scoring
+import DA.List
+import DA.Tuple
+import Seat
+
+separate : (a -> Bool) -> [a] -> ([a], [a])
+separate f xs = (filter f xs, filter (not . f) xs)
+
+addSidePot : Int -> SidePot -> SidePot
+addSidePot amount sidePot = sidePot with pot = sidePot.pot + amount
+
+data SidePot = SidePot with
+                score : Scored
+                winners : [Party]
+                bet : Int
+                pot : Int
+
+addFolded : [SidePot] -> Int -> [SidePot]
+addFolded [] _ = error ""
+addFolded [pot] folded = [addSidePot folded pot]
+addFolded (pot :: pots) folded =
+  if folded <= pot.pot then
+    (addSidePot folded pot) :: pots
+  else
+    pot :: (addFolded pots folded)
+
+generateSidePot : [(Party, Int, Scored)] -> SidePot
+generateSidePot bets =
+  SidePot with
+    bet = snd3 $ head bets
+    pot = sum $ map snd3 bets
+    winners = map fst3 $ filter ((score ==) . thd3) bets
+    score
+  where
+    score = maximum $ map thd3 bets
+
+generateSidePots : [(Party, Int, Scored)] -> [SidePot]
+generateSidePots scored =
+    map generateSidePot $ groupOn snd3 $ sortOn snd3 scored
+
+rollupSidePot : [SidePot] -> SidePot -> [SidePot]
+rollupSidePot [] side = [side]
+rollupSidePot (next :: higher) side =
+  if next.score >= side.score then
+     (next with pot = next.pot + side.pot) :: higher
+  else
+     side :: next :: higher
+
+split : Int -> Int -> [Int]
+split num dem = 
+  replicate r (d + 1) ++ replicate (dem - r) d
+  where
+    d = num / dem
+    r = num % dem
+
+allocate : SidePot -> [(Party, Int)]
+allocate pot = zip pot.winners $ split (length pot.winners) pot.pot
+
+calulateWinners : [Int] -> [(Party, Int, Scored)] -> [(Party, Int)]
+calulateWinners folded = 
+   concatMap allocate . foldl rollupSidePot [] . (\pots -> foldl addFolded pots folded) . generateSidePots
+
+scored : [Card] -> Seat -> Optional (Party, Int, Scored)
+scored community seat = 
+  fmap (\(card1, card2) -> 
+          (seat.player, seat.bet, 
+             handRank (card1 :: card2 :: community))) 
+      seat.holeCards
+
+findWinners : [Card] -> [Seat] -> [(Party, Int)]
+findWinners community seats =
+    case unfolded of
+        [winner] ->
+            [(winner.player, Seat.pot seats + winner.stack - winner.bet)]
+        _ ->
+            if any (\s -> s.holeCards == None) unfolded then
+                []
+            else
+                calulateWinners
+                    (map (.bet) folded)
+                    $ mapOptional (scored community) unfolded
+    where
+        (folded, unfolded) = separate (.folded) seats
