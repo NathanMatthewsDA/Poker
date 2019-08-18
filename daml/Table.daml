@@ -4,26 +4,35 @@ module Table where
 
 import Cards
 import Chips
-import DA.Foldable (maximum)
-import DA.Optional (isSome, fromSome, catOptionals)
-import DA.List
-import Utils
 import Hand
-import Scoring
 import Seat
 import Phase
 import SidePot
 
-playerTurn : Phase -> Party
-playerTurn phase =
+turn : Party -> Phase -> Party
+turn dealer phase =
     case phase of   
         PlayerTurn (current, _) -> current
-        _ -> error ""
+        DealerTurn -> dealer
+        Finished _ -> dealer
 
 inShowdown : Phase -> Bool
 inShowdown (PlayerTurn (_, ShowdownRound)) = True
 inShowdown _ = False
     
+finish : [(Party, Int)] -> Table -> Update (ContractId Table)
+finish winners table = 
+    do
+        mapA (\(owner, quantity) -> 
+                create Chips with 
+                    owner
+                    quantity
+                    house = table.house
+                    observers = [])
+            winners
+
+        create $ table with phase = Finished winners
+
 next : Table -> Update (ContractId Table)
 next table =
     case findWinners table.community table.seats of
@@ -35,22 +44,13 @@ next table =
                                 table.phase
         
                 seats <- if inShowdown phase then
-                            do returnAllRemaining table.house table.seats
+                            returnAllRemaining table.house table.seats                        
                          else
                             do return $ table.seats
 
                 create $ table with phase, seats
         winners ->
-            do
-                mapA (\(owner, quantity) -> 
-                        create Chips with 
-                            owner
-                            quantity
-                            house = table.house
-                            observers = [])
-                    winners
-
-                create $ table with phase = Finished winners
+            finish winners table
 
 nextShowdownTurn : Party -> Phase -> Bool
 nextShowdownTurn player (PlayerTurn (turn, ShowdownRound)) = player == turn
@@ -61,30 +61,40 @@ nextPlayerTurn player (PlayerTurn (turn, _)) = player == turn
 nextPlayerTurn _ _ = False
 
 outOfTurnFold : Table -> Update (ContractId Table)
-outOfTurnFold = error ""
+outOfTurnFold table =
+    case findWinners table.community table.seats of
+        [] ->
+            create table
+        winners ->
+            finish winners table
 
 returnAllRemaining : Party -> [Seat] -> Update [Seat]
 returnAllRemaining house seats =
-    do
-        mapA (returnRemaining house) seats
-
-        return $ map (\s -> s with stack = s.bet) seats
-
-returnRemaining : Party -> Seat -> Update (Optional (ContractId Chips))
+    mapA (returnRemaining house) seats
+ 
+returnRemaining : Party -> Seat -> Update Seat
 returnRemaining house seat =
     if seat.stack > seat.bet then
         do
-            fmap Some $ create Chips with
+            create Chips with
                 owner = seat.player
                 house
                 quantity = seat.stack - seat.bet
                 observers = []
+
+            return $ seat with stack = seat.bet
     else
-        do return None
+        do return seat
 
 finished : Phase -> Bool
 finished (Finished _) = True
 finished _ = False
+
+signatories : Table -> [Party]
+signatories table = 
+    case table.phase of
+        Finished _ -> [table.house]
+        _ -> table.house :: inGame table.seats
 
 template Table
     with        
@@ -95,7 +105,8 @@ template Table
         dealer : Party
         id : Int
     where
-        signatory house, inGame seats
+        signatory signatories this
+
         observer map (.player) seats
 
         key (id, house, dealer) : (Int, Party, Party)
@@ -114,10 +125,12 @@ template Table
 
                 let cards = (hand.card1, hand.card2)
 
+                let table = this with seats = reveal player cards seats
+
                 if nextShowdownTurn player phase then
-                    next this with seats = reveal player cards seats
+                    next table
                 else
-                    create $ this with seats = reveal player cards seats
+                    create table
 
         choice Fold : ContractId Table
             with
@@ -136,7 +149,16 @@ template Table
                 else
                     outOfTurnFold table
 
-        controller dealer can
+        -- controller dealer can
+        --     DealCommunity : ContractId Table
+        --         with
+        --             card : Card
+        --         do
+        --             assert $ phase == DealerTurn
+                    
+        --             next $ this with community = card :: community
+
+        controller turn dealer phase can
             DealCommunity : ContractId Table
                 with
                     card : Card
@@ -145,18 +167,23 @@ template Table
                     
                     next $ this with community = card :: community
 
-        controller playerTurn phase can
-
             Check : ContractId Table
                 do
+                    assert $ phase /= DealerTurn
+                    let player = turn dealer phase
+
                     assert $ roundType phase == CheckRound
                     next this
 
             Call : ContractId Table             
                 do
+                    assert $ phase /= DealerTurn
+
+                    let player = turn dealer phase
+
                     assert $ roundType phase == BettingRound
 
-                    seats <- call (playerTurn phase) seats
+                    seats <- call player seats
 
                     next $ this with seats
 
@@ -164,16 +191,22 @@ template Table
                 with
                     amount : Int
                 do
+                    assert $ phase /= DealerTurn
+                    let player = turn dealer phase
+
                     assert $ roundType phase == BettingRound || roundType phase == CheckRound
                     assert $ amount > 0
 
-                    seats <- raise amount (playerTurn phase) seats
+                    seats <- raise amount player seats
                     
                     next $ this with seats
 
             AllIn : ContractId Table
                 do
+                    assert $ phase /= DealerTurn
+                    let player = turn dealer phase
+
                     assert $ roundType phase == BettingRound
 
                     next $
-                        this with seats = allIn (playerTurn phase) seats
+                        this with seats = allIn player seats

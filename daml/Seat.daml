@@ -20,7 +20,7 @@ playerSeat player seats =
     fromSome $ find (\s -> s.player == player) seats
 
 active : Seat -> Bool
-active seat = seat.stack > 0 && not seat.folded
+active seat = seat.stack > seat.bet && not seat.folded
 
 nextActivePlayer : Party -> [Seat] -> Party
 nextActivePlayer player seats = 
@@ -60,7 +60,8 @@ updateSeat player f =
 placeBet : Int -> Party -> [Seat] -> Update [Seat]
 placeBet amount player seats =
     do
-        assert $ remaining seat >= required
+        let msg = show player -- "Not enough funds for " ++ " to place bet"
+        assertMsg msg $ remaining seat >= required
 
         return $ updateSeat player (\s -> s with bet = s.bet + required) seats
     where

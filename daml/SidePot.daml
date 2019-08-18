@@ -13,21 +13,22 @@ import Seat
 separate : (a -> Bool) -> [a] -> ([a], [a])
 separate f xs = (filter f xs, filter (not . f) xs)
 
-addSidePot : Int -> SidePot -> SidePot
-addSidePot amount sidePot = sidePot with pot = sidePot.pot + amount
+increaseSidePot : Int -> SidePot -> SidePot
+increaseSidePot amount sidePot = sidePot with pot = sidePot.pot + amount
 
 data SidePot = SidePot with
                 score : Scored
                 winners : [Party]
                 bet : Int
                 pot : Int
+                  deriving (Show)
 
 addFolded : [SidePot] -> Int -> [SidePot]
 addFolded [] _ = error ""
-addFolded [pot] folded = [addSidePot folded pot]
+addFolded [pot] folded = [increaseSidePot folded pot]
 addFolded (pot :: pots) folded =
   if folded <= pot.pot then
-    (addSidePot folded pot) :: pots
+    (increaseSidePot folded pot) :: pots
   else
     pot :: (addFolded pots folded)
 
@@ -45,13 +46,29 @@ generateSidePots : [(Party, Int, Scored)] -> [SidePot]
 generateSidePots scored =
     map generateSidePot $ groupOn snd3 $ sortOn snd3 scored
 
-rollupSidePot : [SidePot] -> SidePot -> [SidePot]
-rollupSidePot [] side = [side]
-rollupSidePot (next :: higher) side =
-  if next.score >= side.score then
-     (next with pot = next.pot + side.pot) :: higher
+addSidePot : [SidePot] -> SidePot -> [SidePot]
+addSidePot [] toAdd = [toAdd]
+addSidePot (smallest :: higher) toAdd | toAdd.bet == smallest.bet =
+  (winner with pot = smallest.pot + toAdd.pot) :: higher
+  where
+    winner = if smallest.score == toAdd.score then
+               toAdd with winners = smallest.winners ++ toAdd.winners
+             else if smallest.score > toAdd.score then
+               smallest
+             else 
+               toAdd
+
+addSidePot (smallest :: higher) toAdd | toAdd.bet < smallest.bet =
+  if smallest.score >= toAdd.score then
+    (increaseSidePot toAdd.pot smallest) :: higher
   else
-     side :: next :: higher
+    toAdd :: smallest :: higher
+
+addSidePot (smallest :: higher) toAdd | toAdd.bet > smallest.bet =
+  if toAdd.score >= smallest.score then
+    addSidePot higher (increaseSidePot smallest.pot toAdd)
+  else
+    smallest :: (addSidePot higher toAdd)
 
 split : Int -> Int -> [Int]
 split num dem = 
@@ -61,11 +78,15 @@ split num dem =
     r = num % dem
 
 allocate : SidePot -> [(Party, Int)]
-allocate pot = zip pot.winners $ split (length pot.winners) pot.pot
+allocate pot = zip pot.winners $ split pot.pot (length pot.winners) 
+
+debug1 : [SidePot] -> [(Party, Int)]
+debug1 pots = error $ show pots
 
 calulateWinners : [Int] -> [(Party, Int, Scored)] -> [(Party, Int)]
-calulateWinners folded = 
-   concatMap allocate . foldl rollupSidePot [] . (\pots -> foldl addFolded pots folded) . generateSidePots
+calulateWinners folded =
+    --debug1 . foldl addSidePot [] . (\pots -> foldl addFolded pots folded) . generateSidePots
+    concatMap allocate . foldl addSidePot [] . (\pots -> foldl addFolded pots folded) . generateSidePots
 
 scored : [Card] -> Seat -> Optional (Party, Int, Scored)
 scored community seat = 

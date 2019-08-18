@@ -29,56 +29,56 @@ inTurn player (PlayerTurn (turn, _)) = player == turn
 
 nextPhase : [Card] -> [Seat] -> Phase -> Phase
 nextPhase community seats phase = 
-    case findWinners community seats of
-        [] ->
-            case phase of
-                Finished _ -> error "TODO"
+    case phase of
+        Finished _ -> error "TODO"
 
-                DealerTurn | length activeSeats < 2 && communityFull -> 
-                    PlayerTurn (firstActive, ShowdownRound)
+        DealerTurn | length community < 3 ->
+            DealerTurn
+            -- PlayerTurn (firstActive, CheckRound) 
 
-                DealerTurn | length activeSeats < 2 -> DealerTurn
+        -- DealerTurn | length activeSeats < 2 && communityFull -> 
+        --     PlayerTurn (firstActive, ShowdownRound)
 
-                DealerTurn ->
-                    PlayerTurn (firstActive, CheckRound) 
+        -- DealerTurn | length activeSeats < 2 -> 
+        --     DealerTurn
+
+        DealerTurn ->
+            PlayerTurn ((.player) $ head activeSeats, CheckRound) 
+        
+        PlayerTurn (current, round) ->
+            case round of
+                CheckRound | not betsEqual ->
+                    PlayerTurn (nextActivePlayer current seats, BettingRound)
                 
-                PlayerTurn (current, round) ->
-                    case round of
-                        CheckRound | not betsEqual ->
-                            PlayerTurn (nextActive, BettingRound)
-                        
-                        CheckRound | current == lastActive && communityFull ->
-                            PlayerTurn (nextNonFolded, ShowdownRound)
+                CheckRound | isLastActive current && communityFull ->
+                    PlayerTurn (nextNonFolded, ShowdownRound)
 
-                        CheckRound | current == lastActive ->
-                            DealerTurn
+                CheckRound | isLastActive current ->
+                    DealerTurn
 
-                        CheckRound ->
-                            PlayerTurn (nextActive, CheckRound)
+                CheckRound ->
+                    PlayerTurn (nextActivePlayer current seats, CheckRound)
 
-                        BettingRound | betsEqual && communityFull -> 
-                            PlayerTurn (nextNonFolded, ShowdownRound)
+                BettingRound | betsEqual && communityFull -> 
+                    PlayerTurn (nextNonFolded, ShowdownRound)
 
-                        BettingRound | betsEqual -> 
-                            DealerTurn
+                BettingRound | betsEqual -> 
+                    DealerTurn
 
-                        BettingRound ->
-                            PlayerTurn (nextActive, BettingRound)
+                BettingRound ->
+                    PlayerTurn (nextActivePlayer current seats, BettingRound)
 
-                        ShowdownRound ->
-                            PlayerTurn (nextNonFolded, ShowdownRound)
-                        
-                    where
-                        lastActive = (.player) $ last activeSeats
-                        afterCurrent = loopAfter (\s -> s.player == current) seats
-                        notFolded = (not . (.folded))
-                        nextNonFolded = (.player) $ fromSome $ find notFolded afterCurrent
-                        nextActive = (.player) $ fromSome $ find active afterCurrent
-
+                ShowdownRound ->
+                    PlayerTurn (nextNonFolded, ShowdownRound)
+                
             where
-                activeSeats = filter active seats
-                firstActive = (.player) $ head activeSeats
-                betsEqual = allEqual $ map (.bet) $ activeSeats
-                communityFull = length community == 5
+                --lastActive = (.player) $ last activeSeats
+                nextNonFolded = nextPlayer current seats
+                -- nextActive = nextActivePlayer current seats
 
-        winners -> Finished winners
+    where
+        isLastActive player = player == ((.player) $ last activeSeats)
+        activeSeats = filter active seats
+        --firstActive = (.player) $ head activeSeats
+        betsEqual = allEqual $ map (.bet) $ activeSeats
+        communityFull = length community == 5

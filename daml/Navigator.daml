@@ -7,6 +7,7 @@ import Chips
 import Dealer
 import RequestJoinGame
 import Table
+import Seat
 
 template Join
     with
@@ -79,7 +80,11 @@ bootstrap = scenario do
 
     players@[alice, bob, eve, mallory, trent] <- mapA getParty playerNames
 
-    joins <- mapA (setupPlayer house dealer 200) players
+    let stacks = [150, 100, 200, 170, 100]
+
+    joins <- sequence $ zipWith (setupPlayer house dealer)
+                            stacks
+                            players
 
     let seeds = [1000, 2000, 3000, 4000, 5000]
 
@@ -91,31 +96,96 @@ bootstrap = scenario do
         exercise d StartGame
 
     submit eve do
-        exerciseByKey @Table roundKey CallOrCheck
+        exerciseByKey @Table roundKey Call
     
-    -- submit bob do
-    --     exerciseByKey @Round roundKey CallOrCheck
+    submit bob do
+         exerciseByKey @Table roundKey Call
 
-    -- submit alice do
-    --     exerciseByKey @Round roundKey CallOrCheck
+    submit alice do
+         exerciseByKey @Table roundKey Call
+
+    submit trent do
+         exerciseByKey @Table roundKey Call
+
+    d <- submit dealer do
+        exercise d DealCard
+
+    submit trent do
+        exerciseByKey @Table roundKey Check
+
+    submit mallory do
+        exerciseByKey @Table roundKey Check
+
+    submit eve do
+        exerciseByKey @Table roundKey Check
+
+    submit bob do
+        exerciseByKey @Table roundKey Check
+
+    submit alice do
+        exerciseByKey @Table roundKey Check
+
+    d <- submit dealer do
+        exercise d DealCard
+
+    submit trent do
+        exerciseByKey @Table roundKey Raise with amount = 30
+
+    submit mallory do
+        exerciseByKey @Table roundKey Fold with player = mallory
+
+    submit eve do
+        exerciseByKey @Table roundKey Call
+
+    submit bob do
+        exerciseByKey @Table roundKey Call
+
+    submit alice do
+        exerciseByKey @Table roundKey Call
+
+    d <- submit dealer do
+        exercise d DealCard
+
+    submit trent do
+        exerciseByKey @Table roundKey Check
+
+    submit eve do
+        exerciseByKey @Table roundKey Raise with amount = 40
+
+    submit bob do
+        exerciseByKey @Table roundKey AllIn
+
+    submit alice do
+        exerciseByKey @Table roundKey Raise with amount = 20
+
+    submit trent do
+        exerciseByKey @Table roundKey Fold with player = trent
+
+    submit eve do
+        exerciseByKey @Table roundKey Call
+
+    submit bob do
+        exerciseByKey @Table roundKey Reveal with player = bob
+
+    submit alice do
+        exerciseByKey @Table roundKey Reveal with player = alice
 
     -- submit trent do
-    --     exerciseByKey @Round roundKey CallOrCheck
+    --     exerciseByKey @Table roundKey Reveal with player = trent
 
-    -- d <- submit dealer do
-    --     exercise d DealCard
+    submit eve do
+        exerciseByKey @Table roundKey Reveal with player = eve
 
-    -- submit trent do
-    --     exerciseByKey @Round roundKey CallOrCheck
 
-    -- submit mallory do
-    --     exerciseByKey @Round roundKey CallOrCheck
 
-    -- submit eve do
-    --     exerciseByKey @Round roundKey CallOrCheck
 
-    -- submit bob do
-    --     exerciseByKey @Round roundKey CallOrCheck
+
+
+    -- (_, t) <- submit house do
+    --             fetchByKey @Table roundKey
+
+    -- error $ show $ inGame t.seats
+
 
     -- submit alice do
     --     exerciseByKey @Round roundKey CallOrCheck

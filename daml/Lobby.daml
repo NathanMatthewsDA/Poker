@@ -3,6 +3,8 @@ daml 1.2
 module Lobby where
 
 import Chips
+import Seat
+import Phase
 import Table
 import DA.List (head)
 
@@ -82,10 +84,10 @@ template Lobby
                                            players 
                                            $ map (.quantity) fetched   
                                 house
-                                phase = BettingRound
+                                phase = PlayerTurn(head players, BettingRound)
                                 community = []
                                 dealer
-                                current = head players
+                                -- current = head players
                                 id
                     
                     round <- exercise round Raise with amount = smallBlind
