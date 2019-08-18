@@ -20,7 +20,30 @@ inShowdown : Phase -> Bool
 inShowdown (PlayerTurn (_, ShowdownRound)) = True
 inShowdown _ = False
     
-finish : [(Party, Int)] -> Table -> Update (ContractId Table)
+split : Int -> Int -> [Int]
+split num dem = 
+  replicate r (d + 1) ++ replicate (dem - r) d
+  where
+    d = num / dem
+    r = num % dem
+
+allocate : SidePot -> [(Party, Int)]
+allocate pot = zip pot.winners $ split pot.pot (length pot.winners) 
+
+findWinners : [Card] -> [Seat] -> Optional EndGame
+findWinners community seats =
+    case unfolded of
+        [winner] ->
+            Some $ OneRemaining (winner.player, Seat.pot seats + winner.stack - winner.bet)
+        _ ->
+            if any (\s -> s.holeCards == None) unfolded then
+                None
+            else
+                Some $ ShowdownWinners (createSidePots community seats)
+    where
+        (folded, unfolded) = separate (.folded) seats
+
+finish : [SidePot] -> Table -> Update (ContractId Table)
 finish winners table = 
     do
         mapA (\(owner, quantity) -> 
@@ -29,14 +52,17 @@ finish winners table =
                     quantity
                     house = table.house
                     observers = [])
-            winners
+            $ concatMap allocate winners
 
-        create $ table with phase = Finished winners
+        create $ table with 
+            phase = Finished $ ShowdownWinners winners
 
 next : Table -> Update (ContractId Table)
 next table =
     case findWinners table.community table.seats of
-        [] ->
+        Some game ->
+            create table with phase = Finished game
+        None ->
             do
                 let phase = nextPhase
                                 table.community
@@ -49,8 +75,6 @@ next table =
                             do return $ table.seats
 
                 create $ table with phase, seats
-        winners ->
-            finish winners table
 
 nextShowdownTurn : Party -> Phase -> Bool
 nextShowdownTurn player (PlayerTurn (turn, ShowdownRound)) = player == turn
@@ -63,10 +87,10 @@ nextPlayerTurn _ _ = False
 outOfTurnFold : Table -> Update (ContractId Table)
 outOfTurnFold table =
     case findWinners table.community table.seats of
-        [] ->
+        Some game ->
+            create table with phase = Finished game 
+        None ->
             create table
-        winners ->
-            finish winners table
 
 returnAllRemaining : Party -> [Seat] -> Update [Seat]
 returnAllRemaining house seats =
@@ -148,15 +172,6 @@ template Table
                     next table
                 else
                     outOfTurnFold table
-
-        -- controller dealer can
-        --     DealCommunity : ContractId Table
-        --         with
-        --             card : Card
-        --         do
-        --             assert $ phase == DealerTurn
-                    
-        --             next $ this with community = card :: community
 
         controller turn dealer phase can
             DealCommunity : ContractId Table

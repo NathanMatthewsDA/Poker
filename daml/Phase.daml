@@ -11,10 +11,15 @@ import SidePot
 
 data Round = CheckRound | BettingRound | ShowdownRound deriving (Eq, Show)
 
+data EndGame = 
+    OneRemaining (Party, Int) | 
+    ShowdownWinners [SidePot]
+        deriving (Eq, Show)
+
 data Phase =
     DealerTurn |
     PlayerTurn (Party, Round) |
-    Finished [(Party, Int)]
+    Finished EndGame
         deriving (Eq, Show)
 
 roundType : Phase -> Round

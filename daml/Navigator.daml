@@ -7,7 +7,6 @@ import Chips
 import Dealer
 import RequestJoinGame
 import Table
-import Seat
 
 template Join
     with
@@ -170,66 +169,7 @@ bootstrap = scenario do
     submit alice do
         exerciseByKey @Table roundKey Reveal with player = alice
 
-    -- submit trent do
-    --     exerciseByKey @Table roundKey Reveal with player = trent
-
     submit eve do
         exerciseByKey @Table roundKey Reveal with player = eve
-
-
-
-
-
-
-    -- (_, t) <- submit house do
-    --             fetchByKey @Table roundKey
-
-    -- error $ show $ inGame t.seats
-
-
-    -- submit alice do
-    --     exerciseByKey @Round roundKey CallOrCheck
-
-    -- d <- submit dealer do
-    --     exercise d DealCard
-
-    -- submit trent do
-    --     exerciseByKey @Round roundKey CallOrCheck
-
-    -- submit mallory do
-    --     exerciseByKey @Round roundKey CallOrCheck
-
-    -- submit eve do
-    --     exerciseByKey @Round roundKey CallOrCheck
-
-    -- submit bob do
-    --     exerciseByKey @Round roundKey CallOrCheck
-
-    -- submit alice do
-    --     exerciseByKey @Round roundKey CallOrCheck
-
-    -- d <- submit dealer do
-    --     exercise d DealCard
-
-    -- submit trent do
-    --     exerciseByKey @Round roundKey CallOrCheck
-
-    -- submit mallory do
-    --     exerciseByKey @Round roundKey CallOrCheck
-
-    -- submit eve do 
-    --     exerciseByKey @Round roundKey CallOrCheck
-
-    -- submit bob do
-    --     exerciseByKey @Round roundKey CallOrCheck
-
-    -- submit alice do
-    --     exerciseByKey @Round roundKey CallOrCheck
-
-    -- submit trent do
-    --     exerciseByKey @Round roundKey Reveal
-
-    -- submit trent do
-    --     exerciseByKey @Round roundKey Reveal
 
     return ()
