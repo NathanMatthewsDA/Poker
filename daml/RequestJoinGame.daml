@@ -3,23 +3,78 @@ daml 1.2
 module RequestJoinGame where
 
 import Chips
-import Lobby
--- import Seed
+-- import Lobby
+import Table
+import Cards
+import Random
+import Hand
+import DA.List (head, tail)
+
+template UndealtCommunity 
+    with
+        house : Party
+        dealer : Party
+        id : Int
+        community : [Card]
+    where
+        key (id, house, dealer) : (Int, Party, Party)
+
+        signatory dealer
+
+        maintainer key._3
+
+        controller dealer can
+            DealCommunityCard : ContractId UndealtCommunity
+                do
+                    exerciseByKey @Table (id, house, dealer) DealCommunity with
+                        card = head community
+
+                    create this with community = tail community
+
 
 template Seed
     with
-        player : Party
+        house : Party
         dealer : Party
-        seed : Int
+        id : Int
+        total : Int
     where
         signatory dealer
 
-        key (player, dealer) : (Party, Party)
-        maintainer (snd key)
+        key (id, house, dealer) : (Int, Party, Party)
 
-        controller dealer can 
-            UseSeed : Int
-                do return seed
+        -- key (player, dealer) : (Party, Party)
+        maintainer key._3
+
+        controller dealer can
+            AddSeed : ContractId Seed
+                with 
+                    seed : Int
+                do
+                    create this with total = total + seed
+                
+            StartGame : ContractId Table
+                do
+                    (tableId, table) <- fetchByKey @Table (id, house, dealer)
+
+                    let players = map (.player) table.seats
+
+                    let shuffled = shuffle total deck
+
+                    let n = length players
+
+                    let pairs = zip (take n shuffled) (drop n shuffled)
+
+                    mapA (\(holder, (card1, card2)) ->
+                             create Hand with dealer, holder, card1, card2, id) $ zip players pairs
+
+                    create UndealtCommunity with
+                        dealer
+                        house
+                        id
+                        community = take 5 $ drop (n + n) shuffled
+
+                    exercise tableId StartHand
 
 template RequestJoinGame
     with
@@ -35,8 +90,21 @@ template RequestJoinGame
         maintainer (fst key)
 
         controller dealer can
-            AcceptRequestJoinGame : ContractId Lobby
+            -- AcceptRequestJoinGame : ContractId Lobby
+            --     do
+            --         create Seed with player, dealer, seed
+            --         -- exerciseByKey @Seed dealer AddSeed with seed
+            --         exerciseByKey @Lobby dealer AddPlayer with player, stack
+
+            AcceptRequestJoinTable : ContractId Table
+                with
+                    id : Int
+                    house : Party
+                    -- table : ContractId Table
                 do
-                    create Seed with player, dealer, seed
-                    -- exerciseByKey @Seed dealer AddSeed with seed
-                    exerciseByKey @Lobby dealer AddPlayer with player, stack
+                    exerciseByKey @Seed (id, house, dealer) AddSeed with seed
+                    -- create Seed with player, dealer, seed
+
+                    invitation <- exerciseByKey @Table (id, house, dealer) InvitePlayer with player
+
+                    exercise invitation AcceptTableInvitation with stack

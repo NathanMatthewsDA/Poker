@@ -2,177 +2,142 @@ daml 1.2
 
 module Navigator where
 
-import Lobby
 import Chips
-import Dealer
 import RequestJoinGame
 import Table
 
-template Join
-    with
-        player : Party
-        dealer : Party
-        stack : ContractId Chips
-    where
-        signatory player
-        
-        controller player can
-          RequestJoin : ContractId RequestJoinGame
-            with seed : Int
-            do
-                stack <- exercise stack AddObserver_Chips with obs = dealer
-
-                create RequestJoinGame with
-                    player
-                    dealer
-                    seed
-                    stack
-
-setupPlayer : Party -> Party -> Int -> Party -> Scenario (ContractId Join)
-setupPlayer house dealer quantity player  =
-    scenario do        
+createChips : Party -> Party -> [Party] -> Int -> Scenario (ContractId Chips)
+createChips house owner observers quantity =
+    do
         transfer <- submit house do
-                    chips <- create Chips with 
-                                owner = house
-                                house
-                                quantity 
-                                observers = [dealer]
-                        
-                    exercise chips Transfer_Chips with
-                        newOwner = player
+                        chips <- create Chips with house, owner = house, quantity, observers
+                        exercise chips Transfer_Chips with newOwner = owner
+        
+        submit owner do
+            exercise transfer Accept_TransferChips
 
-        submit player do
-            stack <- exercise transfer Accept_TransferChips 
-
-            create Join with
-                player
-                dealer
-                stack
-
-addPlayerToLobby : Party -> ContractId Join -> Int -> Scenario (ContractId Lobby)
-addPlayerToLobby player join seed =
-    scenario do
-        dealer <- submit player do
-            fmap (.dealer) $ fetch join
-
-        req <- submit player do
-            exercise join RequestJoin with seed
-
+joinTable : Party -> Party -> Party -> ContractId Chips -> Int -> Int -> Scenario (ContractId Table)
+joinTable house dealer player stack seed id = 
+    do
+        request <- submit player do
+                    create RequestJoinGame with dealer, player, seed, stack
+        
         submit dealer do
-            exercise req AcceptRequestJoinGame       
+           exercise request AcceptRequestJoinTable with house, id
 
 bootstrap = scenario do
     house <- getParty "House"
     dealer <- getParty "Dealer"
-                
-    dealerInvitation <- submit house do
-                            create DealerInvitation with house, dealer
 
-    d <- submit dealer do
-                create Dealer with dealer, id = 0, house, undealt = []
+    players@[alice, bob, eve, mallory, trent] <- 
+        mapA getParty ["Alice", "Bob", "Eve", "Mallory", "Trent"]
 
-    lobby <- submit dealer do
-                exercise dealerInvitation CreateLobby
-                    with smallBlind = 5, bigBlind = 10
+    let id = 100
 
-    let playerNames = ["Alice", "Bob", "Eve", "Mallory", "Trent"]
+    table <- submit house do
+            createTable house dealer id 10
 
-    players@[alice, bob, eve, mallory, trent] <- mapA getParty playerNames
+    let tableKey = (id, house, dealer)
 
-    let stacks = [150, 100, 200, 170, 100]
+    seed <- submit dealer do
+                create Seed with dealer, house, id, total = 0
 
-    joins <- sequence $ zipWith (setupPlayer house dealer)
-                            stacks
-                            players
+    aliceChips <- Navigator.createChips house alice [dealer] 300
+    bobChips <- Navigator.createChips house bob [dealer] 400
+    eveChips <- Navigator.createChips house eve [dealer] 400
+    malloryChips <- Navigator.createChips house mallory [dealer] 400
+    trentChips <- Navigator.createChips house trent [dealer] 400
 
-    let seeds = [1000, 2000, 3000, 4000, 5000]
+    table <- joinTable house dealer alice aliceChips 2432 id
+    table <- joinTable house dealer bob bobChips 9828 id
+    table <- joinTable house dealer eve eveChips 4534 id
+    table <- joinTable house dealer mallory malloryChips 12 id
+    table <- joinTable house dealer trent trentChips 5353 id
 
-    sequence $ zipWith3 addPlayerToLobby players joins seeds 
-
-    let roundKey = (0, house, dealer)
-
-    d <- submit dealer do
-        exercise d StartGame
+    submit dealer do
+        exerciseByKey @Seed tableKey StartGame
 
     submit eve do
-        exerciseByKey @Table roundKey Call
+        exerciseByKey @Table tableKey Call
     
-    submit bob do
-         exerciseByKey @Table roundKey Call
+    submit mallory do
+         exerciseByKey @Table tableKey Call
+
+    submit trent do
+         exerciseByKey @Table tableKey Call
 
     submit alice do
-         exerciseByKey @Table roundKey Call
+         exerciseByKey @Table tableKey Call
 
-    submit trent do
-         exerciseByKey @Table roundKey Call
+    submit dealer do
+        exerciseByKey @UndealtCommunity tableKey DealCommunityCard
+        exerciseByKey @UndealtCommunity tableKey DealCommunityCard
+        exerciseByKey @UndealtCommunity tableKey DealCommunityCard
 
-    d <- submit dealer do
-        exercise d DealCard
+    submit alice do
+        exerciseByKey @Table tableKey Check
 
-    submit trent do
-        exerciseByKey @Table roundKey Check
+    submit bob do
+        exerciseByKey @Table tableKey Check
+
+    submit eve do
+        exerciseByKey @Table tableKey Check
 
     submit mallory do
-        exerciseByKey @Table roundKey Check
+        exerciseByKey @Table tableKey Check
 
-    submit eve do
-        exerciseByKey @Table roundKey Check
+    -- submit alice do
+    --     exerciseByKey @Table roundKey Check
 
-    submit bob do
-        exerciseByKey @Table roundKey Check
+    -- d <- submit dealer do
+    --     exercise d DealCard
 
-    submit alice do
-        exerciseByKey @Table roundKey Check
+    -- submit trent do
+    --     exerciseByKey @Table roundKey Raise with amount = 30
 
-    d <- submit dealer do
-        exercise d DealCard
+    -- submit mallory do
+    --     exerciseByKey @Table roundKey Fold with player = mallory
 
-    submit trent do
-        exerciseByKey @Table roundKey Raise with amount = 30
+    -- submit eve do
+    --     exerciseByKey @Table roundKey Call
 
-    submit mallory do
-        exerciseByKey @Table roundKey Fold with player = mallory
+    -- submit bob do
+    --     exerciseByKey @Table roundKey Call
 
-    submit eve do
-        exerciseByKey @Table roundKey Call
+    -- submit alice do
+    --     exerciseByKey @Table roundKey Call
 
-    submit bob do
-        exerciseByKey @Table roundKey Call
+    -- d <- submit dealer do
+    --     exercise d DealCard
 
-    submit alice do
-        exerciseByKey @Table roundKey Call
+    -- submit trent do
+    --     exerciseByKey @Table roundKey Check
 
-    d <- submit dealer do
-        exercise d DealCard
+    -- submit eve do
+    --     exerciseByKey @Table roundKey Raise with amount = 40
 
-    submit trent do
-        exerciseByKey @Table roundKey Check
+    -- submit bob do
+    --     exerciseByKey @Table roundKey AllIn
 
-    submit eve do
-        exerciseByKey @Table roundKey Raise with amount = 40
+    -- submit alice do
+    --     exerciseByKey @Table roundKey Raise with amount = 20
 
-    submit bob do
-        exerciseByKey @Table roundKey AllIn
+    -- submit trent do
+    --     exerciseByKey @Table roundKey AllIn
 
-    submit alice do
-        exerciseByKey @Table roundKey Raise with amount = 20
+    -- submit eve do
+    --     exerciseByKey @Table roundKey Call
 
-    submit trent do
-        exerciseByKey @Table roundKey AllIn
+    -- submit bob do
+    --     exerciseByKey @Table roundKey Reveal with player = bob
 
-    submit eve do
-        exerciseByKey @Table roundKey Call
+    -- submit alice do
+    --     exerciseByKey @Table roundKey Reveal with player = alice
 
-    submit bob do
-        exerciseByKey @Table roundKey Reveal with player = bob
+    -- submit eve do
+    --     exerciseByKey @Table roundKey Reveal with player = eve
 
-    submit alice do
-        exerciseByKey @Table roundKey Reveal with player = alice
-
-    submit eve do
-        exerciseByKey @Table roundKey Reveal with player = eve
-
-    submit trent do
-        exerciseByKey @Table roundKey Reveal with player = trent
+    -- submit trent do
+    --     exerciseByKey @Table roundKey Reveal with player = trent
 
     return ()

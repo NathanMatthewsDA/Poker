@@ -8,10 +8,12 @@ import Hand
 import Seat
 import Phase
 import SidePot
+import DA.List (delete, (!!), head)
 
 turn : Party -> Phase -> Party
 turn dealer phase =
-    case phase of   
+    case phase of
+        WaitingForPlayers -> dealer  
         PlayerTurn (current, _) -> current
         DealerTurn -> dealer
         Finished _ -> dealer
@@ -129,6 +131,34 @@ signatories table =
         Finished _ -> [table.house]
         _ -> table.house :: inGame table.seats
 
+createTable : Party -> Party -> Int -> Int -> Update (ContractId Table)
+createTable house dealer id smallBlind =
+    create Table with
+        seats = []
+        phase = WaitingForPlayers
+        house
+        community = []
+        dealer
+        id
+        smallBlind
+        observers = []
+
+template TableInvitation
+    with
+        dealer : Party
+        house : Party
+        id : Int
+        player : Party
+    where
+        signatory dealer
+
+        controller player can
+            AcceptTableInvitation : ContractId Table
+                with
+                    stack : ContractId Chips
+                do
+                    exerciseByKey @Table (id, house, dealer) JoinTable with player, stack
+
 template Table
     with        
         seats : [Seat]
@@ -137,15 +167,37 @@ template Table
         community : [Card]
         dealer : Party
         id : Int
+        observers : [Party]
+        smallBlind : Int
     where
         signatory signatories this
 
-        observer map (.player) seats
+        observer observers
 
         key (id, house, dealer) : (Int, Party, Party)
 
         maintainer key._2
 
+        choice JoinTable : ContractId Table
+            with 
+                player : Party
+                stack : ContractId Chips
+            controller player, dealer
+            do
+                assert $ phase == WaitingForPlayers
+
+                chips <- fetch stack
+                exercise stack Archive
+
+                let seat = Seat with
+                                    stack = chips.quantity
+                                    player
+                                    bet = 0
+                                    folded = False
+                                    holeCards = None
+
+                create this with seats = seats ++ [seat]
+                
         choice Reveal : ContractId Table
             with
                 player : Party
@@ -182,7 +234,7 @@ template Table
                 else
                     outOfTurnFold table
 
-        controller turn dealer phase can
+        controller dealer can 
             DealCommunity : ContractId Table
                 with
                     card : Card
@@ -191,6 +243,29 @@ template Table
                     
                     next $ this with community = card :: community
 
+            InvitePlayer : ContractId TableInvitation
+                with
+                    player : Party
+                do
+                    assert $ not $ elem player $ map (.player) seats
+                    assert $ phase == WaitingForPlayers
+
+                    create this with observers = player :: observers
+
+                    create TableInvitation with house, dealer, player, id
+
+            StartHand : ContractId Table
+                do
+                    assert $ phase == WaitingForPlayers            
+                    assert $ length seats > 2
+
+                    table <- create this with phase = PlayerTurn ((head seats).player, BettingRound)
+                    table <- exercise table Raise with amount = smallBlind
+                    table <- exercise table Raise with amount = smallBlind * 2
+
+                    return table
+
+        controller turn dealer phase can
             Check : ContractId Table
                 do
                     assert $ phase /= DealerTurn
