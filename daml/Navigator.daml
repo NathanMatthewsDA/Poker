@@ -158,7 +158,7 @@ bootstrap = scenario do
         exerciseByKey @Table roundKey Raise with amount = 20
 
     submit trent do
-        exerciseByKey @Table roundKey Fold with player = trent
+        exerciseByKey @Table roundKey AllIn
 
     submit eve do
         exerciseByKey @Table roundKey Call
@@ -171,5 +171,8 @@ bootstrap = scenario do
 
     submit eve do
         exerciseByKey @Table roundKey Reveal with player = eve
+
+    submit trent do
+        exerciseByKey @Table roundKey Reveal with player = trent
 
     return ()

@@ -43,25 +43,36 @@ findWinners community seats =
     where
         (folded, unfolded) = separate (.folded) seats
 
-finish : [SidePot] -> Table -> Update (ContractId Table)
-finish winners table = 
-    do
-        mapA (\(owner, quantity) -> 
-                create Chips with 
-                    owner
-                    quantity
-                    house = table.house
-                    observers = [])
-            $ concatMap allocate winners
+finish : EndGame -> Table -> Update (ContractId Table)
+finish game table = 
+    case game of
+        ShowdownWinners winners ->
+            do
+                mapA (\(owner, quantity) -> 
+                        create Chips with 
+                            owner
+                            quantity
+                            house = table.house
+                            observers = [])
+                    $ concatMap allocate winners
 
-        create $ table with 
-            phase = Finished $ ShowdownWinners winners
+                create $ table with phase = Finished $ game
+        OneRemaining (owner, quantity) ->
+            do
+                create Chips with 
+                                owner
+                                quantity
+                                house = table.house
+                                observers = []
+                
+                create $ table with phase = Finished $ game
 
 next : Table -> Update (ContractId Table)
 next table =
     case findWinners table.community table.seats of
         Some game ->
-            create table with phase = Finished game
+            finish game table
+--            create table with phase = Finished game
         None ->
             do
                 let phase = nextPhase
@@ -87,10 +98,8 @@ nextPlayerTurn _ _ = False
 outOfTurnFold : Table -> Update (ContractId Table)
 outOfTurnFold table =
     case findWinners table.community table.seats of
-        Some game ->
-            create table with phase = Finished game 
-        None ->
-            create table
+        Some game -> finish game table
+        None -> create table
 
 returnAllRemaining : Party -> [Seat] -> Update [Seat]
 returnAllRemaining house seats =

@@ -43,33 +43,29 @@ addFolded (pot :: pots) folded =
 
 addSidePot : [SidePot] -> SidePot -> [SidePot]
 addSidePot [] toAdd = [toAdd]
-addSidePot (smallest :: higher) toAdd | toAdd.bet == smallest.bet =
-  (winner with pot = smallest.pot + toAdd.pot) :: higher
-  where
-    winner = if smallest.score == toAdd.score then
-               toAdd with winners = smallest.winners ++ toAdd.winners
-             else if smallest.score > toAdd.score then
-               smallest
-             else 
-               toAdd
-
-addSidePot (smallest :: higher) toAdd | toAdd.bet < smallest.bet =
-  if smallest.score >= toAdd.score then
-    (increaseSidePot toAdd.pot smallest) :: higher
-  else
-    toAdd :: smallest :: higher
-
-addSidePot (smallest :: higher) toAdd | toAdd.bet > smallest.bet =
-  if toAdd.score >= smallest.score then
-    addSidePot higher (increaseSidePot smallest.pot toAdd)
-  else
-    smallest :: (addSidePot higher toAdd)
+addSidePot (smallest :: higher) toAdd = 
+  case (compare toAdd.bet smallest.bet, compare toAdd.score smallest.score) of
+    (EQ, EQ) -> 
+      (toAdd with winners = smallest.winners ++ toAdd.winners, pot = smallest.pot + toAdd.pot) :: higher
+    (EQ, GT) -> 
+      (increaseSidePot smallest.pot toAdd) :: higher
+    (EQ, LT) -> 
+      (increaseSidePot toAdd.pot smallest) :: higher
+    (LT, GT) -> 
+      toAdd :: smallest :: higher
+    (LT, _) -> 
+      (increaseSidePot toAdd.pot smallest) :: higher
+    (GT, LT) -> 
+      smallest :: (addSidePot higher toAdd)
+    (GT, _) -> 
+      addSidePot higher (increaseSidePot smallest.pot toAdd)
 
 createSidePots : [Card] -> [Seat] -> [SidePot]
 createSidePots community seats =
   (\pots -> foldl addFolded pots (map (.bet) folded)) $
   foldl addSidePot [] $
-  mapOptional (fromSeat community) unfolded 
+  mapOptional (fromSeat community) $
+  unfolded 
   where
     (folded, unfolded) = separate (.folded) seats
 
