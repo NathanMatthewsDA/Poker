@@ -9,6 +9,7 @@ import Seat
 import Phase
 import SidePot
 import DA.List (delete, (!!), head)
+import DA.Optional (fromSome)
 
 turn : Party -> Phase -> Party
 turn dealer phase =
@@ -45,29 +46,23 @@ findWinners community seats =
     where
         (folded, unfolded) = separate (.folded) seats
 
+payout : ContractId Chips -> [(Party, Int)] -> Update (ContractId Chips)
+payout pot [] = return pot
+payout pot ((taker, amount) :: remaining) =
+    do
+        pot <- exercise pot Take with taker, amount
+        payout pot remaining
+
 finish : EndGame -> Table -> Update (ContractId Table)
 finish game table = 
-    case game of
-        ShowdownWinners winners ->
-            do
-                mapA (\(owner, quantity) -> 
-                        create Chips with 
-                            owner
-                            quantity
-                            house = table.house
-                            observers = [])
-                    $ concatMap allocate winners
-
-                create $ table with phase = Finished $ game
-        OneRemaining (owner, quantity) ->
-            do
-                create Chips with 
-                                owner
-                                quantity
-                                house = table.house
-                                observers = []
-                
-                create $ table with phase = Finished $ game
+    do 
+        pot <- case game of
+                ShowdownWinners winners ->
+                    payout table.pot $ concatMap allocate winners
+                OneRemaining (taker, amount) ->
+                    exercise table.pot Take with taker, amount
+        
+        create $ table with phase = Finished $ game, pot
 
 next : Table -> Update (ContractId Table)
 next table =
@@ -82,12 +77,16 @@ next table =
                                 table.seats
                                 table.phase
         
-                seats <- if inShowdown phase then
-                            returnAllRemaining table.house table.seats                        
-                         else
-                            do return $ table.seats
+                if inShowdown phase then
+                    do
+                        pot <- payout table.pot $
+                            map (\s -> (s.player, s.stack - s.bet)) $
+                            table.seats
 
-                create $ table with phase, seats
+                        let seats = map (\s -> s with stack = s.bet) table.seats
+                        create $ table with phase, seats, pot
+                else
+                    do create table with phase
 
 nextShowdownTurn : Party -> Phase -> Bool
 nextShowdownTurn player (PlayerTurn (turn, ShowdownRound)) = player == turn
@@ -103,24 +102,6 @@ outOfTurnFold table =
         Some game -> finish game table
         None -> create table
 
-returnAllRemaining : Party -> [Seat] -> Update [Seat]
-returnAllRemaining house seats =
-    mapA (returnRemaining house) seats
- 
-returnRemaining : Party -> Seat -> Update Seat
-returnRemaining house seat =
-    if seat.stack > seat.bet then
-        do
-            create Chips with
-                owner = seat.player
-                house
-                quantity = seat.stack - seat.bet
-                observers = []
-
-            return $ seat with stack = seat.bet
-    else
-        do return seat
-
 finished : Phase -> Bool
 finished (Finished _) = True
 finished _ = False
@@ -128,25 +109,24 @@ finished _ = False
 signatories : Table -> [Party]
 signatories table = 
     case table.phase of
-        Finished _ -> [table.house]
-        _ -> table.house :: inGame table.seats
+        Finished _ -> []
+        _ -> inGame table.seats
 
-createTable : Party -> Party -> Int -> Int -> Update (ContractId Table)
-createTable house dealer id smallBlind =
+createTable : ContractId Chips -> Party -> Int -> Int -> Update (ContractId Table)
+createTable pot dealer id smallBlind =
     create Table with
         seats = []
         phase = WaitingForPlayers
-        house
         community = []
         dealer
         id
         smallBlind
+        pot
         observers = []
 
 template TableInvitation
     with
         dealer : Party
-        house : Party
         id : Int
         player : Party
     where
@@ -157,24 +137,24 @@ template TableInvitation
                 with
                     stack : ContractId Chips
                 do
-                    exerciseByKey @Table (id, house, dealer) JoinTable with player, stack
+                    exerciseByKey @Table (id, dealer) JoinTable with player, stack
 
 template Table
-    with        
+    with
+        pot : ContractId Chips
         seats : [Seat]
         phase : Phase
-        house : Party
         community : [Card]
         dealer : Party
         id : Int
         observers : [Party]
         smallBlind : Int
     where
-        signatory signatories this
+        signatory dealer, signatories this
 
         observer observers
 
-        key (id, house, dealer) : (Int, Party, Party)
+        key (id, dealer) : (Int, Party)
 
         maintainer key._2
 
@@ -187,16 +167,18 @@ template Table
                 assert $ phase == WaitingForPlayers
 
                 chips <- fetch stack
-                exercise stack Archive
+                -- exercise stack Archive
 
+                pot <- exercise pot Merge with other = player, chips = stack
+ 
                 let seat = Seat with
                                     stack = chips.quantity
                                     player
                                     bet = 0
                                     folded = False
                                     holeCards = None
-
-                create this with seats = seats ++ [seat]
+                                    
+                create this with seats = seats ++ [seat], pot
                 
         choice Reveal : ContractId Table
             with
@@ -225,9 +207,13 @@ template Table
                 assert $ not $ finished phase
                 assert $ elem player $ map (.player) $ filter (not . (.folded)) seats
                 
-                returnRemaining house $ playerSeat player seats
+                let seat = playerSeat player seats 
 
-                let table = this with seats = fold player seats
+                pot <- exercise pot LeaveWith with 
+                            leaver = player
+                            amount = seat.stack - seat.bet
+
+                let table = this with seats = fold player seats, pot
 
                 if nextPlayerTurn player phase then
                     next table
@@ -250,9 +236,14 @@ template Table
                     assert $ not $ elem player $ map (.player) seats
                     assert $ phase == WaitingForPlayers
 
-                    create this with observers = player :: observers
+                    pot <- exercise pot AddObserver with adder = dealer, obs = player
 
-                    create TableInvitation with house, dealer, player, id
+                    create this 
+                        with 
+                            observers = player :: observers
+                            pot
+
+                    create TableInvitation with dealer, player, id
 
             StartHand : ContractId Table
                 do

@@ -12,30 +12,134 @@ template TransferChips
         chips : Chips
         newOwner : Party
     where
-        signatory chips.owner
+        signatory chips.owners
 
         controller newOwner can
             Accept_TransferChips : ContractId Chips
-                do create chips with owner = newOwner
+                do create chips with owners = [newOwner]
             
             RejectTransfer : ContractId Chips 
                 do create chips
 
-        controller chips.owner can
+        controller chips.owners can
             CancelTransfer : ContractId Chips
                 do create chips 
             
+template AddOwner
+    with 
+        chips : Chips
+        newOwner : Party
+    where
+        signatory chips.owners
+
+        controller newOwner can
+            Accept_AddOwner : ContractId Chips
+                do create chips with owners = newOwner :: chips.owners
+            
+            Reject_addOwner : ContractId Chips 
+                do create chips
+
+        controller chips.owners can
+            Cancel_AddOwner : ContractId Chips
+                do create chips 
+
 template Chips 
     with 
-        owner : Party
+        owners : [Party]
         house : Party
         quantity : Int
         observers : [Party]
     where
-        signatory house, owner
+        signatory house, owners
         observer observers
+
+        ensure quantity >= 0
+
+        choice Merge : ContractId Chips
+            with
+                chips : ContractId Chips
+                other : Party
+            controller other, owners
+            do
+                assert $ not $ elem other owners
+                c <- fetch chips
+                exercise chips Archive
+
+                create this with
+                        quantity = quantity + c.quantity
+                        owners = other :: owners
+
+        choice Give : ContractId Chips
+            with
+                gift : ContractId Chips
+                giver : Party
+            controller giver
+            do
+                chips <- fetch gift
+                exercise gift Archive
+
+                create this with
+                        quantity = quantity + chips.quantity
+
+        choice LeaveWith : ContractId Chips
+            with
+                leaver : Party
+                amount : Int
+            controller owners
+            do
+                assert $ elem leaver owners
+                assert $ amount > 0 && amount < quantity
+                assert $ length owners > 1
+
+                create Chips with
+                    owners = [leaver]
+                    house = house
+                    quantity = amount
+                    observers = []
+
+                create this with 
+                    owners = delete leaver owners
+                    quantity = quantity - amount
         
-        controller owner can
+        choice Take : ContractId Chips
+            with
+                taker : Party
+                amount : Int
+            controller owners
+            do
+                assert $ elem taker owners
+                assert $ amount > 0 && amount < quantity
+                assert $ length owners > 1
+
+                create Chips with
+                    owners = [taker]
+                    house = house
+                    quantity = amount
+                    observers = []
+
+                create this with quantity = quantity - amount
+
+        choice Recind : ContractId Chips
+            with
+                leaver : Party
+            controller leaver
+            do
+                assert $ elem leaver owners
+                assert $ length owners > 1
+
+                create this with 
+                    owners = delete leaver owners
+
+        choice AddObserver : ContractId Chips
+            with
+                obs : Party
+                adder : Party
+            controller adder
+            do
+                assert $ elem adder observers || elem adder owners
+                create this with observers = obs :: observers
+
+        controller owners can
 
             AddObserver_Chips : ContractId Chips
                 with
@@ -60,14 +164,22 @@ template Chips
 
                     return (l, r)
 
-            Merge : ContractId Chips
-                with
-                    other : ContractId Chips
-                do
-                    chips <- fetch other
-                    exercise other Archive
+            -- Merge : ContractId Chips
+            --     with
+            --         other : ContractId Chips
+            --     do
+            --         chips <- fetch other
+            --         exercise other Archive
 
-                    create this with quantity = quantity + chips.quantity
+            --         create this with
+            --             quantity = quantity + chips.quantity
+
+            AddOwner_Chips : ContractId AddOwner
+                with
+                    newOwner : Party
+                do
+                    create AddOwner with 
+                        chips = this, newOwner
 
             Transfer_Chips : ContractId TransferChips
                 with
@@ -77,19 +189,19 @@ template Chips
             
 type ReturnStack = Optional (ContractId Chips) 
 
-createChips : Party -> Party -> [Party] -> Int -> Scenario (ContractId Chips)
-createChips house player observers quantity =
-    scenario do
-       chips <- submit house do
-                    create Chips with
-                        owner = house
-                        house
-                        quantity
-                        observers
+-- createChips : Party -> Party -> [Party] -> Int -> Scenario (ContractId Chips)
+-- createChips house player observers quantity =
+--     scenario do
+--        chips <- submit house do
+--                     create Chips with
+--                         owners = [house]
+--                         house
+--                         quantity
+--                         observers
                                             
-       transfer <- submit house do
-                    exercise chips Transfer_Chips with
-                        newOwner = player
+--        transfer <- submit house do
+--                     exercise chips Transfer_Chips with
+--                         newOwner = player
 
-       submit player do
-            exercise transfer Accept_TransferChips
+--        submit player do
+--             exercise transfer Accept_TransferChips

@@ -27,18 +27,10 @@ data Value
   | King 
   | Ace deriving (Eq, Ord, Enum, Bounded, Show)
 
--- instance MapKey Rank where
---   keyToText = show 
---   keyFromText = undefined
-
 data Card = Card with
     value : Value
     suit : Suit
   deriving (Eq, Ord, Show)
 
--- instance Show Card where
---    show _ = " of "
-
 deck : [Card]
---deck = Set.fromList $ Card <$> enumerate <*> enumerate
 deck = [Card rank suit | rank <- enumerate, suit <- enumerate]

@@ -10,37 +10,44 @@ createChips : Party -> Party -> [Party] -> Int -> Scenario (ContractId Chips)
 createChips house owner observers quantity =
     do
         transfer <- submit house do
-                        chips <- create Chips with house, owner = house, quantity, observers
+                        chips <- create Chips with house, owners = [house], quantity, observers
                         exercise chips Transfer_Chips with newOwner = owner
         
         submit owner do
             exercise transfer Accept_TransferChips
 
-joinTable : Party -> Party -> Party -> ContractId Chips -> Int -> Int -> Scenario (ContractId Table)
-joinTable house dealer player stack seed id = 
+joinTable : Party -> Party -> ContractId Chips -> Int -> Int -> Scenario (ContractId Table)
+joinTable dealer player stack seed id = 
     do
         request <- submit player do
                     create RequestJoinGame with dealer, player, seed, stack
         
         submit dealer do
-           exercise request AcceptRequestJoinTable with house, id
+           exercise request AcceptRequestJoinTable with id
 
 bootstrap = scenario do
     house <- getParty "House"
     dealer <- getParty "Dealer"
 
+    emptyPot <- submit house do
+                    create Chips with
+                        house
+                        owners = []
+                        observers = [dealer]
+                        quantity = 0
+                    
     players@[alice, bob, eve, mallory, trent] <- 
         mapA getParty ["Alice", "Bob", "Eve", "Mallory", "Trent"]
 
     let id = 100
 
-    table <- submit house do
-            createTable house dealer id 10
+    table <- submit dealer do
+            createTable emptyPot dealer id 10
 
-    let tableKey = (id, house, dealer)
+    let tableKey = (id, dealer)
 
     seed <- submit dealer do
-                create Seed with dealer, house, id, total = 0
+                create Seed with dealer, id, total = 0
 
     aliceChips <- Navigator.createChips house alice [dealer] 300
     bobChips <- Navigator.createChips house bob [dealer] 400
@@ -48,11 +55,11 @@ bootstrap = scenario do
     malloryChips <- Navigator.createChips house mallory [dealer] 400
     trentChips <- Navigator.createChips house trent [dealer] 400
 
-    table <- joinTable house dealer alice aliceChips 2432 id
-    table <- joinTable house dealer bob bobChips 9828 id
-    table <- joinTable house dealer eve eveChips 4534 id
-    table <- joinTable house dealer mallory malloryChips 12 id
-    table <- joinTable house dealer trent trentChips 5353 id
+    table <- joinTable dealer alice aliceChips 2432 id
+    table <- joinTable dealer bob bobChips 9828 id
+    table <- joinTable dealer eve eveChips 4534 id
+    table <- joinTable dealer mallory malloryChips 12 id
+    table <- joinTable dealer trent trentChips 5353 id
 
     submit dealer do
         exerciseByKey @Seed tableKey StartGame
