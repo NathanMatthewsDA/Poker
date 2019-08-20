@@ -32,6 +32,13 @@ findNextLoop : (a -> Bool) -> [a] -> Optional a
 findNextLoop f xs =
     fmap snd $ find (f . fst) $ zip xs (rotate xs)
 
+foldlM : (Action m) => (a -> b -> m b) -> [a] -> b -> m b
+foldlM f [] s = do return s
+foldlM f (x :: xs) s =
+    do
+        b <- f x s
+        foldlM f xs b
+
 -- findPrevLoop : (a -> Bool) -> [a] -> Optional a
 -- findPrevLoop f xs =
 --     fmap snd $ find (f . fst) $ zip xs (rotate xs)

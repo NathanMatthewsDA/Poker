@@ -14,7 +14,7 @@ import DA.Optional (fromSome)
 turn : Party -> Phase -> Party
 turn dealer phase =
     case phase of
-        WaitingForPlayers -> dealer  
+        WaitingForPlayers _ -> dealer  
         PlayerTurn (current, _) -> current
         DealerTurn -> dealer
         Finished _ -> dealer
@@ -112,17 +112,17 @@ signatories table =
         Finished _ -> []
         _ -> inGame table.seats
 
-createTable : ContractId Chips -> Party -> Int -> Int -> Update (ContractId Table)
-createTable pot dealer id smallBlind =
-    create Table with
-        seats = []
-        phase = WaitingForPlayers
-        community = []
-        dealer
-        id
-        smallBlind
-        pot
-        observers = []
+-- createTable : ContractId Chips -> Party -> Int -> Int -> Update (ContractId Table)
+-- createTable pot dealer id smallBlind =
+--     create Table with
+--         seats = []
+--         phase = WaitingForPlayers
+--         community = []
+--         dealer
+--         id
+--         smallBlind
+--         pot
+--         observers = []
 
 template TableInvitation
     with
@@ -136,8 +136,15 @@ template TableInvitation
             AcceptTableInvitation : ContractId Table
                 with
                     stack : ContractId Chips
+                    seed : ContractId PlayerSeed
                 do
-                    exerciseByKey @Table (id, dealer) JoinTable with player, stack
+                    exerciseByKey @Table (id, dealer) JoinTable with player, stack, seed
+
+assertWaitingForPlayers : Phase -> Update ()
+assertWaitingForPlayers phase = 
+    case phase of
+        WaitingForPlayers _ -> return ()
+        _ -> error ""
 
 template Table
     with
@@ -161,24 +168,33 @@ template Table
         choice JoinTable : ContractId Table
             with 
                 player : Party
+                seed : ContractId PlayerSeed
                 stack : ContractId Chips
             controller player, dealer
             do
-                assert $ phase == WaitingForPlayers
+                case phase of 
+                    WaitingForPlayers pending ->
+                        do
+                            assert $ not $ elem player pending
 
-                chips <- fetch stack
-                -- exercise stack Archive
+                            chips <- fetch stack
 
-                pot <- exercise pot Merge with other = player, chips = stack
- 
-                let seat = Seat with
-                                    stack = chips.quantity
-                                    player
-                                    bet = 0
-                                    folded = False
-                                    holeCards = None
-                                    
-                create this with seats = seats ++ [seat], pot
+                            pot <- exercise pot Merge with other = player, chips = stack
+            
+                            let seat = Seat with
+                                                stack = chips.quantity
+                                                seed
+                                                player
+                                                bet = 0
+                                                folded = False
+                                                holeCards = None
+                                                
+                            create this with
+                                seats = seats ++ [seat]
+                                pot
+                                phase = WaitingForPlayers (player :: pending)
+
+                    _ -> error "TODO"
                 
         choice Reveal : ContractId Table
             with
@@ -220,6 +236,43 @@ template Table
                 else
                     outOfTurnFold table
 
+        choice InvitePlayer : ContractId TableInvitation
+            with
+                player : Party
+                inviter : Party
+            controller inviter
+            do
+                assert $ elem inviter $ map (.player) seats
+                assert $ not $ elem player $ map (.player) seats
+                assertWaitingForPlayers phase
+            
+                potSize <- fmap (.quantity) $ fetch pot
+
+                pot <- exercise pot AddObserver with adder = inviter, obs = player
+
+                create this with 
+                    observers = player :: observers
+                    pot
+                    seats = case seats of
+                                [seat] -> [seat with stack = potSize]
+                                s -> s
+
+                create TableInvitation with dealer, player, id
+
+        choice PlayerReady : ContractId Table
+            with
+                player : Party
+            controller player
+            do            
+                case phase of
+                    WaitingForPlayers waitingFor ->
+                        do
+                            assert $ elem player waitingFor
+
+                            create this with phase = WaitingForPlayers (delete player waitingFor)
+
+                    _ -> error "TODO"
+
         controller dealer can 
             DealCommunity : ContractId Table
                 with
@@ -229,25 +282,9 @@ template Table
                     
                     next $ this with community = card :: community
 
-            InvitePlayer : ContractId TableInvitation
-                with
-                    player : Party
-                do
-                    assert $ not $ elem player $ map (.player) seats
-                    assert $ phase == WaitingForPlayers
-
-                    pot <- exercise pot AddObserver with adder = dealer, obs = player
-
-                    create this 
-                        with 
-                            observers = player :: observers
-                            pot
-
-                    create TableInvitation with dealer, player, id
-
             StartHand : ContractId Table
                 do
-                    assert $ phase == WaitingForPlayers            
+                    assertWaitingForPlayers phase
                     assert $ length seats > 2
 
                     table <- create this with phase = PlayerTurn ((head seats).player, BettingRound)

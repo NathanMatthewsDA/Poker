@@ -3,8 +3,9 @@ daml 1.2
 module Navigator where
 
 import Chips
-import RequestJoinGame
 import Table
+import StartTable
+import Seat
 
 createChips : Party -> Party -> [Party] -> Int -> Scenario (ContractId Chips)
 createChips house owner observers quantity =
@@ -16,53 +17,77 @@ createChips house owner observers quantity =
         submit owner do
             exercise transfer Accept_TransferChips
 
-joinTable : Party -> Party -> ContractId Chips -> Int -> Int -> Scenario (ContractId Table)
-joinTable dealer player stack seed id = 
+createSeed : Party -> Party -> Int -> Scenario (ContractId PlayerSeed)
+createSeed dealer player seed = 
     do
-        request <- submit player do
-                    create RequestJoinGame with dealer, player, seed, stack
-        
-        submit dealer do
-           exercise request AcceptRequestJoinTable with id
+        submit player do
+            create PlayerSeed with player, dealer, seed
+
+inviteAndJoin : Party -> Party -> ContractId Chips -> ContractId PlayerSeed -> ContractId Table -> Scenario (ContractId Table)
+inviteAndJoin inviter player stack seed table =
+    do        
+        invite <- submit inviter do
+            exercise table InvitePlayer with inviter, player
+
+        submit player do
+            exercise invite AcceptTableInvitation with stack, seed
 
 bootstrap = scenario do
     house <- getParty "House"
     dealer <- getParty "Dealer"
 
-    emptyPot <- submit house do
-                    create Chips with
-                        house
-                        owners = []
-                        observers = [dealer]
-                        quantity = 0
-                    
     players@[alice, bob, eve, mallory, trent] <- 
         mapA getParty ["Alice", "Bob", "Eve", "Mallory", "Trent"]
 
     let id = 100
 
-    table <- submit dealer do
-            createTable emptyPot dealer id 10
-
     let tableKey = (id, dealer)
 
-    seed <- submit dealer do
-                create Seed with dealer, id, total = 0
+    d <- submit dealer do
+            create Dealer with dealer, id
 
-    aliceChips <- Navigator.createChips house alice [dealer] 300
-    bobChips <- Navigator.createChips house bob [dealer] 400
-    eveChips <- Navigator.createChips house eve [dealer] 400
-    malloryChips <- Navigator.createChips house mallory [dealer] 400
-    trentChips <- Navigator.createChips house trent [dealer] 400
+    aliceChips <- Navigator.createChips house alice [] 300
+    bobChips <- Navigator.createChips house bob [] 400
+    eveChips <- Navigator.createChips house eve [] 400
+    malloryChips <- Navigator.createChips house mallory [] 400
+    trentChips <- Navigator.createChips house trent [] 400
 
-    table <- joinTable dealer alice aliceChips 2432 id
-    table <- joinTable dealer bob bobChips 9828 id
-    table <- joinTable dealer eve eveChips 4534 id
-    table <- joinTable dealer mallory malloryChips 12 id
-    table <- joinTable dealer trent trentChips 5353 id
+    aliceSeed <- createSeed dealer alice 2132
+    bobSeed <- createSeed dealer bob 35253
+    eveSeed <- createSeed dealer eve 21412
+    mallorySeed <- createSeed dealer mallory 923
+    trentSeed <- createSeed dealer trent 983342
 
-    submit dealer do
-        exerciseByKey @Seed tableKey StartGame
+    st <- submit alice do
+            create StartTable with
+                seed = aliceSeed
+                dealer
+                player = alice
+                smallBlind = 10
+                stack = aliceChips
+
+
+    table <- submit dealer do
+                exercise st CreateTable with id
+
+    table <- inviteAndJoin alice bob bobChips bobSeed table         
+    table <- inviteAndJoin bob eve eveChips eveSeed table
+    table <- inviteAndJoin bob mallory malloryChips mallorySeed table
+
+    table <- submit bob do
+                exercise table PlayerReady with player = bob
+
+    table <- submit eve do
+                exercise table PlayerReady with player = eve
+
+    table <- submit alice do
+                exercise table PlayerReady with player = alice
+
+    table <- submit mallory do
+                exercise table PlayerReady with player = mallory
+
+    table <- submit dealer do
+                exercise d DealAndStartHand
 
     submit eve do
         exerciseByKey @Table tableKey Call
@@ -70,28 +95,42 @@ bootstrap = scenario do
     submit mallory do
          exerciseByKey @Table tableKey Call
 
-    submit trent do
-         exerciseByKey @Table tableKey Call
-
     submit alice do
          exerciseByKey @Table tableKey Call
 
-    submit dealer do
-        exerciseByKey @UndealtCommunity tableKey DealCommunityCard
-        exerciseByKey @UndealtCommunity tableKey DealCommunityCard
-        exerciseByKey @UndealtCommunity tableKey DealCommunityCard
+    table <- submit dealer do
+        exerciseByKey @Community tableKey PlayCommunity
 
-    submit alice do
-        exerciseByKey @Table tableKey Check
+    -- submit trent do
+    --      exerciseByKey @Table tableKey Call
 
-    submit bob do
-        exerciseByKey @Table tableKey Check
+    -- submit alice do
+    --      exerciseByKey @Table tableKey Call
 
-    submit eve do
-        exerciseByKey @Table tableKey Check
+    -- submit dealer do
+    --     exerciseByKey @UndealtCommunity tableKey DealCommunityCard
+    --     exerciseByKey @UndealtCommunity tableKey DealCommunityCard
+    --     exerciseByKey @UndealtCommunity tableKey DealCommunityCard
 
-    submit mallory do
-        exerciseByKey @Table tableKey Check
+    -- submit alice do
+    --     exerciseByKey @Table tableKey Check
+
+    -- submit bob do
+    --     exerciseByKey @Table tableKey Check
+
+    -- submit eve do
+    --     exerciseByKey @Table tableKey Check
+
+    -- submit mallory do
+    --     exerciseByKey @Table tableKey Check
+
+
+
+
+
+
+
+
 
     -- submit alice do
     --     exerciseByKey @Table roundKey Check

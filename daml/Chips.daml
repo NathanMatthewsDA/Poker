@@ -61,13 +61,12 @@ template Chips
                 other : Party
             controller other, owners
             do
-                assert $ not $ elem other owners
                 c <- fetch chips
                 exercise chips Archive
 
                 create this with
                         quantity = quantity + c.quantity
-                        owners = other :: owners
+                        owners = dedup $ other :: owners
 
         choice Give : ContractId Chips
             with
@@ -164,16 +163,6 @@ template Chips
 
                     return (l, r)
 
-            -- Merge : ContractId Chips
-            --     with
-            --         other : ContractId Chips
-            --     do
-            --         chips <- fetch other
-            --         exercise other Archive
-
-            --         create this with
-            --             quantity = quantity + chips.quantity
-
             AddOwner_Chips : ContractId AddOwner
                 with
                     newOwner : Party
@@ -187,21 +176,3 @@ template Chips
                 do
                     create TransferChips with chips = this, newOwner
             
-type ReturnStack = Optional (ContractId Chips) 
-
--- createChips : Party -> Party -> [Party] -> Int -> Scenario (ContractId Chips)
--- createChips house player observers quantity =
---     scenario do
---        chips <- submit house do
---                     create Chips with
---                         owners = [house]
---                         house
---                         quantity
---                         observers
-                                            
---        transfer <- submit house do
---                     exercise chips Transfer_Chips with
---                         newOwner = player
-
---        submit player do
---             exercise transfer Accept_TransferChips

@@ -17,7 +17,7 @@ data EndGame =
         deriving (Eq, Show)
 
 data Phase =
-    WaitingForPlayers |
+    WaitingForPlayers [Party] |
     DealerTurn |
     PlayerTurn (Party, Round) |
     Finished EndGame
@@ -25,7 +25,9 @@ data Phase =
 
 roundType : Phase -> Round
 roundType (PlayerTurn (_, round)) = round
-roundType _ = error ""
+roundType (Finished _) = error "No round type, game has finished"
+roundType (WaitingForPlayers _) = error "No round type, game hasnt started"
+roundType DealerTurn = error "No round type, is Dealer turn"
 
 inTurn : Party -> Phase -> Bool
 inTurn player (PlayerTurn (turn, _)) = player == turn
@@ -36,7 +38,7 @@ nextPhase community seats phase =
     case phase of
         Finished _ -> error "TODO"
 
-        WaitingForPlayers  -> error "TODO"
+        WaitingForPlayers _ -> error "TODO"
 
         DealerTurn | length community < 3 ->
             DealerTurn

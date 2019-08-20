@@ -7,7 +7,17 @@ import DA.Optional
 import DA.List
 import DA.Foldable (maximum)
 
+template PlayerSeed 
+    with
+        player : Party
+        dealer : Party
+        seed : Int
+    where
+        signatory player 
+        observer dealer
+        
 data Seat = Seat with
+    seed : ContractId PlayerSeed
     folded : Bool
     holeCards : Optional (Card, Card)
     player : Party

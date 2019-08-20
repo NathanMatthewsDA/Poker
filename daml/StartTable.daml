@@ -1,0 +1,121 @@
+daml 1.2
+
+module StartTable where
+
+import Chips
+import Table 
+import Phase
+import Seat
+import Cards
+import Random
+import Hand
+
+shuffled : [Seat] -> Update [Card]
+shuffled seats =
+  do
+    seeds <- mapA (fmap (.seed) . fetch . (.seed)) seats
+
+    return $ shuffle (sum seeds) deck
+
+dealCommunity : [Card] -> ContractId Table  -> Update ([Card], ContractId Table)
+dealCommunity (card :: community) table = 
+  do
+    table <- exercise table DealCommunity with card
+    t <- fetch table
+    
+    if t.phase == DealerTurn then
+      dealCommunity community table
+    else
+      return (community, table)
+
+template Community 
+  with
+    id : Int
+    dealer : Party
+    community : [Card]
+  where
+    signatory dealer
+
+    key (id, dealer) : (Int, Party)
+
+    maintainer key._2
+
+    controller dealer can
+      PlayCommunity : ContractId Table
+        do
+            (table, _) <- fetchByKey @Table (id, dealer)
+
+            (community, table) <- dealCommunity community table
+
+            create this with community
+
+            return table
+
+template Dealer 
+  with
+    id : Int
+    dealer : Party
+  where
+    signatory dealer
+
+    controller dealer can
+
+      DealAndStartHand : ContractId Table
+        do
+          (tableId, table) <- fetchByKey @Table (id, dealer)
+
+          assert $ length table.seats > 1
+
+          cards <- shuffled table.seats
+
+          let n = length table.seats
+
+          sequence $ zipWith3 (\holder card1 card2 -> 
+                                create Hand with holder, dealer, id, card1, card2)
+                       (map (.player) table.seats)
+                       cards
+                       (drop n cards)
+
+          
+          create Community with id, dealer, community = take 5 $ drop (n * 2) cards
+
+          case table.phase of
+            WaitingForPlayers [] ->
+              exercise tableId StartHand
+
+            WaitingForPlayers player ->
+              error "TODO"
+
+            _ ->
+              error "TODO"
+
+template StartTable
+  with
+    player : Party
+    dealer : Party
+    smallBlind : Int
+    stack : ContractId Chips
+    seed : ContractId PlayerSeed
+  where
+    signatory player
+
+    controller dealer can
+        CreateTable : ContractId Table
+            with
+                id : Int
+            do
+                create Table with
+                    seats = [Seat with 
+                                seed
+                                folded = False
+                                holeCards = None
+                                player
+                                bet = 0
+                                stack = 0]
+                    phase = WaitingForPlayers [player]
+                    community = []
+                    dealer
+                    id
+                    smallBlind
+                    pot = stack
+                    observers = []
