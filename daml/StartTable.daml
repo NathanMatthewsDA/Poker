@@ -83,11 +83,11 @@ template Dealer
             WaitingForPlayers [] ->
               exercise tableId StartHand
 
-            WaitingForPlayers player ->
-              error "TODO"
+            WaitingForPlayers players ->
+              error $ "Can't start hand as players: " <> show players <> " are not ready"
 
             _ ->
-              error "TODO"
+              error $ "Can't start hand as game has already started"
 
 template StartTable
   with

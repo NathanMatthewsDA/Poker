@@ -5,7 +5,6 @@ module Phase where
 import Cards
 import Seat
 import Utils
-import DA.Optional
 import DA.List
 import SidePot
 
@@ -36,9 +35,11 @@ inTurn _ _ = False
 nextPhase : [Card] -> [Seat] -> Phase -> Phase
 nextPhase community seats phase = 
     case phase of
-        Finished _ -> error "TODO"
+        Finished _ -> WaitingForPlayers $ map (.player) seats
 
-        WaitingForPlayers _ -> error "TODO"
+        WaitingForPlayers [] -> PlayerTurn ((head seats).player, BettingRound)
+
+        WaitingForPlayers pending -> WaitingForPlayers pending
 
         DealerTurn | length community < 3 ->
             DealerTurn

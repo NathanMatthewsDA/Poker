@@ -15,7 +15,7 @@ createChips house owner observers quantity =
                         exercise chips Transfer_Chips with newOwner = owner
         
         submit owner do
-            exercise transfer Accept_TransferChips
+            exercise transfer AcceptTransfer
 
 createSeed : Party -> Party -> Int -> Scenario (ContractId PlayerSeed)
 createSeed dealer player seed = 
@@ -73,6 +73,7 @@ bootstrap = scenario do
     table <- inviteAndJoin alice bob bobChips bobSeed table         
     table <- inviteAndJoin bob eve eveChips eveSeed table
     table <- inviteAndJoin bob mallory malloryChips mallorySeed table
+    table <- inviteAndJoin mallory trent trentChips trentSeed table
 
     table <- submit bob do
                 exercise table PlayerReady with player = bob
@@ -86,6 +87,9 @@ bootstrap = scenario do
     table <- submit mallory do
                 exercise table PlayerReady with player = mallory
 
+    table <- submit trent do
+                exercise table PlayerReady with player = trent
+
     table <- submit dealer do
                 exercise d DealAndStartHand
 
@@ -95,11 +99,19 @@ bootstrap = scenario do
     submit mallory do
          exerciseByKey @Table tableKey Call
 
+    submit trent do
+         exerciseByKey @Table tableKey Call
+
     submit alice do
          exerciseByKey @Table tableKey Call
 
     table <- submit dealer do
         exerciseByKey @Community tableKey PlayCommunity
+
+
+
+
+
 
     -- submit trent do
     --      exerciseByKey @Table tableKey Call

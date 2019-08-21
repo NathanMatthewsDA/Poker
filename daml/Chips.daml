@@ -3,9 +3,6 @@ daml 1.2
 module Chips where
 
 import DA.List
-import DA.Assert ((===))
-import DA.Optional (fromSome)
-import Utils
 
 template TransferChips
     with
@@ -15,7 +12,7 @@ template TransferChips
         signatory chips.owners
 
         controller newOwner can
-            Accept_TransferChips : ContractId Chips
+            AcceptTransfer : ContractId Chips
                 do create chips with owners = [newOwner]
             
             RejectTransfer : ContractId Chips 
@@ -25,24 +22,6 @@ template TransferChips
             CancelTransfer : ContractId Chips
                 do create chips 
             
-template AddOwner
-    with 
-        chips : Chips
-        newOwner : Party
-    where
-        signatory chips.owners
-
-        controller newOwner can
-            Accept_AddOwner : ContractId Chips
-                do create chips with owners = newOwner :: chips.owners
-            
-            Reject_addOwner : ContractId Chips 
-                do create chips
-
-        controller chips.owners can
-            Cancel_AddOwner : ContractId Chips
-                do create chips 
-
 template Chips 
     with 
         owners : [Party]
@@ -54,71 +33,56 @@ template Chips
         observer observers
 
         ensure quantity >= 0
-
-        choice Merge : ContractId Chips
+            
+        choice AddChips : ContractId Chips
             with
                 chips : ContractId Chips
-                other : Party
-            controller other, owners
+                chipsOwners : [Party]
+            controller chipsOwners
             do
-                c <- fetch chips
+                q <- fmap (.quantity) $ fetch chips
                 exercise chips Archive
+                create this with quantity = quantity + q
+                        
+        -- choice LeaveWith : ContractId Chips
+        --     with
+        --         leaver : Party
+        --         amount : Int
+        --     controller owners
+        --     do
+        --         assert $ elem leaver owners
+        --         assert $ amount > 0 && amount < quantity
+        --         assert $ length owners > 1
 
-                create this with
-                        quantity = quantity + c.quantity
-                        owners = dedup $ other :: owners
+        --         create Chips with
+        --             owners = [leaver]
+        --             house = house
+        --             quantity = amount
+        --             observers = []
 
-        choice Give : ContractId Chips
-            with
-                gift : ContractId Chips
-                giver : Party
-            controller giver
-            do
-                chips <- fetch gift
-                exercise gift Archive
-
-                create this with
-                        quantity = quantity + chips.quantity
-
-        choice LeaveWith : ContractId Chips
-            with
-                leaver : Party
-                amount : Int
-            controller owners
-            do
-                assert $ elem leaver owners
-                assert $ amount > 0 && amount < quantity
-                assert $ length owners > 1
-
-                create Chips with
-                    owners = [leaver]
-                    house = house
-                    quantity = amount
-                    observers = []
-
-                create this with 
-                    owners = delete leaver owners
-                    quantity = quantity - amount
+        --         create this with 
+        --             owners = delete leaver owners
+        --             quantity = quantity - amount
         
-        choice Take : ContractId Chips
-            with
-                taker : Party
-                amount : Int
-            controller owners
-            do
-                assert $ elem taker owners
-                assert $ amount > 0 && amount < quantity
-                assert $ length owners > 1
+        -- choice Take : ContractId Chips
+        --     with
+        --         taker : Party
+        --         amount : Int
+        --     controller owners
+        --     do
+        --         assert $ elem taker owners
+        --         assert $ amount > 0 && amount < quantity
+        --         assert $ length owners > 1
 
-                create Chips with
-                    owners = [taker]
-                    house = house
-                    quantity = amount
-                    observers = []
+        --         create Chips with
+        --             owners = [taker]
+        --             house = house
+        --             quantity = amount
+        --             observers = []
 
-                create this with quantity = quantity - amount
+        --         create this with quantity = quantity - amount
 
-        choice Recind : ContractId Chips
+        choice Leave : ContractId Chips
             with
                 leaver : Party
             controller leaver
@@ -138,19 +102,20 @@ template Chips
                 assert $ elem adder observers || elem adder owners
                 create this with observers = obs :: observers
 
+        choice AddOwner : ContractId Chips
+            with 
+                owner : Party
+            controller owner, owners
+            do
+                create this with owners = dedup $ owner :: owners
+
         controller owners can
 
-            AddObserver_Chips : ContractId Chips
+            TakeOwnership : ContractId Chips
                 with
-                    obs : Party
+                    owner : Party
                 do
-                    create this with observers = dedup $ obs :: observers
-
-            RemoveObserver_Chips : ContractId Chips
-                with
-                    obs : Party
-                do
-                    create this with observers = delete obs observers
+                    create this with owners = [owner], observers = []
 
             Split : (ContractId Chips, ContractId Chips)
                 with
@@ -162,13 +127,6 @@ template Chips
                     r <- create this with quantity = (quantity - amount)
 
                     return (l, r)
-
-            AddOwner_Chips : ContractId AddOwner
-                with
-                    newOwner : Party
-                do
-                    create AddOwner with 
-                        chips = this, newOwner
 
             Transfer_Chips : ContractId TransferChips
                 with

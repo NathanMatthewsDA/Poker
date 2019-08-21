@@ -48,21 +48,26 @@ findWinners community seats =
 
 payout : ContractId Chips -> [(Party, Int)] -> Update (ContractId Chips)
 payout pot [] = return pot
+payout pot ((taker, amount) :: []) =
+    do exercise pot TakeOwnership with owner = taker
+
 payout pot ((taker, amount) :: remaining) =
     do
-        pot <- exercise pot Take with taker, amount
+        (winnings, pot) <- exercise pot Split with amount
+        exercise winnings TakeOwnership with owner = taker
+        pot <- exercise pot Leave with leaver = taker
         payout pot remaining
 
 finish : EndGame -> Table -> Update (ContractId Table)
 finish game table = 
     do 
-        pot <- case game of
-                ShowdownWinners winners ->
-                    payout table.pot $ concatMap allocate winners
-                OneRemaining (taker, amount) ->
-                    exercise table.pot Take with taker, amount
+        case game of
+            ShowdownWinners winners ->            
+                payout table.pot $ concatMap allocate winners
+            OneRemaining (taker, amount) -> 
+                return $ table.pot
         
-        create $ table with phase = Finished $ game, pot
+        create $ table with phase = Finished $ game
 
 next : Table -> Update (ContractId Table)
 next table =
@@ -179,7 +184,8 @@ template Table
 
                             chips <- fetch stack
 
-                            pot <- exercise pot Merge with other = player, chips = stack
+                            pot <- exercise pot AddOwner with owner = player
+                            pot <- exercise pot AddChips with chips = stack, chipsOwners = [player]
             
                             let seat = Seat with
                                                 stack = chips.quantity
@@ -194,7 +200,7 @@ template Table
                                 pot
                                 phase = WaitingForPlayers (player :: pending)
 
-                    _ -> error "TODO"
+                    _ -> error $ "Player: " <> show player <> " cannot join table as it has already started"
                 
         choice Reveal : ContractId Table
             with
@@ -225,9 +231,10 @@ template Table
                 
                 let seat = playerSeat player seats 
 
-                pot <- exercise pot LeaveWith with 
-                            leaver = player
-                            amount = seat.stack - seat.bet
+                (unbet, pot) <- exercise pot Split with amount = seat.stack - seat.bet
+
+                pot <- exercise pot Leave with leaver = player
+                exercise unbet TakeOwnership with owner = player 
 
                 let table = this with seats = fold player seats, pot
 
@@ -271,7 +278,7 @@ template Table
 
                             create this with phase = WaitingForPlayers (delete player waitingFor)
 
-                    _ -> error "TODO"
+                    _ -> error "Illegal state"
 
         controller dealer can 
             DealCommunity : ContractId Table
