@@ -22,15 +22,25 @@ data SidePot = SidePot with
 
 fromSeat : [Card] -> Seat -> Optional SidePot
 fromSeat community seat =
-  fmap 
-    (\(card1, card2) -> 
-      SidePot with 
+  case seat.revealed of
+    HoleCards (card1, card2) ->
+      Some $ SidePot with 
         score = 
           handRank (card1 :: card2 :: community)
         winners = [seat.player]
         bet = seat.bet
-        pot = seat.bet)
-    seat.holeCards
+        pot = seat.bet
+    _ -> None
+
+  -- fmap 
+  --   (\(card1, card2) -> 
+  --     SidePot with 
+  --       score = 
+  --         handRank (card1 :: card2 :: community)
+  --       winners = [seat.player]
+  --       bet = seat.bet
+  --       pot = seat.bet)
+  --   seat.holeCards
 
 addFolded : [SidePot] -> Int -> [SidePot]
 addFolded [] _ = error ""

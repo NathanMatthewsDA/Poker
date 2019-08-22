@@ -4,24 +4,23 @@ module Table where
 
 import Cards
 import Chips
-import Hand
 import Seat
 import Phase
 import SidePot
-import DA.List (delete, (!!), head)
+import DA.List (delete, (!!), head, dedup)
 import DA.Optional (fromSome)
 import DA.Action (foldlA)
 
 turn : Party -> Phase -> Party
 turn dealer phase =
     case phase of
-        WaitingForPlayers _ -> dealer  
-        PlayerTurn (current, _) -> current
-        DealerTurn -> dealer
+        WaitingForPlayers _ _ -> dealer
+        InGame (PlayerTurn (current, _)) -> current
+        InGame (DealerTurn) -> dealer
         Finished _ -> dealer
 
 inShowdown : Phase -> Bool
-inShowdown (PlayerTurn (_, ShowdownRound)) = True
+inShowdown (InGame (PlayerTurn (_, ShowdownRound))) = True
 inShowdown _ = False
     
 split : Int -> Int -> [Int]
@@ -40,12 +39,15 @@ findWinners community seats =
         [winner] ->
             Some $ OneRemaining (winner.player, Seat.pot seats + winner.stack - winner.bet)
         _ ->
-            if any (\s -> s.holeCards == None) unfolded then
-                None
-            else
+            if all (revealed . (.revealed)) unfolded then
                 Some $ ShowdownWinners (createSidePots community seats)
+            else
+                None                
     where
         (folded, unfolded) = separate (.folded) seats
+        revealed r = case r of 
+                        HoleCards _ -> True 
+                        _ -> False
 
 payout : ContractId Chips -> [(Party, Int)] -> Update (ContractId Chips)
 payout pot [] = return pot
@@ -102,11 +104,11 @@ next table =
                     do create table with phase
 
 nextShowdownTurn : Party -> Phase -> Bool
-nextShowdownTurn player (PlayerTurn (turn, ShowdownRound)) = player == turn
+nextShowdownTurn player (InGame (PlayerTurn (turn, ShowdownRound))) = player == turn
 nextShowdownTurn _ _ = False
 
 nextPlayerTurn : Party -> Phase -> Bool
-nextPlayerTurn player (PlayerTurn (turn, _)) = player == turn
+nextPlayerTurn player (InGame (PlayerTurn (turn, _))) = player == turn
 nextPlayerTurn _ _ = False
 
 outOfTurnFold : Table -> Update (ContractId Table)
@@ -119,45 +121,40 @@ finished : Phase -> Bool
 finished (Finished _) = True
 finished _ = False
 
-signatories : Table -> [Party]
-signatories table = 
-    case table.phase of
-        Finished _ -> []
-        _ -> inGame table.seats
-
--- createTable : ContractId Chips -> Party -> Int -> Int -> Update (ContractId Table)
--- createTable pot dealer id smallBlind =
---     create Table with
---         seats = []
---         phase = WaitingForPlayers
---         community = []
---         dealer
---         id
---         smallBlind
---         pot
---         observers = []
-
-template TableInvitation
-    with
-        dealer : Party
-        id : Int
-        player : Party
-    where
-        signatory dealer
-
-        controller player can
-            AcceptTableInvitation : ContractId Table
-                with
-                    stack : ContractId Chips
-                    seed : ContractId PlayerSeed
-                do
-                    exerciseByKey @Table (id, dealer) JoinTable with player, stack, seed
-
 assertWaitingForPlayers : Phase -> Update ()
 assertWaitingForPlayers phase = 
     case phase of
-        WaitingForPlayers _ -> return ()
+        WaitingForPlayers _ _ -> return ()
         _ -> error ""
+
+tableObservers : Phase -> [Party]
+tableObservers (WaitingForPlayers {pendingJoin}) = pendingJoin
+tableObservers _ = []
+
+createTable : Party -> ContractId Chips -> Int -> Int -> Update (ContractId Table)
+createTable dealer stack seed smallBlind = 
+    do
+        c <- fetch stack
+        assert $ length c.owners == 1
+        let player = head c.owners
+        
+        seed <- create PlayerSeed with player, seed, dealer
+
+        create Table with
+            pot = stack            
+            seats = [Seat with 
+                        seed
+                        folded = False
+                        revealed = NotDealt
+                        player
+                        bet = 0
+                        stack = c.quantity]
+
+            phase = WaitingForPlayers {pendingJoin = [], pendingReady = [player]}
+            community = []
+            dealer
+            observers = []
+            smallBlind
 
 template Table
     with
@@ -166,68 +163,73 @@ template Table
         phase : Phase
         community : [Card]
         dealer : Party
-        id : Int
         observers : [Party]
         smallBlind : Int
     where
-        signatory dealer, signatories this
+        signatory map (.player) seats
 
-        observer observers
+        observer observers, map (.player) seats, tableObservers phase
 
-        key (id, dealer) : (Int, Party)
+        -- choice JoinTable : ContractId Table
+        --     with
+        --         player : Party
+        --     controller player
+        --     do            
+        --         case phase of 
+        --             WaitingForPlayers {pendingReady, pendingJoin} ->
+        --                 do                            
+        --                     assert $ elem player pendingJoin
+        --                     assert $ not $ elem player pendingReady
 
-        maintainer key._2
+        --                     chips <- fetch stack
 
-        choice JoinTable : ContractId Table
-            with 
-                player : Party
-                seed : ContractId PlayerSeed
-                stack : ContractId Chips
-            controller player, dealer
-            do
-                case phase of 
-                    WaitingForPlayers pending ->
-                        do
-                            assert $ not $ elem player pending
-
-                            chips <- fetch stack
-
-                            pot <- exercise pot AddOwner with owner = player
-                            pot <- exercise pot AddChips with chips = stack, chipsOwners = [player]
+        --                     pot <- exercise pot AddOwner with owner = player
+        --                     pot <- exercise pot AddChips with chips = stack, chipsOwners = [player]
             
-                            let seat = Seat with
-                                                stack = chips.quantity
-                                                seed
-                                                player
-                                                bet = 0
-                                                folded = False
-                                                holeCards = None
+        --                     let seat = Seat with
+        --                                         stack = chips.quantity
+        --                                         seed
+        --                                         player
+        --                                         bet = 0
+        --                                         folded = False
+        --                                         revealed = NotDealt
                                                 
-                            create this with
-                                seats = seats ++ [seat]
-                                pot
-                                phase = WaitingForPlayers (player :: pending)
+        --                     create this with
+        --                         seats = seats ++ [seat]
+        --                         pot
+        --                         phase = WaitingForPlayers with
+        --                                     pendingReady = player :: pendingReady
+        --                                     pendingJoin = delete player pendingJoin
 
-                    _ -> error $ "Player: " <> show player <> " cannot join table as it has already started"
+        --             _ -> error $ "Player: " <> show player <> " cannot join table as it has already started"
                 
         choice Reveal : ContractId Table
             with
                 player : Party
             controller player
             do
+                -- error $ show $ signatories this
                 assert $ elem player $ map (.player) seats
-                assert $ None == ((.holeCards) $ findSeat player seats)
 
-                hand <- fmap snd $ fetchByKey @Hand (id, player, dealer)
+                let seat = findSeat player seats
 
-                let cards = (hand.card1, hand.card2)
+                case seat.revealed of
+                    NotDealt -> error "Hole cards have't been dealt"
+                    HoleCards _ -> create this
+                    HiddenHand handId ->
+                        do
+                            hand <- fetch handId
 
-                let table = this with seats = reveal player cards seats
+                            assert $ hand.dealer == dealer
 
-                if nextShowdownTurn player phase then
-                    next table
-                else
-                    create table
+                            let cards = (hand.card1, hand.card2)
+
+                            let table = this with seats = reveal player cards seats
+
+                            if nextShowdownTurn player phase then
+                                next table
+                            else
+                                create table
 
         choice Fold : ContractId Table
             with
@@ -251,58 +253,102 @@ template Table
                 else
                     outOfTurnFold table
 
-        choice InvitePlayer : ContractId TableInvitation
+        choice InvitePlayer : ContractId Table
             with
                 player : Party
                 inviter : Party
             controller inviter
             do
-                assert $ elem inviter $ map (.player) seats
+                assertMsg ("Inviter: " <> show inviter <> " is not currently a member of table, current members: " <> (show $ map (.player) seats))
+                    $ elem inviter $ map (.player) seats
+
                 assert $ not $ elem player $ map (.player) seats
-                assertWaitingForPlayers phase
-            
-                potSize <- fmap (.quantity) $ fetch pot
+                
+                case phase of 
+                    WaitingForPlayers {pendingReady, pendingJoin} ->
+                        do
+                            potSize <- fmap (.quantity) $ fetch pot
 
-                pot <- exercise pot AddObserver with adder = inviter, obs = player
+                            pot <- exercise pot AddObserver with adder = inviter, obs = player
 
-                create this with 
-                    observers = player :: observers
-                    pot
-                    seats = case seats of
-                                [seat] -> [seat with stack = potSize]
-                                s -> s
+                            create this with 
+                                phase = WaitingForPlayers {pendingReady, pendingJoin = dedup (player :: pendingJoin)}
+                                pot
 
-                create TableInvitation with dealer, player, id
+                    _ -> error "Can only invite players before round has started"
 
         choice PlayerReady : ContractId Table
             with
                 player : Party
             controller player
-            do            
+            do      
                 case phase of
-                    WaitingForPlayers waitingFor ->
+                    WaitingForPlayers {pendingReady, pendingJoin} ->
                         do
-                            assert $ elem player waitingFor
+                            assert $ elem player pendingReady
 
-                            create this with phase = WaitingForPlayers (delete player waitingFor)
+                            create this with phase = WaitingForPlayers with
+                                                        pendingReady = delete player pendingReady
+                                                        pendingJoin
 
                     _ -> error "Illegal state"
+      
+
+        choice JoinTable : ContractId Table
+            with
+                player : Party
+                seed : ContractId PlayerSeed
+                stack : ContractId Chips 
+            controller player
+            do            
+                case phase of 
+                    WaitingForPlayers {pendingReady, pendingJoin} ->
+                        do                            
+                            assert $ elem player pendingJoin
+                            assert $ not $ elem player pendingReady
+
+                            chips <- fetch stack
+
+                            pot <- exercise pot AddOwner with owner = player
+                            pot <- exercise pot AddChips with chips = stack, chipsOwners = [player]
+            
+                            let seat = Seat with
+                                                stack = chips.quantity
+                                                seed
+                                                player
+                                                bet = 0
+                                                folded = False
+                                                revealed = NotDealt
+
+                            create this with
+                                seats = seats ++ [seat]
+                                pot
+                                phase = WaitingForPlayers with
+                                            pendingReady = player :: pendingReady
+                                            pendingJoin = delete player pendingJoin
+
+                    _ -> error $ "Player: " <> show player <> " cannot join table as it has already started"
 
         controller dealer can 
             DealCommunity : ContractId Table
                 with
                     card : Card
                 do
-                    assert $ phase == DealerTurn
+                    assert $ turn dealer phase == dealer
                     
                     next $ this with community = card :: community
 
             StartHand : ContractId Table
+                with
+                    hands : [ContractId Hand]
                 do
                     assertWaitingForPlayers phase
                     assert $ length seats > 2
+                    
+                    table <- create this with 
+                        phase = InGame $ PlayerTurn ((head seats).player, BettingRound)
+                        seats = zipWith (\seat hand -> seat with revealed = HiddenHand hand) seats hands
 
-                    table <- create this with phase = PlayerTurn ((head seats).player, BettingRound)
                     table <- exercise table Raise with amount = smallBlind
                     table <- exercise table Raise with amount = smallBlind * 2
 
@@ -311,7 +357,7 @@ template Table
         controller turn dealer phase can
             Check : ContractId Table
                 do
-                    assert $ phase /= DealerTurn
+                    assert $ turn dealer phase /= dealer
                     let player = turn dealer phase
 
                     assert $ roundType phase == CheckRound
@@ -319,7 +365,7 @@ template Table
 
             Call : ContractId Table             
                 do
-                    assert $ phase /= DealerTurn
+                    assert $ turn dealer phase /= dealer
 
                     let player = turn dealer phase
 
@@ -333,7 +379,7 @@ template Table
                 with
                     amount : Int
                 do
-                    assert $ phase /= DealerTurn
+                    assert $ turn dealer phase /= dealer
                     let player = turn dealer phase
 
                     assert $ roundType phase == BettingRound || roundType phase == CheckRound
@@ -345,7 +391,7 @@ template Table
 
             AllIn : ContractId Table
                 do
-                    assertMsg "Dealer cannot play" $ phase /= DealerTurn
+                    assertMsg "Dealer cannot play" $ turn dealer phase /= dealer
                     let player = turn dealer phase
 
                     assertMsg "Round must be a Betting Round to play AllIn" $ 

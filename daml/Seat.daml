@@ -15,11 +15,41 @@ template PlayerSeed
     where
         signatory player 
         observer dealer
+
+template Hand
+    with
+        holder : Party
+        dealer : Party
+        -- id : Int
+        -- k : ContractId GameKey
+        card1 : Card
+        card2 : Card
+        obs : [Party]
+    where
+        signatory dealer
+        observer obs
         
+        controller holder can 
+            RevealHand : ContractId Hand
+                with
+                    to : [Party]
+                do
+                    create this with obs = to
+                    
+        -- key (id, holder, dealer) : (Int, Party, Party)
+
+        -- maintainer key._3
+
+data Revealed =
+    NotDealt | 
+    HiddenHand (ContractId Hand) |
+    HoleCards (Card, Card) deriving (Eq, Show)
+
 data Seat = Seat with
     seed : ContractId PlayerSeed
     folded : Bool
-    holeCards : Optional (Card, Card)
+    revealed : Revealed
+    -- holeCards : Optional (Card, Card)
     player : Party
     bet : Int
     stack : Int
@@ -95,7 +125,7 @@ pot = sum . map (.bet)
 
 reveal : Party -> (Card, Card) -> [Seat] -> [Seat]
 reveal player hand = 
-    updateSeat player (\s -> s with holeCards = Some hand)
+    updateSeat player (\s -> s with revealed = HoleCards hand)
     
 -- returnRemaining : [Seat] -> [Seat]
 -- returnRemaining = map (\s -> s with stack = s.bet)

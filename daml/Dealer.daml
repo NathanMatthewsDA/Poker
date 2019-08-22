@@ -1,0 +1,82 @@
+daml 1.2
+
+module Dealer where
+
+import Table 
+import Phase
+import Seat
+import Cards
+import Random
+import DA.List ((!!))
+
+shuffled : [Seat] -> Update [Card]
+shuffled seats =
+  do
+    seeds <- mapA (fmap (.seed) . fetch . (.seed)) seats
+
+    return $ shuffle (sum seeds) deck
+
+communityCardIndex : Table -> Int
+communityCardIndex table = length table.seats * 2 + length table.community
+
+dealCommunity : [Card] -> ContractId Table  -> Update (ContractId Table)
+dealCommunity shuffled table = 
+  do
+    index <- fmap communityCardIndex $ fetch table
+
+    table <- exercise table DealCommunity with card = shuffled !! index
+    t <- fetch table
+    
+    case t.phase of
+      InGame DealerTurn ->
+        dealCommunity shuffled table
+      _ ->
+        return table
+
+template Dealer 
+  with
+    dealer : Party
+  where
+    signatory dealer
+
+    controller dealer can
+
+      nonconsuming PlayCommunity : ContractId Table
+        with
+          table : ContractId Table
+        do
+            seats <- fmap (.seats) $ fetch table
+            cards <- shuffled seats
+
+            dealCommunity cards table
+
+      nonconsuming DealAndStartHand : ContractId Table
+        with
+          table : ContractId Table
+        do
+          seats <- fmap (.seats) $ fetch table
+
+          assertMsg "Cannot start game with less than 2 players" $ 
+              length seats > 1
+
+          cards <- shuffled seats
+
+          let n = length seats
+
+          hands <- sequence $ zipWith3 (\holder card1 card2 -> 
+                                create Hand with holder, dealer, card1, card2, obs = [])
+                       (map (.player) seats)
+                       cards
+                       (drop n cards)
+
+          phase <- fmap (.phase) $ fetch table
+
+          case phase of
+            WaitingForPlayers {pendingReady = []} -> exercise table StartHand with hands
+
+            WaitingForPlayers {pendingReady} ->
+              error $ "Can't start hand as players: " <> show pendingReady <> " are not ready"
+
+            _ ->
+              error $ "Can't start hand as game has already started"
+

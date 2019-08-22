@@ -15,34 +15,37 @@ data EndGame =
     ShowdownWinners [SidePot]
         deriving (Eq, Show)
 
+data Turn = DealerTurn | PlayerTurn (Party, Round) deriving (Eq, Show)
+
 data Phase =
-    WaitingForPlayers [Party] |
-    DealerTurn |
-    PlayerTurn (Party, Round) |
+    WaitingForPlayers with
+        pendingJoin : [Party]
+        pendingReady : [Party] |
+    InGame Turn |
+    -- DealerTurn |
+    -- PlayerTurn (Party, Round) |
     Finished EndGame
         deriving (Eq, Show)
 
 roundType : Phase -> Round
-roundType (PlayerTurn (_, round)) = round
+roundType (InGame (PlayerTurn (_, round))) = round
 roundType (Finished _) = error "No round type, game has finished"
-roundType (WaitingForPlayers _) = error "No round type, game hasnt started"
-roundType DealerTurn = error "No round type, is Dealer turn"
+roundType (WaitingForPlayers {}) = error "No round type, game hasnt started"
 
 inTurn : Party -> Phase -> Bool
-inTurn player (PlayerTurn (turn, _)) = player == turn
+inTurn player (InGame (PlayerTurn (turn, _))) = player == turn
 inTurn _ _ = False
 
 nextPhase : [Card] -> [Seat] -> Phase -> Phase
 nextPhase community seats phase = 
     case phase of
-        Finished _ -> WaitingForPlayers $ map (.player) seats
+        Finished _ -> WaitingForPlayers {pendingReady = map (.player) seats, pendingJoin = []}
+        
+        -- WaitingForPlayers {pendingReady = []} -> InGame $ PlayerTurn ((head seats).player, BettingRound)
 
-        WaitingForPlayers [] -> PlayerTurn ((head seats).player, BettingRound)
+        w@(WaitingForPlayers _ _) -> w
 
-        WaitingForPlayers pending -> WaitingForPlayers pending
-
-        DealerTurn | length community < 3 ->
-            DealerTurn
+        InGame (DealerTurn) | length community < 3 -> InGame (DealerTurn)
             -- PlayerTurn (firstActive, CheckRound) 
 
         -- DealerTurn | length activeSeats < 2 && communityFull -> 
@@ -51,11 +54,11 @@ nextPhase community seats phase =
         -- DealerTurn | length activeSeats < 2 -> 
         --     DealerTurn
 
-        DealerTurn ->
-            PlayerTurn ((.player) $ head activeSeats, CheckRound) 
+        InGame (DealerTurn) ->
+            InGame (PlayerTurn ((.player) $ head activeSeats, CheckRound))
         
-        PlayerTurn (current, round) ->
-            case round of
+        InGame (PlayerTurn (current, round)) ->
+            InGame (case round of
                 CheckRound | not betsEqual ->
                     PlayerTurn (nextActivePlayer current seats, BettingRound)
                 
@@ -78,7 +81,7 @@ nextPhase community seats phase =
                     PlayerTurn (nextActivePlayer current seats, BettingRound)
 
                 ShowdownRound ->
-                    PlayerTurn (nextNonFolded, ShowdownRound)
+                    PlayerTurn (nextNonFolded, ShowdownRound))
                 
             where
                 --lastActive = (.player) $ last activeSeats
