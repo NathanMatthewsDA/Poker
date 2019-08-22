@@ -52,8 +52,6 @@ template DebugList
 test = scenario do
     let xs = [0 .. 52]
 
---    assert (xs == [1, 2]) -- shuffle 1977 xs)
-
     party <- getParty "debugger"
 
     submit party do

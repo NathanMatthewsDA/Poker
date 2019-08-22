@@ -10,6 +10,7 @@ import Phase
 import SidePot
 import DA.List (delete, (!!), head)
 import DA.Optional (fromSome)
+import DA.Action (foldlA)
 
 turn : Party -> Phase -> Party
 turn dealer phase =
@@ -69,6 +70,16 @@ finish game table =
         
         create $ table with phase = Finished $ game
 
+returnUnbet : ContractId Chips -> Seat -> Update (ContractId Chips)
+returnUnbet pot seat =
+    if not seat.folded && seat.stack > seat.bet then
+      do
+        (unbet, pot) <- exercise pot Split with amount = seat.stack - seat.bet
+        exercise unbet TakeOwnership with owner = seat.player
+        return pot
+    else
+        do return pot
+
 next : Table -> Update (ContractId Table)
 next table =
     case findWinners table.community table.seats of
@@ -84,10 +95,7 @@ next table =
         
                 if inShowdown phase then
                     do
-                        pot <- payout table.pot $
-                            map (\s -> (s.player, s.stack - s.bet)) $
-                            table.seats
-
+                        pot <- foldlA returnUnbet table.pot table.seats
                         let seats = map (\s -> s with stack = s.bet) table.seats
                         create $ table with phase, seats, pot
                 else
@@ -337,10 +345,11 @@ template Table
 
             AllIn : ContractId Table
                 do
-                    assert $ phase /= DealerTurn
+                    assertMsg "Dealer cannot play" $ phase /= DealerTurn
                     let player = turn dealer phase
 
-                    assert $ roundType phase == BettingRound
+                    assertMsg "Round must be a Betting Round to play AllIn" $ 
+                        roundType phase == BettingRound
 
                     next $
                         this with seats = allIn player seats

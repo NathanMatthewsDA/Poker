@@ -70,7 +70,7 @@ updateSeat player f =
 placeBet : Int -> Party -> [Seat] -> Update [Seat]
 placeBet amount player seats =
     do
-        let msg = show player -- "Not enough funds for " ++ " to place bet"
+        let msg = "Not enough funds for: " <> show player <> " to place bet"
         assertMsg msg $ remaining seat >= required
 
         return $ updateSeat player (\s -> s with bet = s.bet + required) seats

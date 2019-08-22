@@ -108,94 +108,61 @@ bootstrap = scenario do
     table <- submit dealer do
         exerciseByKey @Community tableKey PlayCommunity
 
+    submit alice do
+         exerciseByKey @Table tableKey Check
 
+    submit bob do
+         exerciseByKey @Table tableKey Raise with amount = 40
 
+    submit eve do
+         exerciseByKey @Table tableKey Fold with player = eve
 
+    submit mallory do
+         exerciseByKey @Table tableKey Call
 
+    submit trent do
+         exerciseByKey @Table tableKey Raise with amount = 10
 
-    -- submit trent do
-    --      exerciseByKey @Table tableKey Call
+    submit alice do
+         exerciseByKey @Table tableKey Call
 
-    -- submit alice do
-    --      exerciseByKey @Table tableKey Call
+    submit bob do
+         exerciseByKey @Table tableKey Fold with player = bob
 
-    -- submit dealer do
-    --     exerciseByKey @UndealtCommunity tableKey DealCommunityCard
-    --     exerciseByKey @UndealtCommunity tableKey DealCommunityCard
-    --     exerciseByKey @UndealtCommunity tableKey DealCommunityCard
+    submit mallory do
+         exerciseByKey @Table tableKey Call
 
-    -- submit alice do
-    --     exerciseByKey @Table tableKey Check
+    table <- submit dealer do
+        exerciseByKey @Community tableKey PlayCommunity
 
-    -- submit bob do
-    --     exerciseByKey @Table tableKey Check
+    submit alice do
+         exerciseByKey @Table tableKey Check
 
-    -- submit eve do
-    --     exerciseByKey @Table tableKey Check
+    submit mallory do
+         exerciseByKey @Table tableKey Check
 
-    -- submit mallory do
-    --     exerciseByKey @Table tableKey Check
+    submit trent do
+         exerciseByKey @Table tableKey Check
 
+    table <- submit dealer do
+        exerciseByKey @Community tableKey PlayCommunity
 
+    submit alice do
+         exerciseByKey @Table tableKey Check
 
+    submit mallory do
+         exerciseByKey @Table tableKey Raise with amount = 10
 
+    submit trent do
+         exerciseByKey @Table tableKey Fold with player = trent
 
+    submit alice do
+         exerciseByKey @Table tableKey AllIn
 
+    submit mallory do
+         exerciseByKey @Table tableKey Reveal with player = mallory
 
-
-
-    -- submit alice do
-    --     exerciseByKey @Table roundKey Check
-
-    -- d <- submit dealer do
-    --     exercise d DealCard
-
-    -- submit trent do
-    --     exerciseByKey @Table roundKey Raise with amount = 30
-
-    -- submit mallory do
-    --     exerciseByKey @Table roundKey Fold with player = mallory
-
-    -- submit eve do
-    --     exerciseByKey @Table roundKey Call
-
-    -- submit bob do
-    --     exerciseByKey @Table roundKey Call
-
-    -- submit alice do
-    --     exerciseByKey @Table roundKey Call
-
-    -- d <- submit dealer do
-    --     exercise d DealCard
-
-    -- submit trent do
-    --     exerciseByKey @Table roundKey Check
-
-    -- submit eve do
-    --     exerciseByKey @Table roundKey Raise with amount = 40
-
-    -- submit bob do
-    --     exerciseByKey @Table roundKey AllIn
-
-    -- submit alice do
-    --     exerciseByKey @Table roundKey Raise with amount = 20
-
-    -- submit trent do
-    --     exerciseByKey @Table roundKey AllIn
-
-    -- submit eve do
-    --     exerciseByKey @Table roundKey Call
-
-    -- submit bob do
-    --     exerciseByKey @Table roundKey Reveal with player = bob
-
-    -- submit alice do
-    --     exerciseByKey @Table roundKey Reveal with player = alice
-
-    -- submit eve do
-    --     exerciseByKey @Table roundKey Reveal with player = eve
-
-    -- submit trent do
-    --     exerciseByKey @Table roundKey Reveal with player = trent
+    submit alice do
+         exerciseByKey @Table tableKey Reveal with player = alice
 
     return ()

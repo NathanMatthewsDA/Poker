@@ -44,54 +44,16 @@ template Chips
                 exercise chips Archive
                 create this with quantity = quantity + q
                         
-        -- choice LeaveWith : ContractId Chips
-        --     with
-        --         leaver : Party
-        --         amount : Int
-        --     controller owners
-        --     do
-        --         assert $ elem leaver owners
-        --         assert $ amount > 0 && amount < quantity
-        --         assert $ length owners > 1
-
-        --         create Chips with
-        --             owners = [leaver]
-        --             house = house
-        --             quantity = amount
-        --             observers = []
-
-        --         create this with 
-        --             owners = delete leaver owners
-        --             quantity = quantity - amount
-        
-        -- choice Take : ContractId Chips
-        --     with
-        --         taker : Party
-        --         amount : Int
-        --     controller owners
-        --     do
-        --         assert $ elem taker owners
-        --         assert $ amount > 0 && amount < quantity
-        --         assert $ length owners > 1
-
-        --         create Chips with
-        --             owners = [taker]
-        --             house = house
-        --             quantity = amount
-        --             observers = []
-
-        --         create this with quantity = quantity - amount
-
         choice Leave : ContractId Chips
             with
                 leaver : Party
             controller leaver
             do
-                assert $ elem leaver owners
-                assert $ length owners > 1
+                assertMsg ("Party: " <> show leaver <> " must be an owner to leave") $ elem leaver owners
+                assertMsg ("Party: " <> show leaver <> " tried to relinqush ownership on chips for which it was the only owner") $ length owners > 1
 
                 create this with 
-                    owners = delete leaver owners
+                    owners = delete leaver owners, observers = delete leaver observers
 
         choice AddObserver : ContractId Chips
             with
@@ -121,7 +83,10 @@ template Chips
                 with
                     amount : Int
                 do
-                    assert $ amount < quantity
+                    assertMsg ("Cannot split, amount: " <> show amount <> " is not greater than zero") $ 
+                        amount > 0
+                    assertMsg "Cannot split, amount is not less than quantity" $ 
+                        amount < quantity
 
                     l <- create this with quantity = amount
                     r <- create this with quantity = (quantity - amount)

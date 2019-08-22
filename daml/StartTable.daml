@@ -64,7 +64,8 @@ template Dealer
         do
           (tableId, table) <- fetchByKey @Table (id, dealer)
 
-          assert $ length table.seats > 1
+          assertMsg "Cannot start game with less than 2 players" $ 
+              length table.seats > 1
 
           cards <- shuffled table.seats
 
@@ -118,4 +119,4 @@ template StartTable
                     id
                     smallBlind
                     pot = stack
-                    observers = []
+                    observers = [player] 
