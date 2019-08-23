@@ -1,0 +1,401 @@
+daml 1.2
+
+module Table2 where
+
+import Chips
+import Seat (Hand, PlayerSeed)
+import Table ()
+import Cards
+import Phase (Round (..))
+import Utils
+
+import DA.Action (foldlA)
+import DA.Optional 
+import DA.List (head, tail, (!!), last)
+import DA.Foldable (maximum)
+
+data Table = Table
+    with
+        dealer : Party
+        players : [Party]
+        smallBlind : Int
+        invited : [Party]
+    deriving (Eq, Show)
+
+data RoundState = RoundState
+    with
+        table : Table
+        stacks : [Optional (ContractId Chips)]
+        bets : [Int]
+        folded : [Party]
+        pot : ContractId Chips
+        community : [Card]
+        handIds : [ContractId Hand]
+        revealed : [Optional (Card, Card)]
+    deriving (Eq, Show)
+
+template PendingHand
+    with
+        table : Table
+        stacks : [ContractId Chips]
+        seeds : [Optional (ContractId PlayerSeed)]
+    where
+        signatory table.players
+
+        choice InvitePlayer : ContractId PendingHand
+            with
+                player : Party
+                inviter : Party
+            controller inviter
+            do
+                assertMsg ("Inviter: " <> show inviter <> " is not currently a member of table, current members: " <> show table.players)
+                    $ elem inviter table.players
+
+                assert $ not $ elem player table.players
+                
+                stacks <- sequence $ 
+                            zipWith (\p s -> exercise s AddObserver with adder = p, obs = player)
+                                table.players
+                                stacks
+
+                create this with 
+                    table = table with invited = player :: table.invited
+                    stacks
+
+        choice JoinTable : ContractId PendingHand
+            with
+                player : Party
+                stack : ContractId Chips
+            controller player
+            do
+                assert $ elem player table.invited
+
+                stack <- foldlA (\s p -> exercise s AddObserver with adder = player, obs = p) stack table.players
+
+                create this with
+                    table = table with players = player :: table.players
+                    stacks = stack :: stacks
+                    seeds = None :: seeds
+
+        choice LeaveTable : ContractId PendingHand
+            with
+                player : Party
+            controller player
+            do
+                assert $ elem player table.players
+
+                error "TODO"
+
+        choice PlayerReady : ContractId PendingHand
+            with
+                player : Party
+                seed : ContractId PlayerSeed
+            controller player
+            do
+                assert $ elem player table.players
+
+                error "TODO"
+        
+        controller table.dealer can 
+            StartGame : ContractId Table
+                with
+                    hands : [ContractId Hand]
+                do
+                    assert $ all isSome seeds
+                    assert $ length table.players > 1
+
+                    error "TODO"
+
+            --         seed <- create PlayerSeed with player, seed, dealer
+
+            --         create Table with
+            --             pot = stack            
+            --                 seats = [Seat with 
+            --                          seed
+            --                          folded = False
+            --                          revealed = NotDealt
+            --                          player
+            --                          bet = 0
+            --                          stack = c.quantity]
+
+            -- phase = WaitingForPlayers {pendingJoin = [], pendingReady = [player]}
+            -- community = []
+            -- dealer
+            -- observers = []
+            -- smallBlind
+
+--     case findWinners table.community table.seats of
+--         Some game ->
+--             finish game table
+-- --            create table with phase = Finished game
+--         None ->
+--             do
+--                 let phase = nextPhase
+--                                 table.community
+--                                 table.seats
+--                                 table.phase
+        
+--                 if inShowdown phase then
+--                     do
+--                         pot <- foldlA returnUnbet table.pot table.seats
+--                         let seats = map (\s -> s with stack = s.bet) table.seats
+--                         create $ table with phase, seats, pot
+--                 else
+--                     do create table with phase
+
+template Finished1
+    with 
+       table : Table
+       folded : [Party]
+       community : [Card]
+       revealed : [Optional (Card, Card)]
+    where
+        signatory table.players
+
+template DealerTurn
+    with
+        state : RoundState
+    where
+        signatory state.table.players
+
+        controller state.table.dealer can 
+            DealCommunity1 : NextTurn
+                with
+                    card : Card
+                do
+                    let newState = state with community = card :: state.community
+                    
+                    if length state.community < 3 then
+                        fmap Right $ create this with state = newState
+                    else 
+                        fmap Left $ create PlayerTurn with
+                            state = newState
+                            round = CheckRound
+                            turn = head state.table.players
+
+type NextTurn = Either (ContractId PlayerTurn) (ContractId DealerTurn)
+
+finish1 : RoundState -> Update (ContractId Finished1)
+finish1 = error "TODO"
+
+nextToReveal : Party -> RoundState -> Party
+nextToReveal player state = findNext player $ toReveal state
+
+toReveal : RoundState -> [Party]
+toReveal state =
+    map fst $
+    filter (\(player, revealed) -> isNone revealed && not (elem player state.folded)) $
+    zip state.table.players state.revealed
+  
+data Next = 
+    HandFinished (ContractId Finished1) |
+    AwaitingDealer (ContractId DealerTurn) |
+    AwaitingPlayer (ContractId PlayerTurn)
+
+placeBet : Int -> Party -> RoundState -> Update RoundState
+placeBet amount player state =
+    case state.stacks !! index of
+        Some stack ->
+            do
+                s <- fetch stack
+
+                assertMsg ("Stack quantity: " <> show s.quantity <> 
+                                " for player: " <> show player <> 
+                                " is not enough for placed bet: " 
+                                <> show amount) $ s.quantity >= amount
+
+                (toAdd, remaining) <- if s.quantity == amount then
+                                            do return (stack, None)
+                                        else
+                                            do
+                                               (toAdd, remaining) <- 
+                                                exercise stack Split with amount
+                                               return (toAdd, Some remaining)
+
+                pot <- exercise state.pot AddChips with 
+                                    chips = toAdd
+                                    chipsOwners = [player]
+
+                return $ state with pot
+                                    stacks = setAt index remaining state.stacks
+                                    bets = updateAt index (amount +) state.bets
+        None ->
+            error $ "Cannot place bet of: " <> show amount <> " for player: " <>
+                        show player <> " as there is no table stack left"
+    where
+        index = indexOf player state.table.players
+
+placeRequiredAnd : Int -> Party -> RoundState -> Update RoundState
+placeRequiredAnd amount player state =
+    placeBet (amount + required) player state
+    where
+        index = indexOf player state.table.players
+        required = maximum state.bets - state.bets !! index
+ 
+lastCheck : RoundState -> Party
+lastCheck = last . activePlayers
+
+nextTurn : Party -> RoundState -> Party
+nextTurn player state = findNext player $ inPlay state
+
+inPlay : RoundState -> [Party]
+inPlay state = filter (\p -> not (elem p state.folded)) state.table.players
+
+activePlayers : RoundState -> [Party]
+activePlayers state = 
+    map fst $
+    filter (\(player, stack) -> isSome stack && not (elem player state.folded)) $
+    zip state.table.players state.stacks
+    
+findNext : (Eq a) => a -> [a] -> a
+findNext x xs = head $ tail $ dropWhile (x /=) $ xs ++ xs
+
+nextActivePlayer : Party -> RoundState -> Party
+nextActivePlayer player state = 
+    findNext player $ activePlayers state 
+
+currentBet : Party -> RoundState -> Int
+currentBet player state = state.bets !! indexOf player state.table.players
+
+activeBets : RoundState -> [Int]
+activeBets state = map (\p -> currentBet p state) $ activePlayers state
+
+finishRound : Party -> RoundState -> Update Next
+finishRound turn state = 
+  if length state.community == 5 then
+            fmap AwaitingPlayer $
+                create PlayerTurn with 
+                    state
+                    turn = nextToReveal turn state
+                    round = ShowdownRound
+  else
+    fmap AwaitingDealer $ create DealerTurn with state
+
+afterBet : Party -> RoundState -> Update Next
+afterBet turn state = 
+    if all (maximum state.bets ==) (activeBets state) then
+        finishRound turn state
+    else
+        fmap AwaitingPlayer $ 
+            create PlayerTurn with 
+                state
+                turn = nextActivePlayer turn state
+                round = BettingRound
+
+afterCheck : Party -> RoundState -> Update Next
+afterCheck turn state = 
+    if turn == lastCheck state then
+        finishRound turn state
+    else
+        fmap AwaitingPlayer $ 
+            create PlayerTurn with 
+                state
+                turn = nextActivePlayer turn state
+                round = CheckRound
+
+template PlayerTurn
+    with
+        state : RoundState
+        round : Round
+        turn : Party
+    where
+        signatory state.table.players
+
+        choice Reveal : Next
+            with
+                player : Party
+            controller player
+            do
+                assert $ elem player $ state.table.players
+                
+                let index = indexOf player state.table.players
+
+                hand <- fetch $ state.handIds !! index
+
+                assert $ hand.dealer == state.table.dealer
+
+                let revealed = setAt index (Some (hand.card1, hand.card2)) state.revealed
+                let h = this with state = state with revealed
+
+                if round == ShowdownRound then
+                    if toReveal h.state == [] then
+                        fmap HandFinished $ finish1 h.state
+                    else if turn == player then
+                        fmap AwaitingPlayer $ create h with turn = nextToReveal turn state
+                    else 
+                        fmap AwaitingPlayer $ create h 
+                else
+                    fmap AwaitingPlayer $ create h
+ 
+        choice Fold : Next
+            with
+                player : Party
+            controller player
+            do 
+                assert $ not $ elem player state.folded
+                
+                pot <- exercise state.pot Leave with leaver = player
+
+                let folded = player :: state.folded
+
+                let newState = state with folded, pot
+
+                let h = this with state = newState
+
+                if length folded == length state.table.players - 1 then
+                    error "TODO"
+                else if turn == player then
+                    case round of
+                        CheckRound ->
+                            afterCheck turn newState
+                        BettingRound ->
+                            afterBet turn newState
+                        ShowdownRound ->
+                            if toReveal newState == [] then
+                                fmap HandFinished $ finish1 h.state
+                            else
+                                fmap AwaitingPlayer $ create h with
+                                    turn = nextToReveal turn newState
+                else
+                    -- outOfTurnFold $ 
+                    error "TODO"
+
+        controller turn can
+            Check : Next
+                do
+                    assert $ round == CheckRound                    
+                    afterCheck turn state
+
+            Call : Next
+                do
+                    assert $ round == BettingRound
+
+                    state <- placeRequiredAnd 0 turn state
+                    afterBet turn state
+
+            Raise : Next
+                with
+                    amount : Int
+                do
+                    assert $ round == CheckRound || round == BettingRound           
+                    assert $ amount > 0
+
+                    state <- placeRequiredAnd amount turn state
+                    afterBet turn state
+
+            AllIn : Next
+                do
+                    assert $ round == BettingRound
+
+                    let index = indexOf turn state.table.players
+
+                    case state.stacks !! index of
+                        Some stack ->
+                            do
+                                let required = maximum state.bets - state.bets !! index
+                                amount <- fmap (.quantity) $ fetch stack
+
+                                state <- placeBet amount turn state
+                                afterBet turn state
+                        None ->
+                            error $ "Player: " <> show turn <> "Cannot go all-in as they have no chips left"        

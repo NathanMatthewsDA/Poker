@@ -2,8 +2,9 @@ daml 1.2
 
 module Utils where
 
-import DA.List ((!!))
+import DA.List ((!!), elemIndex)
 import DA.Foldable (maximum)
+import DA.Optional (fromSome)
 
 deleteAt : Int -> [a] -> [a]
 deleteAt index xs = (take index xs) ++ (drop (index + 1) xs)
@@ -32,13 +33,16 @@ findNextLoop : (a -> Bool) -> [a] -> Optional a
 findNextLoop f xs =
     fmap snd $ find (f . fst) $ zip xs (rotate xs)
 
-foldlM : (Action m) => (a -> b -> m b) -> [a] -> b -> m b
-foldlM f [] s = do return s
-foldlM f (x :: xs) s =
-    do
-        b <- f x s
-        foldlM f xs b
+-- foldlM : (Action m) => (a -> b -> m b) -> [a] -> b -> m b
+-- foldlM f [] s = do return s
+-- foldlM f (x :: xs) s =
+--     do
+--         b <- f x s
+--         foldlM f xs b
 
 -- findPrevLoop : (a -> Bool) -> [a] -> Optional a
 -- findPrevLoop f xs =
 --     fmap snd $ find (f . fst) $ zip xs (rotate xs)
+
+indexOf : (Eq a) => a -> [a] -> Int
+indexOf x = fromSome . elemIndex x

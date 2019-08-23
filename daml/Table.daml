@@ -7,9 +7,11 @@ import Chips
 import Seat
 import Phase
 import SidePot
-import DA.List (delete, (!!), head, dedup)
-import DA.Optional (fromSome)
+import DA.List (delete, (!!), head, dedup, elemIndex)
+import DA.Optional (fromSome, isSome)
 import DA.Action (foldlA)
+import Utils
+import DA.Foldable (maximum)
 
 turn : Party -> Phase -> Party
 turn dealer phase =
@@ -156,6 +158,7 @@ createTable dealer stack seed smallBlind =
             observers = []
             smallBlind
 
+
 template Table
     with
         pot : ContractId Chips
@@ -169,39 +172,6 @@ template Table
         signatory map (.player) seats
 
         observer observers, map (.player) seats, tableObservers phase
-
-        -- choice JoinTable : ContractId Table
-        --     with
-        --         player : Party
-        --     controller player
-        --     do            
-        --         case phase of 
-        --             WaitingForPlayers {pendingReady, pendingJoin} ->
-        --                 do                            
-        --                     assert $ elem player pendingJoin
-        --                     assert $ not $ elem player pendingReady
-
-        --                     chips <- fetch stack
-
-        --                     pot <- exercise pot AddOwner with owner = player
-        --                     pot <- exercise pot AddChips with chips = stack, chipsOwners = [player]
-            
-        --                     let seat = Seat with
-        --                                         stack = chips.quantity
-        --                                         seed
-        --                                         player
-        --                                         bet = 0
-        --                                         folded = False
-        --                                         revealed = NotDealt
-                                                
-        --                     create this with
-        --                         seats = seats ++ [seat]
-        --                         pot
-        --                         phase = WaitingForPlayers with
-        --                                     pendingReady = player :: pendingReady
-        --                                     pendingJoin = delete player pendingJoin
-
-        --             _ -> error $ "Player: " <> show player <> " cannot join table as it has already started"
                 
         choice Reveal : ContractId Table
             with
