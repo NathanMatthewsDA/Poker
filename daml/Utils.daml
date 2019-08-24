@@ -12,6 +12,12 @@ deleteAt index xs = (take index xs) ++ (drop (index + 1) xs)
 updateAt : Int -> (a -> a) -> [a] -> [a]
 updateAt i f xs = take i xs ++ (f (xs !! i) :: drop (i + 1) xs)
 
+updateAtA : (Action m) => Int -> (a -> m a) -> [a] -> m [a]
+updateAtA i f xs = 
+    do
+        x <- f $ xs !! i
+        return $ setAt i x xs
+
 setAt : Int -> a -> [a] -> [a]
 setAt i x xs = take i xs ++ x :: drop (i + 1) xs
 

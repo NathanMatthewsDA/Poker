@@ -44,6 +44,18 @@ template Chips
                 exercise chips Archive
                 create this with quantity = quantity + q
                         
+        choice Merge : ContractId Chips
+            with
+                chips : ContractId Chips
+                chipsOwners : [Party]
+            controller chipsOwners, owners
+            do
+                q <- fmap (.quantity) $ fetch chips
+                exercise chips Archive
+                create this with 
+                    quantity = quantity + q
+                    owners = dedup $ owners ++ chipsOwners
+
         choice Leave : ContractId Chips
             with
                 leaver : Party

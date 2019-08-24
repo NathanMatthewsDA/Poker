@@ -1,0 +1,218 @@
+daml 1.2
+
+module Navigator3 where
+
+import Chips
+import Rounds
+-- import Dealer
+import Seat
+import DA.Either
+
+createChips : Party -> Party -> Int -> Scenario (ContractId Chips)
+createChips house owner quantity =
+    do
+        transfer <- submit house do
+                        chips <- create Chips with house, owners = [house], quantity, observers = []
+                        exercise chips Transfer_Chips with newOwner = owner
+        
+        submit owner do
+            exercise transfer AcceptTransfer
+
+createSeed : Party -> Party -> Int -> Scenario (ContractId PlayerSeed)
+createSeed dealer player seed = 
+    do
+        submit player do
+            create PlayerSeed with player, dealer, seed
+
+-- inviteAndJoin : Party -> Party -> Party -> Party -> Int -> Int -> ContractId Table -> Scenario (ContractId Table)
+-- inviteAndJoin house dealer inviter player stack seed table  =
+--     do        
+--         transfer <- submit house do
+--                         chips <- create Chips with house, owners = [house], quantity = stack, observers = []
+--                         exercise chips Transfer_Chips with newOwner = player
+        
+--         stack <- submit player do
+--                     exercise transfer AcceptTransfer
+
+--         table <- submit inviter do
+--             exercise table InvitePlayer with inviter, player
+
+--         seed <- submit player do
+--                   create PlayerSeed with dealer, player, seed
+
+--         table <- submit inviter do
+--                     exercise table InvitePlayer with inviter, player
+
+--         submit player do
+--             exercise table JoinTable with player, seed, stack
+
+invite : Party -> Party -> ContractId PendingHand -> Scenario (ContractId PendingHand)
+invite inviter player pending = 
+     submit inviter do
+          exercise pending InvitePlayer with inviter, player
+
+accept : Party -> ContractId Chips -> ContractId PendingHand -> Scenario (ContractId PendingHand)
+accept player stack pending = 
+     submit player do exercise pending JoinTable with player, stack
+
+ready : Party -> Int -> ContractId PendingHand -> Scenario (ContractId PendingHand)
+ready player seed pending = 
+   submit player do playerReady player seed pending
+
+forceLeft : Either a b -> a
+forceLeft (Left a) = a
+forceLeft _ = error "Either wasn't a left"
+
+forceRight : Either a b -> b
+forceRight (Right a) = a
+forceRight _ = error "Either wasn't a right"
+
+bootstrap = scenario do
+    house <- getParty "House"
+    dealer <- getParty "Dealer"
+
+    players@[alice, bob, eve, mallory, trent] <- 
+        mapA getParty ["Alice", "Bob", "Eve", "Mallory", "Trent"]
+
+    let chips = [250, 250, 430, 600, 50]
+
+--  error $ show $ sum chips 
+    [aliceChips, bobChips, eveChips, malloryChips, trentChips] <-
+        sequence $ zipWith (createChips house) players chips
+
+    pending <- submit alice do
+                    createPending dealer alice 20 aliceChips
+
+    pending <- invite alice bob pending
+
+    pending <- accept bob bobChips pending
+
+    pending <- invite alice eve pending
+
+    pending <- accept eve eveChips pending
+
+    pending <- ready alice 2141 pending
+
+    pending <- invite eve mallory pending
+                    
+    pending <- invite eve trent pending
+
+    pending <- accept trent trentChips pending
+
+    pending <- accept mallory malloryChips pending
+ 
+    pending <- ready bob 3213 pending
+
+    pending <- ready trent 23 pending
+
+    pending <- ready eve 53235 pending
+
+    pending <- ready mallory 3212 pending
+
+    round <- submit dealer do startGame pending
+
+    round <- submit eve do 
+               fmap forceLeft $    
+                    exercise round BettingRound_Raise with amount = 10
+               
+    round <- submit bob do 
+               fmap forceLeft $ 
+                    exercise round BettingRound_Raise with amount = 10
+
+    round <- submit alice do 
+               fmap forceLeft $ 
+                    exercise round BettingRound_Call
+
+    round <- submit mallory do 
+               fmap forceLeft $ 
+                    exercise round BettingRound_Call
+
+    round <- submit trent do 
+               fmap forceLeft $ 
+                    exercise round BettingRound_AllIn
+
+    round <- submit eve do 
+               fmap (forceLeft . forceRight) $ 
+                    exercise round BettingRound_Call
+
+    round <- submit dealer do
+               fmap forceLeft $ 
+                    exercise round TurnCommunity
+
+    round <- submit mallory do 
+               fmap forceLeft $ 
+                    exercise round CheckRound_Check
+
+    round <- submit eve do 
+               fmap forceLeft $ 
+                    exercise round CheckRound_Check
+
+    round <- submit bob do 
+               fmap forceLeft $ 
+                    exercise round CheckRound_Check
+
+    round <- submit alice do 
+               fmap (forceLeft . forceRight) $ 
+                    exercise round CheckRound_Check
+
+    round <- submit dealer do
+               fmap forceLeft $ 
+                    exercise round TurnCommunity
+
+    round <- submit mallory do 
+                    exercise round CheckRound_Raise with amount = 40
+
+    round <- submit eve do 
+               fmap forceLeft $ 
+                    exercise round BettingRound_Call
+
+    round <- submit bob do 
+               fmap (forceLeft . forceLeft) $ 
+                    exercise round BettingRound_Fold with player = bob
+
+    round <- submit alice do 
+               fmap (forceLeft . forceRight) $ 
+                    exercise round BettingRound_Call
+
+    round <- submit dealer do
+               fmap forceLeft $ 
+                    exercise round TurnCommunity
+
+    round <- submit mallory do 
+                    exercise round CheckRound_Raise with amount = 100
+
+    round <- submit eve do 
+               fmap forceLeft $ 
+                    exercise round BettingRound_AllIn
+
+    round <- submit alice do 
+               fmap forceLeft $ 
+                    exercise round BettingRound_AllIn
+
+    round <- submit mallory do 
+               fmap (forceRight . forceRight) $ 
+                    exercise round BettingRound_Call
+ 
+    round <- submit trent do 
+               fmap forceLeft $ 
+                    exercise round ShowdownRound_Reveal with player = trent
+
+    round <- submit eve do 
+               fmap forceLeft $ 
+                    exercise round ShowdownRound_Reveal with player = eve
+
+    round <- submit alice do 
+               fmap forceLeft $ 
+                    exercise round ShowdownRound_Reveal with player = alice
+
+    round <- submit mallory do 
+               fmap forceRight $ 
+                    exercise round ShowdownRound_Reveal with player = mallory
+
+--     pending <- submit eve do playerReady eve 3242 pending
+
+
+
+
+
+    return ()

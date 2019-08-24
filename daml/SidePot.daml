@@ -79,3 +79,18 @@ createSidePots community seats =
   where
     (folded, unfolded) = separate (.folded) seats
 
+toSidePot : [Card] -> (Party, Int, (Card, Card)) -> SidePot
+toSidePot community (player, bet, (card1, card2)) =
+    SidePot with 
+        score = 
+          handRank (card1 :: card2 :: community)
+        winners = [player]
+        bet
+        pot = bet
+
+createSidePots1 : [Card] -> [Int] -> [(Party, Int, (Card, Card))] -> [SidePot]
+createSidePots1 community folded unfolded =
+  (\pots -> foldl addFolded pots folded) $
+  foldl addSidePot [] $
+  map (toSidePot community) $
+  unfolded
