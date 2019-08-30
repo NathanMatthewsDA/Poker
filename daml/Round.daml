@@ -10,8 +10,9 @@ import Seat
 import SidePot (SidePot)
 import Cards
 import Random (shuffle)
+import DA.Foldable (maximum)
 
-data Phase = Check | Betting | Showdown deriving (Eq, Show)
+data Phase = Check | Betting Int | Showdown deriving (Eq, Show)
 
 data Next = 
     AwaitingDealer (ContractId Flip) | 
@@ -20,7 +21,16 @@ data Next =
 
 fromAwaitingPlayer : Next -> ContractId Play
 fromAwaitingPlayer (AwaitingPlayer play) = play
-fromAwaitingPlayer _ = error "TODO"
+fromAwaitingPlayer (Finished _) = error "Expected AwaitingPlayer but got Finished"
+fromAwaitingPlayer (AwaitingDealer _) = error "Expected AwaitingPlayer but got AwaitingDealer"
+
+fromFinished : Next -> ContractId PendingNextRound
+fromFinished (Finished pending) = pending
+fromFinished _ = error "TODO"
+
+fromAwaitingDealer : Next -> ContractId Flip
+fromAwaitingDealer (AwaitingDealer flip) = flip
+fromAwaitingDealer _ = error "TODO"
 
 finishRound : Table -> Update (ContractId PendingNextRound)
 finishRound table =
@@ -43,6 +53,39 @@ toShowdown table =
             player = head $ activePlayers table.seats
             phase = Showdown
 
+nextBet : Party -> Table -> Update Next
+nextBet lastPlayer table = 
+    do
+        let player = nextToBet lastPlayer table.seats
+        let phase = Betting (requiredBet player table.seats)
+
+        fmap AwaitingPlayer $ create Play with
+                        phase
+                        player
+                        table  
+
+callOrCheck : ContractId Play -> Update Next
+callOrCheck play =
+    do
+        phase <- fmap (.phase) $ fetch play 
+
+        case phase of
+            Betting required -> exercise play Bet with amount = required
+            Check -> exercise play Bet with amount = 0
+            Showdown -> error "Cannot call or check on a showdown round"
+
+raise : Int -> ContractId Play -> Update Next
+raise amount play =
+    if amount == 0 then
+        exercise play AllIn
+    else do
+        phase <- fmap (.phase) $ fetch play 
+
+        case phase of
+            Betting required -> exercise play Bet with amount = amount + required
+            Check -> exercise play Bet with amount
+            Showdown -> error "Cannot raise on a showdown round"
+
 next : Party -> Phase -> Table -> Update Next
 next lastPlayer lastPhase table = 
     do
@@ -53,16 +96,16 @@ next lastPlayer lastPhase table =
                 else
                     fmap AwaitingDealer $ create Flip with table
 
-            Check ->
-                do
-                    let phase = if allStakesEqual then Check else Betting
-                            
-                    fmap AwaitingPlayer $ create Play with
-                        phase
-                        player = nextToBet lastPlayer table.seats
-                        table
+            Check | allStakesEqual ->
+                fmap AwaitingPlayer $ create Play with
+                    phase = Check
+                    player = nextToBet lastPlayer table.seats
+                    table
 
-            Betting | allStakesEqual ->
+            Check ->
+                nextBet lastPlayer table
+
+            Betting _ | allStakesEqual ->
                 if communityFull then
                     case nextToReveal lastPlayer table.seats of
                         Some player ->
@@ -76,11 +119,7 @@ next lastPlayer lastPhase table =
                 else
                     fmap AwaitingDealer $ create Flip with table
 
-            Betting ->
-                fmap AwaitingPlayer $ create Play with
-                    phase = Betting
-                    player = nextToBet lastPlayer table.seats
-                    table
+            Betting _ -> nextBet lastPlayer table
             
             Showdown ->
                 case nextToReveal lastPlayer table.seats of 
@@ -92,7 +131,8 @@ next lastPlayer lastPhase table =
                     None ->
                         fmap Finished $ finishRound table
     where
-        allStakesEqual = allEqual $ map (.stake) $ table.seats
+        maxStake = maximum $ map (.stake) table.seats
+        allStakesEqual = all (maxStake == ) $ map (.stake) $ filterInPlay table.seats
         communityFull = length table.community == 5
         lastCheck = (.player) . last $ filterInPlay table.seats
 
@@ -118,7 +158,7 @@ template Flip
 createTable : Party -> Party -> Int -> Int -> Update (ContractId PendingNextRound)
 createTable player dealer smallBlind tableStake =
     do
-        let seat = Seat with player, hand = AwaitingHand, stake = 0, stack = AllIn
+        let seat = Seat with player, hand = AwaitingHand, stake = 0, stack = ChipsAllIn
 
         create PendingNextRound with
             previous = None
@@ -184,7 +224,7 @@ template AwaitingDealOfCards
 
                     round <- create Play with                                        
                                         table = table with seats, unturned = community
-                                        phase = Betting
+                                        phase = Betting 0
                                         player = (.player) $ head table.seats
 
                     round <- fmap fromAwaitingPlayer $ 
@@ -302,11 +342,21 @@ template Play
                 create this with table
 
         controller player can
+            AllIn : Next
+                do
+                    assertMsg "TODO" $ phase /= Showdown
+
+                    amount <- avaliable (findSeat player table.seats).stack
+
+                    table <- bet table player amount
+
+                    next player phase table
+
             Bet : Next
                 with 
                     amount : Int
                 do
-                    assertMsg "" $ phase /= Showdown
+                    assertMsg "TODO" $ phase /= Showdown
 
                     table <- bet table player amount
 

@@ -75,7 +75,7 @@ bootstrap = scenario do
     players@[alice, bob, eve, mallory, trent] <- 
         mapA getParty ["Alice", "Bob", "Eve", "Mallory", "Trent"]
 
-    let chips = [250, 250, 430, 600, 50]
+    let chips = [250, 250, 80, 600, 50]
 
 --  error $ show $ sum chips 
     [aliceChips, bobChips, eveChips, malloryChips, trentChips] <-
@@ -119,6 +119,58 @@ bootstrap = scenario do
 
     play <- submit dealer do
                 dealAndStartHand dealer pending
+
+    play <- fmap fromAwaitingPlayer $ submit alice do
+                callOrCheck play
+
+    play <- fmap fromAwaitingDealer $ submit mallory do
+                callOrCheck play
+
+    play <- submit dealer do 
+                exercise play FlipCommunityCards
+
+    play <- fmap fromAwaitingPlayer $ submit mallory do
+                callOrCheck play
+
+    play <- fmap fromAwaitingPlayer $ submit eve do
+                raise 0 play
+
+    play <- fmap fromAwaitingPlayer $ submit alice do
+                callOrCheck play
+
+    play <- fmap fromAwaitingDealer $ submit mallory do
+                callOrCheck play
+
+    play <- submit dealer do
+                exercise play FlipCommunityCards
+
+    play <- fmap fromAwaitingPlayer $ submit mallory do
+                raise 30 play
+
+    play <- fmap fromAwaitingPlayer $ submit alice do
+                raise 30 play
+
+    play <- fmap fromAwaitingDealer $ submit mallory do
+                callOrCheck play
+
+    play <- submit dealer do
+                exercise play FlipCommunityCards
+
+    play <- fmap fromAwaitingPlayer $ submit mallory do
+                callOrCheck play
+
+    play <- fmap fromAwaitingPlayer $ submit alice do
+                callOrCheck play
+
+    play <- fmap fromAwaitingPlayer $ submit mallory do
+                exercise play Reveal
+
+    play <- fmap fromAwaitingPlayer $ submit eve do
+                exercise play Reveal
+
+    play <- fmap fromFinished $ submit alice do
+                exercise play Reveal
+
 --     pending <- submit alice do
 --                     createPending dealer alice 20 aliceChips
 

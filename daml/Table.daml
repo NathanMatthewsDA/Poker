@@ -35,20 +35,30 @@ bet : Table -> Party -> Int -> Update Table
 bet table player amount =
     case seat.stack of
         InPlay stack ->
-            do                
+            if required == 0 && amount == 0 then
+                return table
+            else do                
                 avaliable <- fmap (.quantity) $ fetch stack
 
                 (forPot, stack) <-
                     if amount == avaliable then
-                        return (stack, AllIn)
-                    else if amount >= required then
+                        return (stack, ChipsAllIn)
+                    else if avaliable < required then
+                        error ("Player: " <> show player <> " can't place bet as their stack: "
+                                <> show avaliable <> " isn't enough for required bet: " <> show required <>
+                                ", they must either fold or go all-in with bet of: " <> show avaliable) 
+                    else if amount < required then
+                        error ("Player: " <> show player <> " can't place bet of: " 
+                                <> show amount <> " as its less than the required amount of: "
+                                <> show required)
+                    else 
                         do
                             (forPot, remaining) <- exercise stack Split with amount
                             return (forPot, InPlay remaining)                
-                    else 
-                        error ("Player: " <> show player <> "doesn't have enough in stack: "
-                                <> show avaliable <> " to meet required: " <> show required <>
-                                ", either fold or go all-in with bet of: " <> show avaliable) 
+                    -- else 
+                    --     error ("Player: " <> show player <> " doesn't have enough in stack: "
+                    --             <> show avaliable <> " to meet required: " <> show required <>
+                    --             ", either fold or go all-in with bet of: " <> show avaliable) 
                     
                 let newSeat = seat with stack, stake = seat.stake + amount
 
@@ -62,7 +72,7 @@ bet table player amount =
                 return $ table with
                             seats = replace seat newSeat table.seats 
                             pot = Some pot
-        AllIn -> 
+        ChipsAllIn -> 
             error ("Player: " <> show player <> " cannot bet as they have an emoty stack")
 
         Folded _ ->
@@ -82,7 +92,7 @@ fold table player =
                 return $ table with
                     seats = replace seat newSeat table.seats
                     pot = Some pot
-        AllIn ->
+        ChipsAllIn ->
             error ("Player: " <> show player <> " cannot fold as they are already all-in")
         Folded _ ->
             error ("Player: " <> show player <> " cannot fold as they are already folded")
