@@ -52,3 +52,12 @@ findNextLoop f xs =
 
 indexOf : (Eq a) => a -> [a] -> Int
 indexOf x = fromSome . elemIndex x
+
+replace : (Eq a) => a -> a -> [a] -> [a]
+replace old new = map (\x -> if x == old then new else x)
+
+after : (a -> Bool) -> [a] -> [a]
+after f xs =
+    after ++ before ++ [e]
+    where
+        (before, (e :: after)) = break f xs

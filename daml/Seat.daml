@@ -3,149 +3,205 @@ daml 1.2
 module Seat where
 
 import Cards
-import DA.Optional
-import DA.List
-import DA.Foldable (maximum)
+import Chips
+import Utils
+import DA.List (head, delete)
+import DA.Optional (fromSome, mapOptional)
+import SidePot (SidePot, createSidePots1)
+import DA.Action (foldlA)
 
-template PlayerSeed 
+template HiddenSeed
     with
-        player : Party
         dealer : Party
+        player : Party
         seed : Int
     where
-        signatory player 
+        signatory player
         observer dealer
 
-template Hand
+template HiddenHand
     with
         holder : Party
         dealer : Party
-        -- id : Int
-        -- k : ContractId GameKey
         card1 : Card
         card2 : Card
-        obs : [Party]
     where
         signatory dealer
-        observer obs
-        
-        controller holder can 
-            RevealHand : ContractId Hand
-                with
-                    to : [Party]
-                do
-                    create this with obs = to
-                    
-        -- key (id, holder, dealer) : (Int, Party, Party)
+        observer holder
 
-        -- maintainer key._3
+data Stack = 
+    Folded (ContractId Chips) | 
+    InPlay (ContractId Chips) |
+    AllIn 
+    deriving (Eq, Show)
 
-data Revealed =
-    NotDealt | 
-    HiddenHand (ContractId Hand) |
-    HoleCards (Card, Card) deriving (Eq, Show)
+data Hand = 
+    Hidden (ContractId HiddenHand) |
+    Revealed (Card, Card) |
+    AwaitingHand
+    -- AwaitingSeed |
+    -- AwaitingHand (ContractId HiddenSeed)
+    deriving (Eq, Show)
 
 data Seat = Seat with
-    seed : ContractId PlayerSeed
-    folded : Bool
-    revealed : Revealed
-    -- holeCards : Optional (Card, Card)
-    player : Party
-    bet : Int
-    stack : Int
-        deriving (Eq, Show)
+        player : Party
+        hand : Hand
+        stake : Int
+        stack : Stack
+    deriving (Eq, Show)
 
-playerSeat : Party -> [Seat] -> Seat
-playerSeat player seats =
-    fromSome $ find (\s -> s.player == player) seats
+isFolded : Stack -> Bool
+isFolded (Folded _) = True
+isFolded _ = False
 
-active : Seat -> Bool
-active seat = seat.stack > seat.bet && not seat.folded
+isInPlay : Stack -> Bool
+isInPlay (InPlay _) = True
+isInPlay _ = False
 
-nextActivePlayer : Party -> [Seat] -> Party
-nextActivePlayer player seats = 
-    (.player) $
-    head $
-    filter active $
-    tail $
-    dropWhile (\s -> s.player /= player) $ 
-    seats ++ seats
+avaliable : Stack -> Update Int
+avaliable (Folded chips) = fmap (.quantity) $ fetch chips
+avaliable (InPlay chips) = fmap (.quantity) $ fetch chips
+avaliable AllIn = return 0
 
-nextPlayer : Party -> [Seat] -> Party
-nextPlayer player seats = 
-    (.player) $
-    head $
-    filter (not . (.folded)) $
-    tail $
-    dropWhile (\s -> s.player /= player) $ 
-    seats ++ seats
-
-biggestBet : [Seat] -> Int
-biggestBet = maximum . map (.bet)
-
-requiredBet : Party -> [Seat] -> Int
-requiredBet player seats = 
-    biggestBet seats - ((.bet) $ playerSeat player seats)
-
-activeBets : [Seat] -> [Int]
-activeBets = map (.bet) . filter active
-
-remaining : Seat -> Int
-remaining seat = seat.stack - seat.bet
-
-updateSeat : Party -> (Seat -> Seat) -> [Seat] -> [Seat]
-updateSeat player f = 
-    map (\s -> if s.player == player then f s else s)
-
-placeBet : Int -> Party -> [Seat] -> Update [Seat]
-placeBet amount player seats =
+playersWithAtLeast : Int -> [Seat] -> Update [Party]
+playersWithAtLeast amount seats =
     do
-        let msg = "Not enough funds for: " <> show player <> " to place bet"
-        assertMsg msg $ remaining seat >= required
+        a <- mapA (avaliable . (.stack)) seats
+        return $ map fst $ filter ((amount <=) . snd) $ zip (map (.player) seats) a
 
-        return $ updateSeat player (\s -> s with bet = s.bet + required) seats
-    where
-        seat = findSeat player seats
-        required = amount + requiredBet player seats
+-- https://en.wikipedia.org/wiki/Glossary_of_poker_terms
+-- active player
+-- A player still involved in the pot. If there are side pots, 
+-- an all-in player may be active in some pots, but not in others.
 
-call : Party -> [Seat] -> Update [Seat]
-call player seats = do placeBet 0 player seats
-
-raise : Int -> Party -> [Seat] -> Update [Seat]
-raise amount player seats = do placeBet amount player seats
-
-fold : Party -> [Seat] -> [Seat]
-fold player = updateSeat player (\s -> s with folded = True, stack = s.bet)
-
-allIn : Party -> [Seat] -> [Seat]
-allIn player = updateSeat player (\s -> s with bet = s.stack)
-
-pot : [Seat] -> Int
-pot = sum . map (.bet)
-
-reveal : Party -> (Card, Card) -> [Seat] -> [Seat]
-reveal player hand = 
-    updateSeat player (\s -> s with revealed = HoleCards hand)
-    
--- returnRemaining : [Seat] -> [Seat]
--- returnRemaining = map (\s -> s with stack = s.bet)
-
-findSeat : Party -> [Seat] -> Seat
-findSeat player = fromSome . find (\s -> player == s.player)
-
-inGame : [Seat] -> [Party]
-inGame = map (.player) . filter (not . (.folded))
-
-loopAfter : (a -> Bool) -> [a] -> [a]
-loopAfter f xs = 
-    begin ++ (x :: end) where (end, x :: begin) = break f xs
-
-afterPlayer : Party -> [Seat] -> [Seat]
-afterPlayer player = loopAfter (\s -> s.player == player)
-
-nextInGame : Party -> [Seat] -> Party
-nextInGame player =
-    (.player) . fromSome . find (not . (.folded)) . afterPlayer player
+filterActive : [Seat] -> [Seat]
+filterActive = filter (not . isFolded . (.stack))
 
 activePlayers : [Seat] -> [Party]
-activePlayers = map (.player) . filter (\s -> not s.folded && s.stack > s.bet)
+activePlayers = map (.player) . filterActive
+
+seatsAfter : Party -> [Seat] -> [Seat]
+seatsAfter player seats = after ((findSeat player seats) ==) seats
+
+filterInPlay : [Seat] -> [Seat]
+filterInPlay = filter (isInPlay . (.stack))
+
+nextInPlay : [Seat] -> Party
+nextInPlay = (.player) . head . filterInPlay
+
+nextToBet : Party -> [Seat] -> Party
+nextToBet lastPlayer = nextInPlay . seatsAfter lastPlayer 
+
+toBet : [Seat] -> [Party]
+toBet = map (.player) . filter (isInPlay . (.stack))
+
+isRevealed : Hand -> Bool
+isRevealed (Revealed _) = True
+isRevealed _ = False
+
+nextToReveal : Party -> [Seat] -> Optional Party
+nextToReveal lastPlayer seats =
+    fmap (.player) $ find (isRevealed . (.hand)) $ seatsAfter lastPlayer seats
+
+findSeat : Party -> [Seat] -> Seat
+findSeat player = fromSome . find ((player ==) . (.player))
+
+toSidePots : [Card] -> [Seat] -> [SidePot]
+toSidePots community seats =
+    do
+        let foldedStakes = (map (.stake) $ filter (isFolded . (.stack)) seats)
+        let hands = mapOptional (\s -> case s.hand of 
+                                          Revealed cards -> Some (s.player, s.stake, cards)
+                                          _ -> None) $ filterActive seats
+        createSidePots1 community foldedStakes hands
+
+resetStack : Stack -> Stack
+resetStack (Folded stack) = InPlay stack
+resetStack other = other
+
+resetSeat : Seat -> Seat
+resetSeat seat = seat with 
+                    hand = AwaitingHand
+                    stake = 0
+                    stack = resetStack seat.stack
+
+addObservers : ContractId Chips -> [Party] -> Update (ContractId Chips)
+addObservers = foldlA (\chips player -> exercise chips AddChipsObserver with player)
+
+buyIn : Party -> ContractId Chips -> Int -> [Seat] -> Update [Seat]
+buyIn player chips tableStake seats =
+    do
+        quantity <- fmap (.quantity) $ fetch chips
+        
+        case find ((player ==) . (.player)) seats of
+            Some seat ->   
+                case seat.stack of 
+                    AllIn -> 
+                        do
+                            checkQuantity quantity
+
+                            chips <- addObservers chips (delete player (map (.player) seats))
+
+                            let newSeat = seat with stack = InPlay chips
+
+                            return $ replace seat newSeat seats
+
+                    InPlay stack ->
+                        do
+                            stack <- exercise stack Merge with chips
+
+                            quantity <- fmap (.quantity) $ fetch stack
+
+                            checkQuantity quantity                        
+
+                            let newSeat = seat with stack = InPlay stack 
+                            
+                            return $ replace seat newSeat seats
+
+                    Folded _ -> error "Illegal state, shouldn't be any folded seats when buying in"
+
+            None ->
+                do
+                    checkQuantity quantity
+
+                    let newSeat = Seat with player, hand = AwaitingHand, stake = 0, stack = InPlay chips
+
+                    chips <- addObservers chips (map (.player) seats)
+
+                    let newSeat = Seat with player, hand = AwaitingHand, stake = 0, stack = InPlay chips
+
+                    return $ newSeat :: seats
+    where
+        checkQuantity quantity = 
+            assertMsg ("Cannot buy-in as amount: " <> 
+                       show quantity <> 
+                       " does not meet required table stake: " <> 
+                       show tableStake) $ 
+                        quantity >= tableStake
+
+mergeWinnings : [(Party, ContractId Chips)] -> Seat -> Update Seat
+mergeWinnings winnings seat =
+    case find ((seat.player ==) . fst) winnings of
+        Some (player, chips) -> 
+            case seat.stack of
+                Folded _ ->
+                    error ("Illegal State: Folded player: " 
+                            <> show player <> 
+                            " should not have winnings: " <> show chips)
+                
+                InPlay stack ->
+                    do
+                        chips <- exercise stack Merge with chips
+                        return $ seat with stack = InPlay chips    
+                AllIn ->
+                    return $ seat with stack = InPlay chips
+        None ->
+            return seat
+
+addStackObserver : Stack -> Party -> Update Stack
+addStackObserver AllIn _ = return AllIn
+addStackObserver (Folded chips) player = 
+    fmap Folded $ exercise chips AddChipsObserver with player
+addStackObserver (InPlay chips) player = 
+    fmap InPlay $ exercise chips AddChipsObserver with player
+

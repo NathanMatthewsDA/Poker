@@ -3,173 +3,255 @@ daml 1.2
 module Navigator where
 
 import Chips
-import Table
-import Dealer
+import Round
+-- import Dealer
 import Seat
+import Utils
 
-createChips : Party -> Party -> [Party] -> Int -> Scenario (ContractId Chips)
-createChips house owner observers quantity =
+createChips : Party -> Party -> Int -> Scenario (ContractId Chips)
+createChips house owner quantity =
     do
         transfer <- submit house do
-                        chips <- create Chips with house, owners = [house], quantity, observers
+                        chips <- create Chips with house, owner = house, quantity, observers = []
                         exercise chips Transfer_Chips with newOwner = owner
         
         submit owner do
             exercise transfer AcceptTransfer
 
-createSeed : Party -> Party -> Int -> Scenario (ContractId PlayerSeed)
+createSeed : Party -> Party -> Int -> Scenario (ContractId HiddenSeed)
 createSeed dealer player seed = 
     do
         submit player do
-            create PlayerSeed with player, dealer, seed
+            create HiddenSeed with player, dealer, seed
 
-inviteAndJoin : Party -> Party -> Party -> Party -> Int -> Int -> ContractId Table -> Scenario (ContractId Table)
-inviteAndJoin house dealer inviter player stack seed table  =
-    do        
-        transfer <- submit house do
-                        chips <- create Chips with house, owners = [house], quantity = stack, observers = []
-                        exercise chips Transfer_Chips with newOwner = player
+-- inviteAndJoin : Party -> Party -> Party -> Party -> Int -> Int -> ContractId Table -> Scenario (ContractId Table)
+-- inviteAndJoin house dealer inviter player stack seed table  =
+--     do        
+--         transfer <- submit house do
+--                         chips <- create Chips with house, owners = [house], quantity = stack, observers = []
+--                         exercise chips Transfer_Chips with newOwner = player
         
-        stack <- submit player do
-                    exercise transfer AcceptTransfer
+--         stack <- submit player do
+--                     exercise transfer AcceptTransfer
 
-        table <- submit inviter do
-            exercise table InvitePlayer with inviter, player
+--         table <- submit inviter do
+--             exercise table InvitePlayer with inviter, player
 
-        seed <- submit player do
-                  create PlayerSeed with dealer, player, seed
+--         seed <- submit player do
+--                   create PlayerSeed with dealer, player, seed
 
-        table <- submit inviter do
-                    exercise table InvitePlayer with inviter, player
+--         table <- submit inviter do
+--                     exercise table InvitePlayer with inviter, player
 
-        submit player do
-            exercise table JoinTable with player, seed, stack
+--         submit player do
+--             exercise table JoinTable with player, seed, stack
+
+-- invite : Party -> Party -> ContractId PendingHand -> Scenario (ContractId PendingHand)
+-- invite inviter player pending = 
+--      submit inviter do
+--           exercise pending InvitePlayer with inviter, player
+
+-- accept : Party -> ContractId Chips -> ContractId PendingHand -> Scenario (ContractId PendingHand)
+-- accept player stack pending = 
+--      submit player do exercise pending JoinTable with player, stack
+
+-- ready : Party -> Int -> ContractId PendingHand -> Scenario (ContractId PendingHand)
+-- ready player seed pending = 
+--    submit player do playerReady player seed pending
+
+forceLeft : Either a b -> a
+forceLeft (Left a) = a
+forceLeft _ = error "Either wasn't a left"
+
+forceRight : Either a b -> b
+forceRight (Right a) = a
+forceRight _ = error "Either wasn't a right"
 
 bootstrap = scenario do
+
     house <- getParty "House"
     dealer <- getParty "Dealer"
 
     players@[alice, bob, eve, mallory, trent] <- 
         mapA getParty ["Alice", "Bob", "Eve", "Mallory", "Trent"]
 
-    d <- submit dealer do
-            create Dealer with dealer
+    let chips = [250, 250, 430, 600, 50]
 
-    aliceChips <- Navigator.createChips house alice [] 300
---     bobChips <- Navigator.createChips house bob [] 400
---     eveChips <- Navigator.createChips house eve [] 400
---     malloryChips <- Navigator.createChips house mallory [] 400
---     trentChips <- Navigator.createChips house trent [] 400
+--  error $ show $ sum chips 
+    [aliceChips, bobChips, eveChips, malloryChips, trentChips] <-
+        sequence $ zipWith (createChips house) players chips
 
---     aliceSeed <- createSeed dealer alice 2132
---     bobSeed <- createSeed dealer bob 35253
---     eveSeed <- createSeed dealer eve 21412
---     mallorySeed <- createSeed dealer mallory 923
---     trentSeed <- createSeed dealer trent 983342
+    pending <- submit alice do
+                    createTable alice dealer 10 40
 
-    table <- submit alice do
-                 createTable dealer aliceChips 34234 10
-               --  seed = aliceSeed
-               --  dealer
-               --  player = alice
-               --  smallBlind = 10
-               --  stack = aliceChips
+    pending <- submit alice do
+                    exercise pending BuyIn with player = alice, chips = aliceChips
 
---     table <- submit dealer do exercise st CreateTable
+    pending <- submit alice do
+                    exercise pending AddObserver with inviter = alice, watcher = bob
 
-    table <- inviteAndJoin house dealer alice bob 300 43523 table
-    table <- inviteAndJoin house dealer bob eve 450 43523 table
-    table <- inviteAndJoin house dealer bob mallory 200 2423 table
-    table <- inviteAndJoin house dealer mallory trent 500 3421 table
+    pending <- submit alice do
+                    exercise pending AddObserver with inviter = alice, watcher = eve
 
-    table <- submit bob do
-                exercise table PlayerReady with player = bob
+    pending <- submit eve do
+                    exercise pending BuyIn with player = eve, chips = eveChips
 
-    table <- submit eve do
-                exercise table PlayerReady with player = eve
-
-    table <- submit alice do
-                exercise table PlayerReady with player = alice
-
-    table <- submit mallory do
-                exercise table PlayerReady with player = mallory
-
-    table <- submit trent do
-                exercise table PlayerReady with player = trent
-
-    table <- submit dealer do
-                exercise d DealAndStartHand with table
-
-    table <- submit eve do
-                exercise table Call
+    pending <- submit eve do
+                    exercise pending AddObserver with inviter = eve, watcher = trent
     
-    table <- submit mallory do
-         exercise table Call
+    pending <- submit eve do
+                    exercise pending AddObserver with inviter = eve, watcher = mallory
 
-    table <- submit trent do
-         exercise table Call
+    pending <- submit mallory do
+                    exercise pending BuyIn with player = mallory, chips = malloryChips
 
-    table <- submit alice do
-         exercise table Call
+    pending <- fmap forceLeft $ submit eve do
+                    seed <- create HiddenSeed with dealer, player = eve, seed = 132
+                    exercise pending Ready with player = eve, seed
 
-    table <- submit dealer do
-        exercise d PlayCommunity with table
+    pending <- fmap forceLeft $ submit mallory do
+                    seed <- create HiddenSeed with dealer, player = mallory, seed = 4234
+                    exercise pending Ready with player = mallory, seed
 
-    table <- submit alice do
-         exercise table Check
+    pending <- fmap forceRight $ submit alice do
+                    seed <- create HiddenSeed with dealer, player = alice, seed = 242
+                    exercise pending Ready with player = alice, seed
 
-    table <- submit bob do
-         exercise table Raise with amount = 40
+    play <- submit dealer do
+                dealAndStartHand dealer pending
+--     pending <- submit alice do
+--                     createPending dealer alice 20 aliceChips
 
-    table <- submit eve do
-         exercise table Fold with player = eve
+--     pending <- invite alice bob pending
 
-    table <- submit mallory do
-         exercise table Call
+--     pending <- accept bob bobChips pending
 
-    table <- submit trent do
-         exercise table Raise with amount = 10
+--     pending <- invite alice eve pending
 
-    table <- submit alice do
-         exercise table  Call
+--     pending <- accept eve eveChips pending
 
-    table <- submit bob do
-         exercise table Fold with player = bob
+--     pending <- ready alice 2141 pending
 
-    table <- submit mallory do
-         exercise table Call
+--     pending <- invite eve mallory pending
+                    
+--     pending <- invite eve trent pending
 
-    table <- submit dealer do
-        exercise d PlayCommunity with table
+--     pending <- accept trent trentChips pending
 
-    table <- submit alice do
-         exercise table Check
+--     pending <- accept mallory malloryChips pending
+ 
+--     pending <- ready bob 3213 pending
 
-    table <- submit mallory do
-         exercise table Check
+--     pending <- ready trent 23 pending
 
-    table <- submit trent do
-         exercise table Check
+--     pending <- ready eve 53235 pending
 
-    table <- submit dealer do
-        exercise d PlayCommunity with table
+--     pending <- ready mallory 3212 pending
 
-    table <- submit alice do
-         exercise table Check
+--     round <- submit dealer do startGame pending
 
-    table <- submit mallory do
-         exercise table Raise with amount = 10
+--     round <- submit eve do 
+--                fmap forceLeft $    
+--                     exercise round BettingRound_Raise with amount = 10
+               
+--     round <- submit bob do 
+--                fmap forceLeft $ 
+--                     exercise round BettingRound_Raise with amount = 10
 
-    table <- submit trent do
-         exercise table Fold with player = trent
+--     round <- submit alice do 
+--                fmap forceLeft $ 
+--                     exercise round BettingRound_Call
 
-    table <- submit alice do
-         exercise table AllIn
+--     round <- submit mallory do 
+--                fmap forceLeft $ 
+--                     exercise round BettingRound_Call
 
-    table <- submit mallory do
-         exercise table Reveal with player = mallory
+--     round <- submit trent do 
+--                fmap forceLeft $ 
+--                     exercise round BettingRound_AllIn
 
-    table <- submit alice do
-         exercise table Reveal with player = alice
+--     round <- submit eve do 
+--                fmap (forceLeft . forceRight) $ 
+--                     exercise round BettingRound_Call
+
+--     round <- submit dealer do
+--                fmap forceLeft $ 
+--                     exercise round TurnCommunity
+
+--     round <- submit mallory do 
+--                fmap forceLeft $ 
+--                     exercise round CheckRound_Check
+
+--     round <- submit eve do 
+--                fmap forceLeft $ 
+--                     exercise round CheckRound_Check
+
+--     round <- submit bob do 
+--                fmap forceLeft $ 
+--                     exercise round CheckRound_Check
+
+--     round <- submit alice do 
+--                fmap (forceLeft . forceRight) $ 
+--                     exercise round CheckRound_Check
+
+--     round <- submit dealer do
+--                fmap forceLeft $ 
+--                     exercise round TurnCommunity
+
+--     round <- submit mallory do 
+--                     exercise round CheckRound_Raise with amount = 40
+
+--     round <- submit eve do 
+--                fmap forceLeft $ 
+--                     exercise round BettingRound_Call
+
+--     round <- submit bob do 
+--                fmap (forceLeft . forceLeft) $ 
+--                     exercise round BettingRound_Fold with player = bob
+
+--     round <- submit alice do 
+--                fmap (forceLeft . forceRight) $ 
+--                     exercise round BettingRound_Call
+
+--     round <- submit dealer do
+--                fmap forceLeft $ 
+--                     exercise round TurnCommunity
+
+--     round <- submit mallory do 
+--                     exercise round CheckRound_Raise with amount = 100
+
+--     round <- submit eve do 
+--                fmap forceLeft $ 
+--                     exercise round BettingRound_AllIn
+
+--     round <- submit alice do 
+--                fmap forceLeft $ 
+--                     exercise round BettingRound_AllIn
+
+--     round <- submit mallory do 
+--                fmap (forceRight . forceRight) $ 
+--                     exercise round BettingRound_Call
+ 
+--     round <- submit trent do 
+--                fmap forceLeft $ 
+--                     exercise round ShowdownRound_Reveal with player = trent
+
+--     round <- submit eve do 
+--                fmap forceLeft $ 
+--                     exercise round ShowdownRound_Reveal with player = eve
+
+--     round <- submit alice do 
+--                fmap forceLeft $ 
+--                     exercise round ShowdownRound_Reveal with player = alice
+
+--     round <- submit mallory do 
+--                fmap forceRight $ 
+--                     exercise round ShowdownRound_Reveal with player = mallory
+
+--     pending <- submit eve do playerReady eve 3242 pending
+
+
+
+
 
     return ()
