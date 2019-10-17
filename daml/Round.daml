@@ -120,11 +120,14 @@ bet amount player round =
         error $ "Player: " <> show player <> 
                 " attempted to bet: " <> show amount <>
                 " which is less than required: " <> show required
-    else
-        increaseStake amount player round
-    where
+    else if amount > required then
+        newRound with lastRaise = player
+    else 
+        newRound
+    where    
         stack = stackFor round.game player
         required = maxStake round - (stakeFor round player)
+        newRound = increaseStake amount player round
 
 allinOrRequired : Party -> Round -> Round
 allinOrRequired player round = 

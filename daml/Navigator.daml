@@ -23,48 +23,43 @@ createSeed dealer player seed =
         submit player do
             create PlayerSeed with player, dealer, seed
 
--- inviteAndJoin : Party -> Party -> Party -> Party -> Int -> Int -> ContractId Table -> Scenario (ContractId Table)
--- inviteAndJoin house dealer inviter player stack seed table  =
---     do        
---         transfer <- submit house do
---                         chips <- create Chips with house, owners = [house], quantity = stack, observers = []
---                         exercise chips Transfer_Chips with newOwner = player
-        
---         stack <- submit player do
---                     exercise transfer AcceptTransfer
+toLastPlay : Next -> ContractId LastPlay
+toLastPlay (AwaitingLastPlay awaiting) = awaiting
+toLastPlay _ = error ""
 
---         table <- submit inviter do
---             exercise table InvitePlayer with inviter, player
+toPendingHand : Next -> ContractId PendingHand
+toPendingHand (AwaitingPendingHand awaiting) = awaiting
+toPendingHand other = error $ show other <> " was not expected AwaitingPendingHand"
 
---         seed <- submit player do
---                   create PlayerSeed with dealer, player, seed
+toDealHands : Next -> ContractId DealHands
+toDealHands (AwaitingDealHands awaiting) = awaiting
+toDealHands other = error $ show other <> " was not expected AwaitingDealHands"
 
---         table <- submit inviter do
---                     exercise table InvitePlayer with inviter, player
+toBetOrFold : Next -> ContractId BetOrFold
+toBetOrFold (AwaitingBetOrFold awaiting) = awaiting
+toBetOrFold other = error $ show other <> " was not expected AwaitingBetOrFold"
 
---         submit player do
---             exercise table JoinTable with player, seed, stack
+toCheckOrRaise : Next -> ContractId CheckOrRaise
+toCheckOrRaise (AwaitingCheckOrRaise awaiting) = awaiting
+toCheckOrRaise other = error $ show other <> " was not expected AwaitingCheckOrRaise"
 
--- invite : Party -> Party -> ContractId PendingHand -> Scenario (ContractId PendingHand)
--- invite inviter player pending = 
---      submit inviter do
---           exercise pending InvitePlayer with inviter, player
+toTurnCommunity : Next -> ContractId TurnCommunity
+toTurnCommunity (AwaitingTurnCommunity awaiting) = awaiting
+toTurnCommunity other = error $ show other <> " was not expected AwaitingTurnCommunity"
 
--- accept : Party -> ContractId Chips -> ContractId PendingHand -> Scenario (ContractId PendingHand)
--- accept player stack pending = 
---      submit player do exercise pending JoinTable with player, stack
+toShowdown : Next -> ContractId Showdown
+toShowdown (AwaitingShowdown awaiting) = awaiting
+toShowdown other = error $ show other <> " was not expected AwaitingShowdown"
+-- data Next =
+--     AwaitingLastPlay (ContractId LastPlay) |
+--     AwaitingCheckOrRaise (ContractId CheckOrRaise) |
+--     AwaitingTurnCommunity (ContractId TurnCommunity) |
+--     AwaitingShowdown (ContractId Showdown) |
+--     AwaitingPendingHand (ContractId PendingHand) |
+--     AwaitingBetOrFold (ContractId BetOrFold) |
+--     AwaitingDealHands (ContractId DealHands)
+--         deriving (Eq, Show)
 
--- ready : Party -> Int -> ContractId PendingHand -> Scenario (ContractId PendingHand)
--- ready player seed pending = 
---    submit player do playerReady player seed pending
-
-forceLeft : Either a b -> a
-forceLeft (Left a) = a
-forceLeft _ = error "Either wasn't a left"
-
-forceRight : Either a b -> b
-forceRight (Right a) = a
-forceRight _ = error "Either wasn't a right"
 
 bootstrap = scenario do
 
@@ -86,231 +81,109 @@ bootstrap = scenario do
                     smallBlind = 10
                     bigBlind = 20
                     tableStake = 40
-                    maxBuyIn = 100
+                    maxBuyIn = 1000
 
     pending <- submit alice do
                     createTable dealer limits aliceChips
 
-    -- pending <- submit alice do
-    --                 exercise pending BuyIn with player = alice, chips = aliceChips
+    pending <- submit alice do
+                    exercise pending InvitePlayer with inviter = alice, invitee = bob
 
-    -- pending <- submit alice do
-    --                 exercise pending AddObserver with inviter = alice, watcher = bob
+    pending <- submit bob do
+                    exercise pending JoinTable with player = bob, stack = bobChips
 
-    -- pending <- submit alice do
-    --                 exercise pending AddObserver with inviter = alice, watcher = eve
+    pending <- submit bob do
+                    exercise pending InvitePlayer with inviter = bob, invitee = eve
 
-    -- pending <- submit eve do
-    --                 exercise pending BuyIn with player = eve, chips = eveChips
+    pending <- submit eve do
+                    exercise pending JoinTable with player = eve, stack = eveChips
 
-    -- pending <- submit eve do
-    --                 exercise pending AddObserver with inviter = eve, watcher = trent
+    pending <- submit alice do
+                    exercise pending InvitePlayer with inviter = alice, invitee = mallory
+
+    pending <- submit mallory do
+                    exercise pending JoinTable with player = mallory, stack = malloryChips
+
+    pending <- submit bob do
+                seed <- create PlayerSeed with player = bob, dealer, seed = 123
+                fmap toPendingHand $ exercise pending Ready with player = bob, seed 
+
+    pending <- submit eve do
+                seed <- create PlayerSeed with player = eve, dealer, seed = 3232
+                fmap toPendingHand $ exercise pending Ready with player = eve, seed 
+
+    pending <- submit alice do
+                seed <- create PlayerSeed with player = alice, dealer, seed = 1243242
+                fmap toPendingHand $ exercise pending Ready with player = alice, seed 
+
+    dealHands <- submit mallory do
+                seed <- create PlayerSeed with player = mallory, dealer, seed = 873
+                fmap toDealHands $ exercise pending Ready with player = mallory, seed 
+
+    betOrFold <- submit dealer do
+                    shuffleAndDeal dealHands       
+
+    betOrFold <- submit eve do
+                    fmap toBetOrFold $ exercise betOrFold Bet with amount = 20
     
-    -- pending <- submit eve do
-    --                 exercise pending AddObserver with inviter = eve, watcher = mallory
+    betOrFold <- submit bob do
+                    fmap toBetOrFold $ exercise betOrFold Bet with amount = 20
 
-    -- pending <- submit mallory do
-    --                 exercise pending BuyIn with player = mallory, chips = malloryChips
+    checkOrRaise <- submit alice do
+                    fmap toCheckOrRaise $ exercise betOrFold Bet with amount = 10
 
-    -- pending <- fmap forceLeft $ submit eve do
-    --                 seed <- create HiddenSeed with dealer, player = eve, seed = 132
-    --                 exercise pending Ready with player = eve, seed
+    turnCommunity <- submit mallory do
+                        fmap toTurnCommunity $ exercise checkOrRaise Check
 
-    -- pending <- fmap forceLeft $ submit mallory do
-    --                 seed <- create HiddenSeed with dealer, player = mallory, seed = 4234
-    --                 exercise pending Ready with player = mallory, seed
+    checkOrRaise <- submit dealer do
+                        fmap toCheckOrRaise $ exercise turnCommunity Turn
 
-    -- pending <- fmap forceRight $ submit alice do
-    --                 seed <- create HiddenSeed with dealer, player = alice, seed = 242
-    --                 exercise pending Ready with player = alice, seed
+    checkOrRaise <- submit alice do
+                        fmap toCheckOrRaise $ exercise checkOrRaise Check
 
-    -- play <- submit dealer do
-    --             dealAndStartHand dealer pending
+    checkOrRaise <- submit mallory do
+                        fmap toCheckOrRaise $ exercise checkOrRaise Check
 
-    -- play <- fmap fromAwaitingPlayer $ submit alice do
-    --             callOrCheck play
+    checkOrRaise <- submit eve do
+                        fmap toCheckOrRaise $ exercise checkOrRaise Check
 
-    -- play <- fmap fromAwaitingDealer $ submit mallory do
-    --             callOrCheck play
+    turnCommunity <- submit bob do
+                        fmap toTurnCommunity $ exercise checkOrRaise Check
 
-    -- play <- submit dealer do 
-    --             exercise play FlipCommunityCards
+    checkOrRaise <- submit dealer do
+                        fmap toCheckOrRaise $ exercise turnCommunity Turn
 
-    -- play <- fmap fromAwaitingPlayer $ submit mallory do
-    --             callOrCheck play
+    betOrFold <- submit alice do
+                        exercise checkOrRaise Raise with amount = 30
 
-    -- play <- fmap fromAwaitingPlayer $ submit eve do
-    --             raise 0 play
+    betOrFold <- submit mallory do
+                        fmap toBetOrFold $ exercise betOrFold Bet with amount = 30
 
-    -- play <- fmap fromAwaitingPlayer $ submit alice do
-    --             callOrCheck play
+    betOrFold <- submit eve do
+                        fmap toBetOrFold $ exercise betOrFold Fold
+                
+    turnCommunity <- submit bob do
+                        fmap toTurnCommunity $ exercise betOrFold Bet with amount = 30
 
-    -- play <- fmap fromAwaitingDealer $ submit mallory do
-    --             callOrCheck play
+    checkOrRaise <- submit dealer do
+                        fmap toCheckOrRaise $ exercise turnCommunity Turn
 
-    -- play <- submit dealer do
-    --             exercise play FlipCommunityCards
+    betOrFold <- submit alice do
+                        exercise checkOrRaise Raise with amount = 200
+                  
+    betOrFold <- submit mallory do
+                        fmap toBetOrFold $ exercise betOrFold Bet with amount = 200
 
-    -- play <- fmap fromAwaitingPlayer $ submit mallory do
-    --             raise 30 play
+    showdown <- submit bob do
+                        fmap Navigator.toShowdown $ exercise betOrFold Bet with amount = 200
 
-    -- play <- fmap fromAwaitingPlayer $ submit alice do
-    --             raise 30 play
+    showdown <- submit alice do
+                    fmap Navigator.toShowdown $ exercise showdown Reveal with holeCard1 = True, holeCard2 = True
 
-    -- play <- fmap fromAwaitingDealer $ submit mallory do
-    --             callOrCheck play
+    showdown <- submit mallory do
+                    fmap Navigator.toShowdown $ exercise showdown Reveal with holeCard1 = False, holeCard2 = True
 
-    -- play <- submit dealer do
-    --             exercise play FlipCommunityCards
-
-    -- play <- fmap fromAwaitingPlayer $ submit mallory do
-    --             callOrCheck play
-
-    -- play <- fmap fromAwaitingPlayer $ submit alice do
-    --             callOrCheck play
-
-    -- play <- fmap fromAwaitingPlayer $ submit mallory do
-    --             exercise play Reveal
-
-    -- play <- fmap fromAwaitingPlayer $ submit eve do
-    --             exercise play Reveal
-
-    -- play <- fmap fromFinished $ submit alice do
-    --             exercise play Reveal
-
---     pending <- submit alice do
---                     createPending dealer alice 20 aliceChips
-
---     pending <- invite alice bob pending
-
---     pending <- accept bob bobChips pending
-
---     pending <- invite alice eve pending
-
---     pending <- accept eve eveChips pending
-
---     pending <- ready alice 2141 pending
-
---     pending <- invite eve mallory pending
-                    
---     pending <- invite eve trent pending
-
---     pending <- accept trent trentChips pending
-
---     pending <- accept mallory malloryChips pending
- 
---     pending <- ready bob 3213 pending
-
---     pending <- ready trent 23 pending
-
---     pending <- ready eve 53235 pending
-
---     pending <- ready mallory 3212 pending
-
---     round <- submit dealer do startGame pending
-
---     round <- submit eve do 
---                fmap forceLeft $    
---                     exercise round BettingRound_Raise with amount = 10
-               
---     round <- submit bob do 
---                fmap forceLeft $ 
---                     exercise round BettingRound_Raise with amount = 10
-
---     round <- submit alice do 
---                fmap forceLeft $ 
---                     exercise round BettingRound_Call
-
---     round <- submit mallory do 
---                fmap forceLeft $ 
---                     exercise round BettingRound_Call
-
---     round <- submit trent do 
---                fmap forceLeft $ 
---                     exercise round BettingRound_AllIn
-
---     round <- submit eve do 
---                fmap (forceLeft . forceRight) $ 
---                     exercise round BettingRound_Call
-
---     round <- submit dealer do
---                fmap forceLeft $ 
---                     exercise round TurnCommunity
-
---     round <- submit mallory do 
---                fmap forceLeft $ 
---                     exercise round CheckRound_Check
-
---     round <- submit eve do 
---                fmap forceLeft $ 
---                     exercise round CheckRound_Check
-
---     round <- submit bob do 
---                fmap forceLeft $ 
---                     exercise round CheckRound_Check
-
---     round <- submit alice do 
---                fmap (forceLeft . forceRight) $ 
---                     exercise round CheckRound_Check
-
---     round <- submit dealer do
---                fmap forceLeft $ 
---                     exercise round TurnCommunity
-
---     round <- submit mallory do 
---                     exercise round CheckRound_Raise with amount = 40
-
---     round <- submit eve do 
---                fmap forceLeft $ 
---                     exercise round BettingRound_Call
-
---     round <- submit bob do 
---                fmap (forceLeft . forceLeft) $ 
---                     exercise round BettingRound_Fold with player = bob
-
---     round <- submit alice do 
---                fmap (forceLeft . forceRight) $ 
---                     exercise round BettingRound_Call
-
---     round <- submit dealer do
---                fmap forceLeft $ 
---                     exercise round TurnCommunity
-
---     round <- submit mallory do 
---                     exercise round CheckRound_Raise with amount = 100
-
---     round <- submit eve do 
---                fmap forceLeft $ 
---                     exercise round BettingRound_AllIn
-
---     round <- submit alice do 
---                fmap forceLeft $ 
---                     exercise round BettingRound_AllIn
-
---     round <- submit mallory do 
---                fmap (forceRight . forceRight) $ 
---                     exercise round BettingRound_Call
- 
---     round <- submit trent do 
---                fmap forceLeft $ 
---                     exercise round ShowdownRound_Reveal with player = trent
-
---     round <- submit eve do 
---                fmap forceLeft $ 
---                     exercise round ShowdownRound_Reveal with player = eve
-
---     round <- submit alice do 
---                fmap forceLeft $ 
---                     exercise round ShowdownRound_Reveal with player = alice
-
---     round <- submit mallory do 
---                fmap forceRight $ 
---                     exercise round ShowdownRound_Reveal with player = mallory
-
---     pending <- submit eve do playerReady eve 3242 pending
-
-
-
-
+    pending <- submit bob do
+                    fmap toPendingHand $ exercise showdown Reveal with holeCard1 = True, holeCard2 = True
 
     return ()

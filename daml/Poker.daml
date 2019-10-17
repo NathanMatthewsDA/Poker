@@ -175,19 +175,19 @@ template TurnCommunity
         signatory round.game.players
 
         controller round.game.dealer can
-            Turn : Either (ContractId CheckOrRaise) (ContractId Showdown)
+            Turn : Next
                 do
                     if length (toPlay round) < 2 then do
                         round <- turnAllCards round
-                        fmap Right $ toShowdown round
+                        fmap AwaitingShowdown $ toShowdown round
                     else if length round.community == 0 then do
                         round <- turnCard round
                         round <- turnCard round
                         round <- turnCard round
-                        fmap Left $ create CheckOrRaise with round, remaining = toPlay round
+                        fmap AwaitingCheckOrRaise $ create CheckOrRaise with round, remaining = toPlay round
                     else do
                         round <- turnCard round
-                        fmap Left $ create CheckOrRaise with round, remaining = toPlay round
+                        fmap AwaitingCheckOrRaise $ create CheckOrRaise with round, remaining = toPlay round
 
 postReveal : Showdown -> Update Next
 postReveal showdown = 
@@ -325,7 +325,7 @@ template DealHands
                                             (game.players !! 1)
                                             withSmallBlind
 
-                    let next = game.players !! (length game.players % 2)
+                    let next = game.players !! (2 % length game.players)
 
                     create BetOrFold with round = withBigBlind, next
 
