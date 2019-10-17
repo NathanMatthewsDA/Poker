@@ -3,9 +3,8 @@ daml 1.2
 module Navigator where
 
 import Chips
+import Poker
 import Round
--- import Dealer
-import Seat
 import Utils
 
 createChips : Party -> Party -> Int -> Scenario (ContractId Chips)
@@ -18,11 +17,11 @@ createChips house owner quantity =
         submit owner do
             exercise transfer AcceptTransfer
 
-createSeed : Party -> Party -> Int -> Scenario (ContractId HiddenSeed)
+createSeed : Party -> Party -> Int -> Scenario (ContractId PlayerSeed)
 createSeed dealer player seed = 
     do
         submit player do
-            create HiddenSeed with player, dealer, seed
+            create PlayerSeed with player, dealer, seed
 
 -- inviteAndJoin : Party -> Party -> Party -> Party -> Int -> Int -> ContractId Table -> Scenario (ContractId Table)
 -- inviteAndJoin house dealer inviter player stack seed table  =
@@ -81,95 +80,103 @@ bootstrap = scenario do
     [aliceChips, bobChips, eveChips, malloryChips, trentChips] <-
         sequence $ zipWith (createChips house) players chips
 
-    pending <- submit alice do
-                    createTable alice dealer 10 40
+    -- createTable : Party -> Limits -> ContractId Chips -> Update (ContractId PendingHand)
+
+    let limits = Limits with
+                    smallBlind = 10
+                    bigBlind = 20
+                    tableStake = 40
+                    maxBuyIn = 100
 
     pending <- submit alice do
-                    exercise pending BuyIn with player = alice, chips = aliceChips
+                    createTable dealer limits aliceChips
 
-    pending <- submit alice do
-                    exercise pending AddObserver with inviter = alice, watcher = bob
+    -- pending <- submit alice do
+    --                 exercise pending BuyIn with player = alice, chips = aliceChips
 
-    pending <- submit alice do
-                    exercise pending AddObserver with inviter = alice, watcher = eve
+    -- pending <- submit alice do
+    --                 exercise pending AddObserver with inviter = alice, watcher = bob
 
-    pending <- submit eve do
-                    exercise pending BuyIn with player = eve, chips = eveChips
+    -- pending <- submit alice do
+    --                 exercise pending AddObserver with inviter = alice, watcher = eve
 
-    pending <- submit eve do
-                    exercise pending AddObserver with inviter = eve, watcher = trent
+    -- pending <- submit eve do
+    --                 exercise pending BuyIn with player = eve, chips = eveChips
+
+    -- pending <- submit eve do
+    --                 exercise pending AddObserver with inviter = eve, watcher = trent
     
-    pending <- submit eve do
-                    exercise pending AddObserver with inviter = eve, watcher = mallory
+    -- pending <- submit eve do
+    --                 exercise pending AddObserver with inviter = eve, watcher = mallory
 
-    pending <- submit mallory do
-                    exercise pending BuyIn with player = mallory, chips = malloryChips
+    -- pending <- submit mallory do
+    --                 exercise pending BuyIn with player = mallory, chips = malloryChips
 
-    pending <- fmap forceLeft $ submit eve do
-                    seed <- create HiddenSeed with dealer, player = eve, seed = 132
-                    exercise pending Ready with player = eve, seed
+    -- pending <- fmap forceLeft $ submit eve do
+    --                 seed <- create HiddenSeed with dealer, player = eve, seed = 132
+    --                 exercise pending Ready with player = eve, seed
 
-    pending <- fmap forceLeft $ submit mallory do
-                    seed <- create HiddenSeed with dealer, player = mallory, seed = 4234
-                    exercise pending Ready with player = mallory, seed
+    -- pending <- fmap forceLeft $ submit mallory do
+    --                 seed <- create HiddenSeed with dealer, player = mallory, seed = 4234
+    --                 exercise pending Ready with player = mallory, seed
 
-    pending <- fmap forceRight $ submit alice do
-                    seed <- create HiddenSeed with dealer, player = alice, seed = 242
-                    exercise pending Ready with player = alice, seed
+    -- pending <- fmap forceRight $ submit alice do
+    --                 seed <- create HiddenSeed with dealer, player = alice, seed = 242
+    --                 exercise pending Ready with player = alice, seed
 
-    play <- submit dealer do
-                dealAndStartHand dealer pending
+    -- play <- submit dealer do
+    --             dealAndStartHand dealer pending
 
-    play <- fmap fromAwaitingPlayer $ submit alice do
-                callOrCheck play
+    -- play <- fmap fromAwaitingPlayer $ submit alice do
+    --             callOrCheck play
 
-    play <- fmap fromAwaitingDealer $ submit mallory do
-                callOrCheck play
+    -- play <- fmap fromAwaitingDealer $ submit mallory do
+    --             callOrCheck play
 
-    play <- submit dealer do 
-                exercise play FlipCommunityCards
+    -- play <- submit dealer do 
+    --             exercise play FlipCommunityCards
 
-    play <- fmap fromAwaitingPlayer $ submit mallory do
-                callOrCheck play
+    -- play <- fmap fromAwaitingPlayer $ submit mallory do
+    --             callOrCheck play
 
-    play <- fmap fromAwaitingPlayer $ submit eve do
-                raise 0 play
+    -- play <- fmap fromAwaitingPlayer $ submit eve do
+    --             raise 0 play
 
-    play <- fmap fromAwaitingPlayer $ submit alice do
-                callOrCheck play
+    -- play <- fmap fromAwaitingPlayer $ submit alice do
+    --             callOrCheck play
 
-    play <- fmap fromAwaitingDealer $ submit mallory do
-                callOrCheck play
+    -- play <- fmap fromAwaitingDealer $ submit mallory do
+    --             callOrCheck play
 
-    play <- submit dealer do
-                exercise play FlipCommunityCards
+    -- play <- submit dealer do
+    --             exercise play FlipCommunityCards
 
-    play <- fmap fromAwaitingPlayer $ submit mallory do
-                raise 30 play
+    -- play <- fmap fromAwaitingPlayer $ submit mallory do
+    --             raise 30 play
 
-    play <- fmap fromAwaitingPlayer $ submit alice do
-                raise 30 play
+    -- play <- fmap fromAwaitingPlayer $ submit alice do
+    --             raise 30 play
 
-    play <- fmap fromAwaitingDealer $ submit mallory do
-                callOrCheck play
+    -- play <- fmap fromAwaitingDealer $ submit mallory do
+    --             callOrCheck play
 
-    play <- submit dealer do
-                exercise play FlipCommunityCards
+    -- play <- submit dealer do
+    --             exercise play FlipCommunityCards
 
-    play <- fmap fromAwaitingPlayer $ submit mallory do
-                callOrCheck play
+    -- play <- fmap fromAwaitingPlayer $ submit mallory do
+    --             callOrCheck play
 
-    play <- fmap fromAwaitingPlayer $ submit alice do
-                callOrCheck play
+    -- play <- fmap fromAwaitingPlayer $ submit alice do
+    --             callOrCheck play
 
-    play <- fmap fromAwaitingPlayer $ submit mallory do
-                exercise play Reveal
+    -- play <- fmap fromAwaitingPlayer $ submit mallory do
+    --             exercise play Reveal
 
-    play <- fmap fromAwaitingPlayer $ submit eve do
-                exercise play Reveal
+    -- play <- fmap fromAwaitingPlayer $ submit eve do
+    --             exercise play Reveal
 
-    play <- fmap fromFinished $ submit alice do
-                exercise play Reveal
+    -- play <- fmap fromFinished $ submit alice do
+    --             exercise play Reveal
 
 --     pending <- submit alice do
 --                     createPending dealer alice 20 aliceChips

@@ -50,6 +50,9 @@ findNextLoop f xs =
 -- findPrevLoop f xs =
 --     fmap snd $ find (f . fst) $ zip xs (rotate xs)
 
+separate : (a -> Bool) -> [a] -> ([a], [a])
+separate f xs = (filter f xs, filter (not . f) xs)
+
 indexOf : (Eq a) => a -> [a] -> Int
 indexOf x = fromSome . elemIndex x
 

@@ -1,0 +1,601 @@
+14:13:56.706 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+14:13:59.298 [sandbox-akka.actor.default-dispatcher-2] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+14:13:59.504 [sandbox-akka.actor.default-dispatcher-2] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+14:13:59.731 [sandbox-akka.actor.default-dispatcher-2] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7700 
+14:13:59.740 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-d2a097fd-abdf-4b92-8ad8-24c729496a4d, port = 7700, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+14:14:55.695 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+14:14:55.697 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+14:15:03.015 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+14:15:05.466 [sandbox-akka.actor.default-dispatcher-4] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+14:15:05.625 [sandbox-akka.actor.default-dispatcher-4] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+14:15:05.865 [sandbox-akka.actor.default-dispatcher-4] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7700 
+14:15:05.873 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-164a9767-85f3-4f9c-a4ea-a64d8160ecd3, port = 7700, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+14:16:07.679 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+14:16:07.680 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+14:16:11.849 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+14:16:14.076 [sandbox-akka.actor.default-dispatcher-11] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+14:16:14.237 [sandbox-akka.actor.default-dispatcher-11] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+14:16:14.456 [sandbox-akka.actor.default-dispatcher-11] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7700 
+14:16:14.464 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-0250a961-80ae-414d-afa6-cef759050fb8, port = 7700, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+14:17:17.584 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+14:17:17.587 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+14:26:12.129 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+14:26:14.386 [sandbox-akka.actor.default-dispatcher-8] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+14:26:14.539 [sandbox-akka.actor.default-dispatcher-8] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+14:26:14.791 [sandbox-akka.actor.default-dispatcher-8] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+14:26:14.798 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-7e6bcad9-7328-4662-97d5-7ef0739f8b18, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+14:47:44.698 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+14:47:44.700 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+18:04:53.100 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+18:04:55.482 [sandbox-akka.actor.default-dispatcher-10] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+18:04:55.630 [sandbox-akka.actor.default-dispatcher-10] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+18:04:55.863 [sandbox-akka.actor.default-dispatcher-10] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+18:04:55.872 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-ea157864-e5c9-41f0-9c28-2a1aec69867c, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+18:05:12.064 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+18:05:12.065 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+18:05:19.071 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+18:05:21.708 [sandbox-akka.actor.default-dispatcher-3] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+18:05:21.883 [sandbox-akka.actor.default-dispatcher-3] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+18:05:22.104 [sandbox-akka.actor.default-dispatcher-3] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+18:05:22.114 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-81eb5810-b7fb-40af-979f-c28a3f39f739, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+18:23:02.238 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+18:23:02.239 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+18:23:07.959 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+18:23:11.003 [sandbox-akka.actor.default-dispatcher-5] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+18:23:11.164 [sandbox-akka.actor.default-dispatcher-5] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+18:23:35.046 [sandbox-akka.actor.default-dispatcher-5] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+18:23:35.057 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-65875f06-f982-4fa2-be44-11dc691706fa, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+22:37:44.161 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+22:37:44.163 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+22:37:48.512 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+22:37:50.952 [sandbox-akka.actor.default-dispatcher-7] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+22:37:51.111 [sandbox-akka.actor.default-dispatcher-7] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+22:37:51.325 [sandbox-akka.actor.default-dispatcher-7] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+22:37:51.334 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-ff6a3aa1-a95b-49bd-9ed8-90ac5a4fc679, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+22:39:42.514 [sandbox-akka.actor.default-dispatcher-17] WARN  c.d.p.s.s.l.inmemory.InMemoryLedger - Publishing error to ledger: Reason: [DuplicateKey(GlobalKey(Identifier(2f9cc8f165360d38f26ca6eb65ba8f93ecb4dc42b3ce9e0eb3b026c18ede5095,Lobby:Lobby),VersionedValue(ValueVersion(1),ValueParty(Dealer))))] 
+22:45:14.817 [sandbox-akka.actor.default-dispatcher-21] WARN  c.d.p.s.s.ApiSubmissionService - Submission of command 25707f2cae97c1a8 has failed. 
+com.digitalasset.platform.server.api.ApiException: INVALID_ARGUMENT: Command interpretation error in LF-DAMLe: dependency error: couldn't find contract AbsoluteContractId(#4:1). Details: N/A.
+22:53:53.105 [sandbox-akka.actor.default-dispatcher-20] WARN  c.d.p.s.s.ApiSubmissionService - Submission of command a928a6b5973166a4 has failed. 
+com.digitalasset.platform.server.api.ApiException: INVALID_ARGUMENT: Command interpretation error in LF-DAMLe: dependency error: couldn't find contract AbsoluteContractId( #5:1). Details: N/A.
+22:54:14.640 [sandbox-akka.actor.default-dispatcher-20] WARN  c.d.p.s.s.ApiSubmissionService - Submission of command 46d9e2554a94e9e3 has failed. 
+com.digitalasset.platform.server.api.ApiException: INVALID_ARGUMENT: Command interpretation error in LF-DAMLe: dependency error: couldn't find contract AbsoluteContractId( #5:1). Details: N/A.
+22:54:45.844 [sandbox-akka.actor.default-dispatcher-20] WARN  c.d.p.s.s.ApiSubmissionService - Submission of command a27bed2674217084 has failed. 
+com.digitalasset.platform.server.api.ApiException: INVALID_ARGUMENT: Command interpretation error in LF-DAMLe: dependency error: couldn't find contract AbsoluteContractId( #5:1). Details: N/A.
+22:56:26.242 [sandbox-akka.actor.default-dispatcher-20] WARN  c.d.p.s.s.ApiSubmissionService - Submission of command f93f49b11665a4b5 has failed. 
+com.digitalasset.platform.server.api.ApiException: INVALID_ARGUMENT: Command interpretation error in LF-DAMLe: dependency error: couldn't find contract AbsoluteContractId( #5:1). Details: N/A.
+22:58:11.326 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+22:58:11.327 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+22:58:16.951 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+22:58:19.206 [sandbox-akka.actor.default-dispatcher-16] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+22:58:19.353 [sandbox-akka.actor.default-dispatcher-16] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+22:58:19.574 [sandbox-akka.actor.default-dispatcher-16] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+22:58:19.582 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-b9030803-ca49-4ac9-8b12-0d4ce7b4df6b, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+23:02:39.242 [sandbox-akka.actor.default-dispatcher-11] WARN  c.d.p.s.s.ApiSubmissionService - Submission of command bb7267636e574504 has failed. 
+com.digitalasset.platform.server.api.ApiException: INVALID_ARGUMENT: Command interpretation error in LF-DAMLe: The following errors occured: node NodeId(0) (Identifier(41a4daa6cebfc7e2708a45b55b9bbaa34b57b549f40b98ec9058f15813782294,Round:Round)) requires authorizers Alice, but only Bob were given. Details: N/A.
+10:04:24.466 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+10:04:24.467 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+10:04:29.746 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+10:04:32.447 [sandbox-akka.actor.default-dispatcher-16] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+10:04:32.611 [sandbox-akka.actor.default-dispatcher-16] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+10:04:32.833 [sandbox-akka.actor.default-dispatcher-16] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+10:04:32.842 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-e499250a-62f5-43a0-a376-124e7fa530ca, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+10:39:47.147 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+10:39:47.148 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+10:39:52.119 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+10:39:55.766 [sandbox-akka.actor.default-dispatcher-11] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+10:39:55.969 [sandbox-akka.actor.default-dispatcher-11] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+10:39:56.217 [sandbox-akka.actor.default-dispatcher-11] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+10:39:56.225 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-690ad69b-1626-4b73-b9e0-2512ac0f965a, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+11:03:17.127 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+11:03:17.140 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+11:03:21.457 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+11:03:24.106 [sandbox-akka.actor.default-dispatcher-4] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+11:03:24.263 [sandbox-akka.actor.default-dispatcher-4] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+11:03:24.493 [sandbox-akka.actor.default-dispatcher-4] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+11:03:24.502 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-f4c0e4b3-0ac1-43f8-baef-559a3d9c3e08, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+11:06:02.483 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+11:06:02.484 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+11:06:06.803 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+11:06:09.413 [sandbox-akka.actor.default-dispatcher-17] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+11:06:09.567 [sandbox-akka.actor.default-dispatcher-17] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+11:06:09.810 [sandbox-akka.actor.default-dispatcher-17] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+11:06:09.818 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-5a2d764a-88c8-4dcc-b988-b23d4177fd9a, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+11:06:29.126 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+11:06:29.127 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+11:06:33.075 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+11:06:35.658 [sandbox-akka.actor.default-dispatcher-4] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+11:06:35.829 [sandbox-akka.actor.default-dispatcher-4] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+11:06:36.045 [sandbox-akka.actor.default-dispatcher-4] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+11:06:36.054 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-4b474efb-0c29-42d1-ac56-4d7d56aab6d1, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+11:07:09.297 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+11:07:09.298 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+11:07:13.555 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+11:07:16.479 [sandbox-akka.actor.default-dispatcher-6] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+11:07:16.683 [sandbox-akka.actor.default-dispatcher-6] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+11:07:16.951 [sandbox-akka.actor.default-dispatcher-6] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+11:07:16.960 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-bee8e5d7-974a-4433-bf2c-51feb37c5c4e, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+11:08:02.658 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+11:08:02.660 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+11:08:06.603 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+11:08:09.217 [sandbox-akka.actor.default-dispatcher-10] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+11:08:09.372 [sandbox-akka.actor.default-dispatcher-10] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+11:08:09.614 [sandbox-akka.actor.default-dispatcher-10] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+11:08:09.623 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-558ed3a1-8953-4b90-96f0-76739431ac40, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+11:08:55.129 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+11:08:55.132 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+11:08:59.089 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+11:09:01.647 [sandbox-akka.actor.default-dispatcher-14] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+11:09:01.811 [sandbox-akka.actor.default-dispatcher-14] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+11:09:02.044 [sandbox-akka.actor.default-dispatcher-14] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+11:09:02.053 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-58ee6380-30b0-407c-b583-bdba39706602, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+11:10:46.969 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+11:10:46.972 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+11:10:50.927 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+11:10:53.497 [sandbox-akka.actor.default-dispatcher-6] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+11:10:53.678 [sandbox-akka.actor.default-dispatcher-6] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+11:10:53.896 [sandbox-akka.actor.default-dispatcher-6] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+11:10:53.905 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-1c6d39bb-8e14-4fdf-9a0b-c6155a8bcee0, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+11:13:02.754 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+11:13:02.755 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+11:13:06.910 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+11:13:09.482 [sandbox-akka.actor.default-dispatcher-2] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+11:13:09.636 [sandbox-akka.actor.default-dispatcher-2] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+11:13:09.862 [sandbox-akka.actor.default-dispatcher-2] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+11:13:09.871 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-35500e4e-df81-44ef-b4bd-904319b16014, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+11:15:21.151 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+11:15:21.152 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+11:15:25.681 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+11:15:28.297 [sandbox-akka.actor.default-dispatcher-3] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+11:15:28.492 [sandbox-akka.actor.default-dispatcher-3] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+11:15:28.733 [sandbox-akka.actor.default-dispatcher-3] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+11:15:28.742 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-3467eeda-62c9-40de-80cd-cdceed0cb404, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+11:19:14.680 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+11:19:14.682 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+11:19:18.718 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+11:19:21.365 [sandbox-akka.actor.default-dispatcher-13] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+11:19:21.522 [sandbox-akka.actor.default-dispatcher-13] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+11:19:21.758 [sandbox-akka.actor.default-dispatcher-13] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+11:19:21.767 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-e7592eb0-cacc-4c62-ad86-8e5574ece294, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+11:20:04.509 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+11:20:04.510 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+11:20:09.786 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+11:20:12.520 [sandbox-akka.actor.default-dispatcher-5] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+11:20:12.690 [sandbox-akka.actor.default-dispatcher-5] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+11:20:12.913 [sandbox-akka.actor.default-dispatcher-5] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+11:20:12.923 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-37c74c71-1699-4c8d-b500-836bbec4b2d6, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+11:20:53.682 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+11:20:53.683 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+11:20:57.652 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+11:21:00.297 [sandbox-akka.actor.default-dispatcher-2] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+11:21:00.446 [sandbox-akka.actor.default-dispatcher-2] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+11:21:00.669 [sandbox-akka.actor.default-dispatcher-2] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+11:21:00.678 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-f7f81cea-432e-48c1-88a0-b12d26e4ad54, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+11:21:58.129 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+11:21:58.130 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+11:22:02.717 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+11:22:05.406 [sandbox-akka.actor.default-dispatcher-6] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+11:22:05.571 [sandbox-akka.actor.default-dispatcher-6] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+11:22:05.790 [sandbox-akka.actor.default-dispatcher-6] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+11:22:05.798 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-ff821477-7b0e-434a-8c3f-75e348232479, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+11:22:41.270 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+11:22:41.271 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+11:22:45.094 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+11:22:47.617 [sandbox-akka.actor.default-dispatcher-2] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+11:22:47.776 [sandbox-akka.actor.default-dispatcher-2] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+11:22:48.000 [sandbox-akka.actor.default-dispatcher-2] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+11:22:48.009 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-148f52d7-38ff-45cd-9645-7a4656502e19, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+11:28:30.152 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+11:28:30.153 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+11:28:34.536 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+11:28:37.144 [sandbox-akka.actor.default-dispatcher-15] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+11:28:37.311 [sandbox-akka.actor.default-dispatcher-15] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+11:28:37.552 [sandbox-akka.actor.default-dispatcher-15] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+11:28:37.561 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-7cdba980-f86a-4a8e-9c48-2a5d66904f95, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+11:31:15.719 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+11:31:15.720 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+11:31:20.718 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+11:31:23.402 [sandbox-akka.actor.default-dispatcher-3] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+11:31:23.576 [sandbox-akka.actor.default-dispatcher-3] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+11:31:23.812 [sandbox-akka.actor.default-dispatcher-3] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+11:31:23.821 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-76b668e3-d3cc-46a1-bba8-341cbc0cc1dd, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+11:41:10.833 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+11:41:10.834 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+11:41:14.641 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+11:41:17.096 [sandbox-akka.actor.default-dispatcher-12] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+11:41:17.232 [sandbox-akka.actor.default-dispatcher-12] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+11:41:17.440 [sandbox-akka.actor.default-dispatcher-12] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+11:41:17.448 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-5847db09-dbe8-4e9b-9baa-d4cad233702b, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+11:43:59.118 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+11:43:59.120 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+11:44:03.042 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+11:44:05.514 [sandbox-akka.actor.default-dispatcher-7] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+11:44:05.649 [sandbox-akka.actor.default-dispatcher-7] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+11:44:05.859 [sandbox-akka.actor.default-dispatcher-7] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+11:44:05.868 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-6664f43f-532e-4c0f-9454-003c9e5cd792, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+11:46:30.496 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+11:46:30.497 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+11:46:34.954 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+11:46:37.621 [sandbox-akka.actor.default-dispatcher-17] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+11:46:37.797 [sandbox-akka.actor.default-dispatcher-17] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+11:46:38.021 [sandbox-akka.actor.default-dispatcher-17] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+11:46:38.030 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-16071679-490f-4818-98d7-111de82d4758, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+11:47:19.562 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+11:47:19.563 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+11:47:23.495 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+11:47:26.145 [sandbox-akka.actor.default-dispatcher-15] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+11:47:26.301 [sandbox-akka.actor.default-dispatcher-15] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+11:47:26.525 [sandbox-akka.actor.default-dispatcher-15] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+11:47:26.534 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-ad40a1ec-c489-4296-9852-a88a053fe8de, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+11:48:39.308 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+11:48:39.308 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+11:48:43.090 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+11:48:45.570 [sandbox-akka.actor.default-dispatcher-5] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+11:48:45.732 [sandbox-akka.actor.default-dispatcher-5] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+11:48:45.945 [sandbox-akka.actor.default-dispatcher-5] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+11:48:45.953 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-31c1e1e4-4390-4801-ab18-19e80e2f61eb, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+11:49:02.203 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+11:49:02.205 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+11:49:06.171 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+11:49:09.067 [sandbox-akka.actor.default-dispatcher-6] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+11:49:09.229 [sandbox-akka.actor.default-dispatcher-6] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+11:49:09.468 [sandbox-akka.actor.default-dispatcher-6] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+11:49:09.477 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-b2ec65f6-61b0-4b45-9fbb-e2ba3422cb15, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+11:49:39.334 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+11:49:39.335 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+11:49:43.078 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+11:49:45.830 [sandbox-akka.actor.default-dispatcher-16] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+11:49:46.020 [sandbox-akka.actor.default-dispatcher-16] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+11:49:46.252 [sandbox-akka.actor.default-dispatcher-16] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+11:49:46.261 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-f19d4702-8644-4b09-aef6-dd321fc9b8ed, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+11:56:14.275 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+11:56:14.276 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+11:56:18.643 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+11:56:21.031 [sandbox-akka.actor.default-dispatcher-4] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+11:56:21.181 [sandbox-akka.actor.default-dispatcher-4] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+11:56:21.390 [sandbox-akka.actor.default-dispatcher-4] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+11:56:21.398 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-0561defc-0150-46a6-92c3-0f7a33c88e14, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+11:57:27.892 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+11:57:27.893 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+11:57:31.667 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+11:57:34.165 [sandbox-akka.actor.default-dispatcher-13] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+11:57:34.331 [sandbox-akka.actor.default-dispatcher-13] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+11:57:34.537 [sandbox-akka.actor.default-dispatcher-13] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+11:57:34.544 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-eb39df14-1e01-4e1b-a700-d9ba94d104bb, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+12:00:39.562 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+12:00:39.563 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+12:00:44.168 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+12:00:46.890 [sandbox-akka.actor.default-dispatcher-2] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+12:00:47.069 [sandbox-akka.actor.default-dispatcher-2] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+12:00:47.309 [sandbox-akka.actor.default-dispatcher-2] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+12:00:47.318 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-60b26cd3-0c87-44e7-a0e6-c6edd5fc90fb, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+12:08:10.688 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+12:08:10.690 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+12:08:14.569 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+12:08:17.024 [sandbox-akka.actor.default-dispatcher-17] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+12:08:17.164 [sandbox-akka.actor.default-dispatcher-17] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+12:08:17.378 [sandbox-akka.actor.default-dispatcher-17] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+12:08:17.387 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-7893ae32-eabc-41a4-b828-8b75fee02ae2, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+12:09:06.281 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+12:09:06.282 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+12:09:10.119 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+12:09:12.640 [sandbox-akka.actor.default-dispatcher-16] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+12:09:12.786 [sandbox-akka.actor.default-dispatcher-16] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+12:09:13.005 [sandbox-akka.actor.default-dispatcher-16] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+12:09:13.017 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-aa07a61d-9dd0-44f2-9788-30ad3ea932fe, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+12:10:52.406 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+12:10:52.406 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+12:10:56.519 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+12:10:59.134 [sandbox-akka.actor.default-dispatcher-15] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+12:10:59.280 [sandbox-akka.actor.default-dispatcher-15] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+12:10:59.502 [sandbox-akka.actor.default-dispatcher-15] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+12:10:59.511 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-86874f30-b815-45cb-a22b-5761afba538c, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+12:13:05.392 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+12:13:05.393 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+12:13:09.333 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+12:13:12.297 [sandbox-akka.actor.default-dispatcher-12] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+12:13:12.483 [sandbox-akka.actor.default-dispatcher-12] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+12:13:12.725 [sandbox-akka.actor.default-dispatcher-12] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+12:13:12.737 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-bd5b65d9-9521-4f77-9973-25620b32f73f, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+12:15:09.347 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+12:15:09.348 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+12:15:13.223 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+12:15:15.714 [sandbox-akka.actor.default-dispatcher-9] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+12:15:15.856 [sandbox-akka.actor.default-dispatcher-9] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+12:15:16.068 [sandbox-akka.actor.default-dispatcher-9] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+12:15:16.078 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-17f354ee-0d6b-4e86-9bb6-1f529e0e4152, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+12:16:01.561 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+12:16:01.562 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+12:16:21.200 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+12:16:23.884 [sandbox-akka.actor.default-dispatcher-4] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+12:16:24.051 [sandbox-akka.actor.default-dispatcher-4] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+12:16:24.273 [sandbox-akka.actor.default-dispatcher-4] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+12:16:24.285 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-987c433b-8ddd-4b19-9ced-d022e0d63f9e, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+12:18:25.155 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+12:18:25.156 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+12:18:28.991 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+12:18:31.473 [sandbox-akka.actor.default-dispatcher-14] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+12:18:31.614 [sandbox-akka.actor.default-dispatcher-14] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+12:18:31.826 [sandbox-akka.actor.default-dispatcher-14] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+12:18:31.834 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-28af4a49-92f4-47d2-bc9a-1d372be7164b, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+12:20:11.852 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+12:20:11.853 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+12:20:15.881 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+12:20:18.503 [sandbox-akka.actor.default-dispatcher-10] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+12:20:18.655 [sandbox-akka.actor.default-dispatcher-10] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+12:20:18.883 [sandbox-akka.actor.default-dispatcher-10] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+12:20:18.892 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-f1f776c0-f590-4464-8e01-fb8726760444, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+12:22:55.241 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+12:22:55.242 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+12:22:59.071 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+12:23:01.402 [sandbox-akka.actor.default-dispatcher-2] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+12:23:01.540 [sandbox-akka.actor.default-dispatcher-2] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+12:23:01.747 [sandbox-akka.actor.default-dispatcher-2] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+12:23:01.755 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-d6b9f77e-cc13-42b6-a1f1-94113dc07c00, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+12:23:34.291 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+12:23:34.292 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+12:23:38.195 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+12:23:40.514 [sandbox-akka.actor.default-dispatcher-4] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+12:23:40.672 [sandbox-akka.actor.default-dispatcher-4] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+12:23:40.880 [sandbox-akka.actor.default-dispatcher-4] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+12:23:40.889 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-2c5119d4-2081-4f0c-a3db-c97104ede611, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+12:24:49.275 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+12:24:49.278 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+12:24:52.913 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+12:24:55.302 [sandbox-akka.actor.default-dispatcher-4] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+12:24:55.457 [sandbox-akka.actor.default-dispatcher-4] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+12:24:55.661 [sandbox-akka.actor.default-dispatcher-4] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+12:24:55.669 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-0282cff5-9f1d-468d-96e8-cb54b04acde9, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+12:25:54.996 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+12:25:54.997 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+12:25:58.720 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+12:26:01.481 [sandbox-akka.actor.default-dispatcher-9] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+12:26:01.648 [sandbox-akka.actor.default-dispatcher-9] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+12:26:01.879 [sandbox-akka.actor.default-dispatcher-9] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+12:26:01.887 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-21d4da65-e0bf-4ed1-afaa-e68a557ba453, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+12:26:45.488 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+12:26:45.489 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+12:26:49.243 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+12:26:51.602 [sandbox-akka.actor.default-dispatcher-6] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+12:26:51.748 [sandbox-akka.actor.default-dispatcher-6] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+12:26:51.953 [sandbox-akka.actor.default-dispatcher-6] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+12:26:51.961 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-705529bf-4adc-4556-ba03-9f1cfcac62c4, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+12:27:53.832 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+12:27:53.833 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+12:27:57.568 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+12:27:59.940 [sandbox-akka.actor.default-dispatcher-17] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+12:28:00.096 [sandbox-akka.actor.default-dispatcher-17] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+12:28:00.300 [sandbox-akka.actor.default-dispatcher-17] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+12:28:00.309 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-7d3a4068-dd70-4149-8ad8-34eaeccc293d, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+12:28:54.755 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+12:28:54.758 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+12:29:01.280 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+12:29:03.666 [sandbox-akka.actor.default-dispatcher-8] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+12:29:03.821 [sandbox-akka.actor.default-dispatcher-8] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+12:29:04.026 [sandbox-akka.actor.default-dispatcher-8] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+12:29:04.033 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-413e748b-7124-4c22-982f-3bc674565691, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+12:29:50.132 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+12:29:50.133 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+12:29:56.453 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+12:29:58.909 [sandbox-akka.actor.default-dispatcher-6] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+12:29:59.063 [sandbox-akka.actor.default-dispatcher-6] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+12:29:59.266 [sandbox-akka.actor.default-dispatcher-6] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+12:29:59.274 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-3db6e720-8ec3-4dc5-a613-77379622b828, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+12:30:49.533 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+12:30:49.534 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+12:30:53.274 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+12:30:55.629 [sandbox-akka.actor.default-dispatcher-5] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+12:30:55.765 [sandbox-akka.actor.default-dispatcher-5] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+12:30:55.974 [sandbox-akka.actor.default-dispatcher-5] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+12:30:55.982 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-b1ef3fba-a8f6-4c45-b1a3-46ed201135bf, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+12:32:20.064 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+12:32:20.066 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+12:32:24.816 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+12:32:27.190 [sandbox-akka.actor.default-dispatcher-3] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+12:32:27.349 [sandbox-akka.actor.default-dispatcher-3] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+12:32:27.554 [sandbox-akka.actor.default-dispatcher-3] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+12:32:27.563 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-3031234c-a75c-435f-802a-854fb669a601, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+12:34:35.684 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+12:34:35.685 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+12:34:39.959 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+12:34:42.322 [sandbox-akka.actor.default-dispatcher-2] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+12:34:42.476 [sandbox-akka.actor.default-dispatcher-2] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+12:34:42.680 [sandbox-akka.actor.default-dispatcher-2] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+12:34:42.688 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-36633fbc-44b8-4555-8279-3800079c50ae, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+12:35:47.182 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+12:35:47.184 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+12:35:50.839 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+12:35:53.205 [sandbox-akka.actor.default-dispatcher-3] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+12:35:53.363 [sandbox-akka.actor.default-dispatcher-3] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+12:35:53.576 [sandbox-akka.actor.default-dispatcher-3] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+12:35:53.583 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-dd3a0103-1d02-44b0-9f04-b2f463812fa1, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+12:36:09.292 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+12:36:09.293 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+12:36:13.218 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+12:36:15.880 [sandbox-akka.actor.default-dispatcher-3] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+12:36:16.045 [sandbox-akka.actor.default-dispatcher-3] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+12:36:16.265 [sandbox-akka.actor.default-dispatcher-3] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+12:36:16.274 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-0031705e-d8b8-4b1d-a91f-93d5decfa232, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+12:38:50.977 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+12:38:50.978 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+12:39:00.021 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+12:39:02.696 [sandbox-akka.actor.default-dispatcher-5] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+12:39:02.857 [sandbox-akka.actor.default-dispatcher-5] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+12:39:03.072 [sandbox-akka.actor.default-dispatcher-5] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+12:39:03.080 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-2cee2771-df6d-4f30-b761-5b40de9a17f2, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+12:43:34.649 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+12:43:34.650 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+12:43:38.254 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+12:43:40.755 [sandbox-akka.actor.default-dispatcher-3] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+12:43:40.900 [sandbox-akka.actor.default-dispatcher-3] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+12:43:41.110 [sandbox-akka.actor.default-dispatcher-3] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+12:43:41.118 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-4c5d2ed1-d12f-4f15-bbff-47f7d994e1f0, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+12:48:12.874 [sandbox-akka.actor.default-dispatcher-8] WARN  c.d.p.s.s.ApiSubmissionService - Submission of command c26005b2994e7f65 has failed. 
+com.digitalasset.platform.server.api.ApiException: INVALID_ARGUMENT: Command interpretation error in LF-DAMLe: Interpretation error: Error: User abort: Assertion failed. Details: Last location: [DA.Internal.Assert:20], partial transaction: <empty transaction>.
+12:48:25.857 [sandbox-akka.actor.default-dispatcher-8] WARN  c.d.p.s.s.ApiSubmissionService - Submission of command f0a77cbe71fd838d has failed. 
+com.digitalasset.platform.server.api.ApiException: INVALID_ARGUMENT: Command interpretation error in LF-DAMLe: Interpretation error: Error: User abort: Assertion failed. Details: Last location: [DA.Internal.Assert:20], partial transaction: <empty transaction>.
+12:50:13.181 [sandbox-akka.actor.default-dispatcher-3] WARN  c.d.p.s.s.ApiSubmissionService - Submission of command 42b8f41fc0616be4 has failed. 
+com.digitalasset.platform.server.api.ApiException: INVALID_ARGUMENT: Command interpretation error in LF-DAMLe: Interpretation error: Error: User abort: Assertion failed. Details: Last location: [DA.Internal.Assert:20], partial transaction: <empty transaction>.
+13:28:28.598 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+13:28:28.599 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+13:28:32.431 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+13:28:34.866 [sandbox-akka.actor.default-dispatcher-4] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+13:28:35.007 [sandbox-akka.actor.default-dispatcher-4] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+13:28:35.218 [sandbox-akka.actor.default-dispatcher-4] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+13:28:35.227 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-492bc5c7-da5e-4aa6-ab54-a08dde53052e, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+13:44:58.343 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+13:44:58.344 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+13:46:47.312 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+13:46:49.721 [sandbox-akka.actor.default-dispatcher-2] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+13:46:49.889 [sandbox-akka.actor.default-dispatcher-2] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+13:46:50.093 [sandbox-akka.actor.default-dispatcher-2] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+13:46:50.101 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-3b9c7a08-6158-4a94-b9fe-6284dc199a2f, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+13:52:20.859 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+13:52:20.859 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+13:52:24.732 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+13:52:27.204 [sandbox-akka.actor.default-dispatcher-7] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+13:52:27.344 [sandbox-akka.actor.default-dispatcher-7] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+13:52:27.554 [sandbox-akka.actor.default-dispatcher-7] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+13:52:27.563 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-444dea45-4c21-42ea-ae95-28f26d40a533, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+14:23:47.368 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+14:23:47.369 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+14:23:51.292 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+14:23:53.698 [sandbox-akka.actor.default-dispatcher-15] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+14:23:53.878 [sandbox-akka.actor.default-dispatcher-15] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+14:23:54.087 [sandbox-akka.actor.default-dispatcher-15] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+14:23:54.096 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-6a5d1da4-f633-42bf-a554-b58f291e378a, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+14:29:16.025 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+14:29:16.028 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+14:29:20.298 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+14:29:22.826 [sandbox-akka.actor.default-dispatcher-16] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+14:29:22.978 [sandbox-akka.actor.default-dispatcher-16] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+14:29:23.182 [sandbox-akka.actor.default-dispatcher-16] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+14:29:23.191 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-d741cfc9-f7c9-47a6-9f73-fbadc41eec48, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+14:32:21.483 [sandbox-akka.actor.default-dispatcher-2] WARN  c.d.p.s.s.ApiSubmissionService - Submission of command 6f6b8e38c779abbf has failed. 
+com.digitalasset.platform.server.api.ApiException: INVALID_ARGUMENT: Command interpretation error in LF-DAMLe: The following errors occured: node NodeId(0) (Identifier(d229997499fb3300cacf0ee424c425a7f8295cd9e1c65715ed92bc2987be6d4e,Round:Round)) requires authorizers Trent, but only Alice were given. Details: N/A.
+14:35:19.953 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+14:35:19.955 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+14:35:24.572 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+14:35:27.090 [sandbox-akka.actor.default-dispatcher-16] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+14:35:27.242 [sandbox-akka.actor.default-dispatcher-16] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+14:35:27.446 [sandbox-akka.actor.default-dispatcher-16] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+14:35:27.453 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-da12f6ca-e0ac-4dd1-b969-8721ba54568e, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+14:52:34.993 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+14:52:34.994 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+14:52:39.161 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+14:52:41.632 [sandbox-akka.actor.default-dispatcher-18] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+14:52:41.771 [sandbox-akka.actor.default-dispatcher-18] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+14:52:42.004 [sandbox-akka.actor.default-dispatcher-18] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+14:52:42.013 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-cb772ba5-e787-4d99-ae42-6707292c835d, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+14:59:55.350 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+14:59:55.351 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+14:59:59.188 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+15:00:02.396 [sandbox-akka.actor.default-dispatcher-12] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+15:00:02.569 [sandbox-akka.actor.default-dispatcher-12] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+15:00:02.807 [sandbox-akka.actor.default-dispatcher-12] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+15:00:02.816 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-61eec237-777b-4bc5-b884-07fe621035e1, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+15:30:18.252 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+15:30:18.255 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+15:30:46.251 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+15:30:48.747 [sandbox-akka.actor.default-dispatcher-17] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+15:30:48.904 [sandbox-akka.actor.default-dispatcher-17] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+15:30:49.116 [sandbox-akka.actor.default-dispatcher-17] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+15:30:49.124 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-9d3f90bb-c402-4357-9d0a-704cc614bd98, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+15:32:02.693 [sandbox-akka.actor.default-dispatcher-20] WARN  c.d.p.s.s.ApiSubmissionService - Submission of command 4aabf73b8d90ab60 has failed. 
+com.digitalasset.platform.server.api.ApiException: INVALID_ARGUMENT: Command interpretation error in LF-DAMLe: The following errors occured: node NodeId(23) (Identifier(96762c2c58a4e7adb2549d7712bc5391b13f8cdb3e1d4314218fde207328cc88,Round:Round)) has maintainers Set(Dealer) which are not a subset of the signatories Set(Alice, Trent, Eve, House);node NodeId(25) (Identifier(96762c2c58a4e7adb2549d7712bc5391b13f8cdb3e1d4314218fde207328cc88,Round:Round)) has maintainers Set(Dealer) which are not a subset of the signatories Set(Alice, Trent, Eve, House);node NodeId(27) (Identifier(96762c2c58a4e7adb2549d7712bc5391b13f8cdb3e1d4314218fde207328cc88,Round:Round)) has maintainers Set(Dealer) which are not a subset of the signatories Set(Alice, Trent, Eve, House). Details: N/A.
+15:32:45.941 [sandbox-akka.actor.default-dispatcher-20] WARN  c.d.p.s.s.ApiSubmissionService - Submission of command adef324c8dd221b6 has failed. 
+com.digitalasset.platform.server.api.ApiException: INVALID_ARGUMENT: Command interpretation error in LF-DAMLe: The following errors occured: node NodeId(23) (Identifier(96762c2c58a4e7adb2549d7712bc5391b13f8cdb3e1d4314218fde207328cc88,Round:Round)) has maintainers Set(Dealer) which are not a subset of the signatories Set(Alice, Trent, Eve, House);node NodeId(25) (Identifier(96762c2c58a4e7adb2549d7712bc5391b13f8cdb3e1d4314218fde207328cc88,Round:Round)) has maintainers Set(Dealer) which are not a subset of the signatories Set(Alice, Trent, Eve, House);node NodeId(27) (Identifier(96762c2c58a4e7adb2549d7712bc5391b13f8cdb3e1d4314218fde207328cc88,Round:Round)) has maintainers Set(Dealer) which are not a subset of the signatories Set(Alice, Trent, Eve, House). Details: N/A.
+15:37:43.951 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+15:37:43.952 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+15:38:01.910 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+15:38:04.379 [sandbox-akka.actor.default-dispatcher-10] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+15:38:04.537 [sandbox-akka.actor.default-dispatcher-10] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+15:38:04.743 [sandbox-akka.actor.default-dispatcher-10] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+15:38:04.751 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-50bf5535-d7a4-41c3-b7fd-894c425ee772, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+15:39:12.917 [sandbox-akka.actor.default-dispatcher-7] WARN  c.d.p.s.s.l.inmemory.InMemoryLedger - Publishing error to ledger: Reason: [DuplicateKey(GlobalKey(Identifier(63fd6e77ae4f7f5430b8f24144ac9151610e40c3b9f32f11b8f29ef35c634c72,Dealer:Dealer),VersionedValue(ValueVersion(1),ValueParty(Dealer))))] 
+15:39:35.743 [sandbox-akka.actor.default-dispatcher-7] WARN  c.d.p.s.s.l.inmemory.InMemoryLedger - Publishing error to ledger: Reason: [DuplicateKey(GlobalKey(Identifier(63fd6e77ae4f7f5430b8f24144ac9151610e40c3b9f32f11b8f29ef35c634c72,Dealer:Dealer),VersionedValue(ValueVersion(1),ValueParty(Dealer))))] 
+15:41:13.597 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+15:41:13.598 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+15:41:40.066 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+15:41:42.471 [sandbox-akka.actor.default-dispatcher-5] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+15:41:42.627 [sandbox-akka.actor.default-dispatcher-5] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+15:41:42.832 [sandbox-akka.actor.default-dispatcher-5] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+15:41:42.841 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-f1fdc009-3601-4b29-a900-3880585a7fa1, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+15:50:51.329 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+15:50:51.330 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+15:55:31.145 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+15:55:33.964 [sandbox-akka.actor.default-dispatcher-8] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+15:55:34.120 [sandbox-akka.actor.default-dispatcher-8] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+15:55:34.332 [sandbox-akka.actor.default-dispatcher-8] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+15:55:34.340 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-cb19eb70-9262-49ad-bb08-9d7845de0999, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+16:01:20.828 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+16:01:20.829 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+16:01:25.334 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+16:01:27.806 [sandbox-akka.actor.default-dispatcher-6] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+16:01:27.968 [sandbox-akka.actor.default-dispatcher-6] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+16:01:28.178 [sandbox-akka.actor.default-dispatcher-6] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+16:01:28.187 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-5276bf77-6a02-40fe-89da-c0dcdcee3052, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+16:05:45.378 [sandbox-akka.actor.default-dispatcher-19] WARN  c.d.p.s.s.ApiSubmissionService - Submission of command cc842078b9eb9608 has failed. 
+com.digitalasset.platform.server.api.ApiException: INVALID_ARGUMENT: Command interpretation error in LF-DAMLe: Interpretation error: Error: User abort: daml/Dealer.daml:29:25-49: Non-exhaustive patterns in card :: cards
+. Details: Last location: [Control.Exception.Base:54], partial transaction: <empty transaction>.
+16:25:34.377 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+16:25:34.377 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+16:25:38.182 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+16:25:40.608 [sandbox-akka.actor.default-dispatcher-2] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+16:25:40.767 [sandbox-akka.actor.default-dispatcher-2] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+16:25:40.978 [sandbox-akka.actor.default-dispatcher-2] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+16:25:40.987 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-d7fef7fb-db18-463d-8cb4-8c13fc285412, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+21:09:42.973 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+21:09:42.975 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+21:10:14.856 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+21:10:17.335 [sandbox-akka.actor.default-dispatcher-10] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+21:10:17.496 [sandbox-akka.actor.default-dispatcher-10] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+21:10:17.712 [sandbox-akka.actor.default-dispatcher-10] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+21:10:17.723 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-7326f9cf-efef-435b-a6aa-e44b99de14cc, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+21:48:40.432 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+21:48:40.433 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+21:48:45.111 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+21:48:47.752 [sandbox-akka.actor.default-dispatcher-13] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+21:48:47.920 [sandbox-akka.actor.default-dispatcher-13] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+21:48:48.146 [sandbox-akka.actor.default-dispatcher-13] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+21:48:48.155 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-d1d47009-9918-474d-90dc-c8d475c7fffd, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+21:55:46.845 [sandbox-akka.actor.default-dispatcher-5] WARN  c.d.p.s.s.ApiSubmissionService - Submission of command 90973b5cc2045f04 has failed. 
+com.digitalasset.platform.server.api.ApiException: INVALID_ARGUMENT: Command interpretation error in LF-DAMLe: Interpretation error: Error: User abort: daml/Dealer.daml:29:25-49: Non-exhaustive patterns in card :: cards
+. Details: Last location: [Control.Exception.Base:54], partial transaction: <empty transaction>.
+21:57:25.520 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+21:57:25.522 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+21:57:30.709 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+21:57:33.424 [sandbox-akka.actor.default-dispatcher-3] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+21:57:33.589 [sandbox-akka.actor.default-dispatcher-3] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+21:57:33.809 [sandbox-akka.actor.default-dispatcher-3] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:7800 
+21:57:33.818 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.16 with ledger-id = sandbox-6a1a79d1-0b23-4799-a3b8-26e574061b1c, port = 7800, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+21:59:06.996 [sandbox-akka.actor.default-dispatcher-7] WARN  c.d.p.s.s.ApiSubmissionService - Submission of command 76a14812ac1a8233 has failed. 
+com.digitalasset.platform.server.api.ApiException: INVALID_ARGUMENT: Command interpretation error in LF-DAMLe: Interpretation error: Error: User abort: Assertion failed. Details: Last location: [DA.Internal.Assert:20], partial transaction: root node 1: NodeFetch(AbsoluteContractId(#1:2),Identifier(b5f131bfade5bbdfca23564a06b4beed652a388348dcab5d0db4022e152f40d0,Lobby:Lobby),Some(Location(43c0bd62fa971cae4ca594943affed18a5997f7d7bb8b4b3440174756d4e4a82,DA.Internal.Prelude,(364,25),(364,27))),Some(Set(Dealer)),Set(Dealer, House),Set(Dealer, House)), root node 2: NodeCreate(RelativeContractId(NodeId(2)),ContractInst(Identifier(b5f131bfade5bbdfca23564a06b4beed652a388348dcab5d0db4022e152f40d0,Dealer:Dealer),VersionedValue(ValueVersion(1),ValueRecord(Some(Identifier(b5f131bfade5bbdfca23564a06b4beed652a388348dcab5d0db4022e152f40d0,Dealer:Dealer)),ImmArray((Some(dealer),ValueParty(Dealer)),(Some(house),ValueParty(House)),(Some(id),ValueInt64(1)),(Some(undealt),ValueList(FrontStack()))))),),Some(Location(43c0bd62fa971cae4ca594943affed18a5997f7d7bb8b4b3440174756d4e4a82,DA.Internal.Prelude,(364,25),(364,27))),Set(Dealer),Set(Dealer),None), root node 4: NodeCreate(RelativeContractId(NodeId(4)),ContractInst(Identifier(b5f131bfade5bbdfca23564a06b4beed652a388348dcab5d0db4022e152f40d0,Lobby:Lobby),VersionedValue(ValueVersion(1),ValueRecord(Some(Identifier(b5f131bfade5bbdfca23564a06b4beed652a388348dcab5d0db4022e152f40d0,Lobby:Lobby)),ImmArray((Some(players),ValueList(FrontStack())),(Some(stacks),ValueList(FrontStack())),(Some(house),ValueParty(House)),(Some(dealer),ValueParty(Dealer)),(Some(smallBlind),ValueInt64(5)),(Some(bigBlind),ValueInt64(10))))),),Some(Location(43c0bd62fa971cae4ca594943affed18a5997f7d7bb8b4b3440174756d4e4a82,DA.Internal.Prelude,(364,25),(364,27))),Set(Dealer, House),Set(Dealer, House),Some(KeyWithMaintainers(VersionedValue(ValueVersion(1),ValueParty(Dealer)),Set(Dealer)))).
+22:02:52.492 [sandbox-akka.actor.default-dispatcher-6] WARN  c.d.p.s.s.ApiSubmissionService - Submission of command 68a04c6128ebc459 has failed. 
+com.digitalasset.platform.server.api.ApiException: INVALID_ARGUMENT: Command interpretation error in LF-DAMLe: Interpretation error: Error: User abort: daml/Dealer.daml:29:25-49: Non-exhaustive patterns in card :: cards
+. Details: Last location: [Control.Exception.Base:54], partial transaction: <empty transaction>.
+08:25:15.108 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+08:25:15.110 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+15:19:29.938 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+15:19:33.782 [sandbox-akka.actor.default-dispatcher-6] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+15:19:34.001 [sandbox-akka.actor.default-dispatcher-6] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+15:19:34.243 [sandbox-akka.actor.default-dispatcher-6] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:6865 
+15:19:34.252 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.19 with ledger-id = sandbox-438f814a-36f5-452b-a9f8-811feafc9303, port = 6865, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+15:21:13.676 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+15:21:16.606 [sandbox-akka.actor.default-dispatcher-9] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+15:21:16.779 [sandbox-akka.actor.default-dispatcher-9] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+15:21:17.027 [sandbox-akka.actor.default-dispatcher-9] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:6865 
+15:21:17.037 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.19 with ledger-id = sandbox-7b3aa4b9-2f89-4992-996b-5c5e797738f9, port = 6865, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+15:21:58.822 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+15:22:01.807 [sandbox-akka.actor.default-dispatcher-4] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+15:22:01.976 [sandbox-akka.actor.default-dispatcher-4] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+15:22:02.212 [sandbox-akka.actor.default-dispatcher-4] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:6865 
+15:22:02.222 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.19 with ledger-id = sandbox-e70409be-c835-4997-9e31-13335dcdf3e9, port = 6865, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+15:24:51.348 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+15:24:51.350 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 
+15:24:57.912 [main] INFO  ROOT - Sandbox verbosity changed to INFO 
+15:25:01.002 [sandbox-akka.actor.default-dispatcher-7] INFO  c.d.l.server.apiserver.ApiServices$ - DAML LF Engine supports LF versions: 0, 0.dev, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.dev; Transaction versions: 1, 2, 3, 4, 5, 6, 7, 8; Value versions: 1, 2, 3, 4, 5 
+15:25:01.174 [sandbox-akka.actor.default-dispatcher-7] INFO  c.d.l.s.apiserver.LedgerApiServer - Starting plainText server 
+15:25:01.423 [sandbox-akka.actor.default-dispatcher-7] INFO  c.d.l.s.apiserver.LedgerApiServer - listening on localhost:6865 
+15:25:01.433 [main] INFO  c.d.platform.sandbox.SandboxServer$ - Initialized sandbox version 100.13.19 with ledger-id = sandbox-75ddb9a2-698d-41db-a96b-1981739d567a, port = 6865, dar file = List(.daml/dist/Poker.dar), time mode = Static, ledger = in-memory, daml-engine = {} 
+21:45:19.198 [Thread-3] INFO  c.d.p.s.s.command.ApiCommandService - Shutting down Command Service 
+21:45:19.199 [Thread-3] INFO  c.d.p.s.services.command.TrackerMap - Shutting down 0 trackers 

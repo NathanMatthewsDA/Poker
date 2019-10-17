@@ -1,0 +1,442 @@
+daml 1.2
+
+module Poker where
+
+import Cards
+import Chips
+import DA.List (head, tail, (!!), delete, elemIndex)
+import DA.Optional (fromSome, catOptionals)
+import Random (shuffle)
+import Round
+
+data Next =
+    AwaitingLastPlay (ContractId LastPlay) |
+    AwaitingCheckOrRaise (ContractId CheckOrRaise) |
+    AwaitingTurnCommunity (ContractId TurnCommunity) |
+    AwaitingShowdown (ContractId Showdown) |
+    AwaitingPendingHand (ContractId PendingHand) |
+    AwaitingBetOrFold (ContractId BetOrFold) |
+    AwaitingDealHands (ContractId DealHands)
+        deriving (Eq, Show)
+
+template LastPlay 
+    with
+        round : Round
+        last : Party
+    where
+        signatory round.game.players
+
+        controller last can 
+            LastFold : Next
+                do roundOver $ fold last round
+
+            LastBet : Next
+                do roundOver $ allinOrRequired last round                    
+
+template CheckOrRaise
+    with
+        round : Round
+        remaining : [Party]
+    where
+        signatory round.game.players
+
+        controller head remaining can
+
+            Check : Next
+                do 
+                    checkChips round
+
+                    if tail remaining == [] then do                
+                        roundOver round                        
+                    else do
+                        fmap AwaitingCheckOrRaise $ create this with remaining = tail remaining
+
+            Raise : ContractId BetOrFold
+                with
+                    amount : Int
+                do 
+                    checkChips round
+
+                    let player = head remaining
+
+                    create BetOrFold with
+                        round = bet amount player round
+                        next = nextPlay player round
+
+toShowdown : Round -> Update (ContractId Showdown)
+toShowdown round = do
+    let toReveal = rotateTo (round.lastRaise ==) round.active
+
+    create Showdown with
+        game = round.game
+        stakes = round.stakes
+        community = round.community
+        remaining = zip toReveal (map (handFor round) toReveal)
+        partialReveal = []
+        revealed = []
+
+roundOver : Round -> Update Next
+roundOver round =
+    do
+        if length round.community < 5 then do
+            fmap AwaitingTurnCommunity $ create TurnCommunity with round
+        else do
+            fmap AwaitingShowdown $ toShowdown round
+
+singleWinner : Party -> Game -> [Stake] -> [Card] -> Update (ContractId PendingHand)
+singleWinner winner game stakes community = do
+    let pot = sum stakes
+    let index = fromSome $ elemIndex winner game.players
+
+    nextHand 
+        (game with stacks = updateAt index (pot +) game.stacks)
+        FinishedHand with 
+                        players = game.players
+                        hands = []
+                        community
+                        active = [winner]
+
+showdownStakeFor : Showdown -> Party -> Stake
+showdownStakeFor showdown player = 
+    showdown.stakes !! (fromSome $ elemIndex player showdown.game.players)
+
+nextHand : Game -> FinishedHand -> Update (ContractId PendingHand)
+nextHand game finished = 
+    create PendingHand with
+        previous = Some finished
+        game = rotateButton $ removeAllin game
+        seeds = replicate (length game.players) None
+
+calculateWinners : Showdown -> Update (ContractId PendingHand)
+calculateWinners showdown = do
+    let winnings = calculateWinnings
+                        showdown.revealed
+                        showdown.community 
+                        showdown.stakes
+                        showdown.game.players
+
+    let stacks = zipWith (+) winnings showdown.game.stacks
+
+    nextHand
+        (showdown.game with stacks) 
+        FinishedHand with 
+                            players = showdown.game.players
+                            hands = []
+                            community = showdown.community
+                            active = []
+
+postPlay : Party -> Round -> Update Next
+postPlay played round =
+    do
+        -- singleWinner winner players stacks stakes community dealer chips
+        if length round.active == 1 then do
+            fmap AwaitingPendingHand $ singleWinner 
+                (head round.active) 
+                round.game
+                round.stakes
+                round.community
+
+        -- give the big blind chance to bet
+        else if stakesEqual round && round.community == [] then do
+            fmap AwaitingCheckOrRaise $
+                create CheckOrRaise with round, remaining = [round.game.players !! 1]
+        else if stakesEqual round then do
+            roundOver round
+        else if length (toPlay round) == 1 then do
+            fmap AwaitingLastPlay $
+                create LastPlay with round, last = head (toPlay round)
+        else do 
+            fmap AwaitingBetOrFold $
+                create BetOrFold with round, next = nextPlay played round
+           
+template BetOrFold
+    with
+        round : Round
+        next : Party
+    where
+        signatory round.game.players
+
+        controller next can
+            Bet : Next
+                with amount : Int
+                do 
+                    checkChips round
+                    postPlay next (bet amount next round)                
+
+            Fold : Next
+                do 
+                    checkChips round
+                    postPlay next (fold next round)
+
+template TurnCommunity 
+    with 
+        round : Round
+    where
+        signatory round.game.players
+
+        controller round.game.dealer can
+            Turn : Either (ContractId CheckOrRaise) (ContractId Showdown)
+                do
+                    if length (toPlay round) < 2 then do
+                        round <- turnAllCards round
+                        fmap Right $ toShowdown round
+                    else if length round.community == 0 then do
+                        round <- turnCard round
+                        round <- turnCard round
+                        round <- turnCard round
+                        fmap Left $ create CheckOrRaise with round, remaining = toPlay round
+                    else do
+                        round <- turnCard round
+                        fmap Left $ create CheckOrRaise with round, remaining = toPlay round
+
+postReveal : Showdown -> Update Next
+postReveal showdown = 
+    do
+        -- singleWinner winner players stacks stakes community dealer chips
+        if length showdown.remaining == 1 && showdown.revealed == [] then        
+            fmap AwaitingPendingHand $ singleWinner 
+                (fst (head showdown.remaining))
+                showdown.game
+                showdown.stakes
+                showdown.community
+
+        else if showdown.remaining == [] then 
+            fmap AwaitingPendingHand $ calculateWinners showdown
+        else
+            fmap AwaitingShowdown $ create showdown
+
+template Showdown 
+    with
+        game : Game
+        stakes : [Stake]
+        community : [Card]
+        remaining : [(Party, (ContractId PlayerCard, ContractId PlayerCard))]
+        partialReveal : [(Party, Card)]
+        revealed : [(Party, (Card, Card))]
+    where
+        signatory game.players
+
+        controller fst (head remaining) can
+            Reveal : Next
+                with
+                    holeCard1 : Bool
+                    holeCard2 : Bool
+                do
+                    let (player, (plc1, plc2)) :: r = remaining
+                    
+                    case (holeCard1, holeCard2) of
+                        (False, False) ->
+                            postReveal this with remaining = r
+                        (True, False) -> do
+                            card <- fmap (.card) $ fetch plc1
+
+                            postReveal this with 
+                                remaining = r
+                                partialReveal = (player, card) :: partialReveal
+
+                        (False, True) -> do
+                            card <- fmap (.card) $ fetch plc2
+
+                            postReveal this with 
+                                remaining = r
+                                partialReveal = (player, card) :: partialReveal
+                        (True, True) -> do
+                            card1 <- fmap (.card) $ fetch plc1 
+                            card2 <- fmap (.card) $ fetch plc2
+
+                            postReveal this with 
+                                remaining = r
+                                revealed = (player, (card1, card2)) :: revealed
+
+template PlayerSeed 
+    with
+        seed : Int
+        dealer : Party
+        player : Party
+    where
+        signatory player
+        observer dealer
+
+data FinishedHand = FinishedHand with
+    players : [Party]
+    hands : [(Optional Card, Optional Card)]
+    community : [Card]
+    active : [Party]
+        deriving (Eq, Show)
+
+postReady : PendingHand -> Update Next
+postReady pending =
+    do
+        if any (None ==) pending.seeds then
+            fmap AwaitingPendingHand $ create pending
+        else
+            fmap AwaitingDealHands $ create DealHands with
+                game = pending.game
+                seeds = catOptionals pending.seeds
+
+shuffleAndDeal : ContractId DealHands -> Update (ContractId BetOrFold)
+shuffleAndDeal dealHands =
+    do
+        dh <- fetch dealHands
+        let game = dh.game
+        seeds <- mapA (fmap (.seed) . fetch) dh.seeds
+        
+        let (community, forPlayers) = splitAt 5 $ shuffle (sum seeds) deck
+
+        (round1, round2) <- fmap (splitAt (length game.players)) $ deal game.dealer (game.players ++ game.players) forPlayers
+
+        unturned <- mapA (\card -> create Unturned with dealer = game.dealer, card) community
+
+        exercise dealHands ShuffleAndDeal with unturned, hands = zip round1 round2
+
+template DealHands
+    with
+        game : Game
+        seeds : [ContractId PlayerSeed]
+    where
+        signatory game.players
+
+        controller game.dealer can
+            ShuffleAndDeal : ContractId BetOrFold
+                with
+                    hands : [(ContractId PlayerCard, ContractId PlayerCard)]
+                    unturned : [ContractId Unturned]
+                do
+                    let stakes = game.limits.smallBlind :: 
+                                 game.limits.bigBlind :: 
+                                 (replicate (length game.players - 2) 0)
+
+                    let noBets = Round with 
+                                    game
+                                    hands
+                                    stakes = replicate (length game.players) 0
+                                    active = game.players
+                                    unturned
+                                    community = []
+                                    lastRaise = game.players !! 1
+
+                    let withSmallBlind = increaseStake 
+                                            game.limits.smallBlind
+                                            (game.players !! 0)
+                                            noBets
+
+                    let withBigBlind = increaseStake 
+                                            game.limits.bigBlind
+                                            (game.players !! 1)
+                                            withSmallBlind
+
+                    let next = game.players !! (length game.players % 2)
+
+                    create BetOrFold with round = withBigBlind, next
+
+createTable : Party -> Limits -> ContractId Chips -> Update (ContractId PendingHand)
+createTable dealer limits stack = do
+    player <- fmap (.owner) $ fetch stack
+    quantity <- fmap (.quantity) $ fetch stack
+    chips <- exercise stack CreateSharedChips
+
+    create PendingHand with
+        game = Game with
+                limits
+                players = [player]
+                dealer
+                chips
+                invited = []
+                stacks = [quantity]
+        previous = None
+        seeds = [None]
+
+template PendingHand
+    with
+        game : Game
+        previous : Optional FinishedHand
+        seeds : [Optional (ContractId PlayerSeed)]
+    where
+        signatory game.players
+        observer game.invited
+
+        choice Ready : Next
+            with
+                player : Party
+                seed : ContractId PlayerSeed
+            controller player
+            do  
+                assert $ elem player game.players
+                assert $ stackFor game player >= game.limits.tableStake
+
+                postReady this with seeds = setAt (playerIndex player game) (Some seed) seeds
+
+        choice LeaveTable : (ContractId Chips, ContractId PendingHand)
+            with
+                player : Party
+            controller player
+            do
+                assert $ elem player game.players
+
+                (stack, chips) <- exercise game.chips Give with owner = player, amount = stackFor game player
+                chips <- exercise chips RemoveOwner with owner = player
+
+                let index = playerIndex player game
+            
+                pending <- create this with 
+                                game = game with
+                                        chips
+                                        players = delete player game.players
+                                        stacks = deleteAt index game.stacks 
+                                seeds = deleteAt index seeds
+                                        
+                return (stack, pending)
+
+        choice InvitePlayer : ContractId PendingHand
+            with
+                inviter : Party
+                invitee : Party
+            controller inviter
+            do
+                assert $ elem inviter game.players
+                chips <- exercise game.chips AddSharedChipsObserver with obs = invitee
+
+                create this with
+                    game = game with chips, invited = invitee :: game.invited
+
+        choice JoinTable : ContractId PendingHand
+            with
+                player : Party
+                stack : ContractId Chips
+            controller player
+            do
+                assert $ elem player game.invited
+
+                quantity <- fmap (.quantity) $ fetch stack
+
+                assert $ quantity >= game.limits.tableStake && quantity <= game.limits.maxBuyIn
+
+                chips <- exercise game.chips AddChips with chips = stack, owner = player
+
+                create this with
+                    game = game with 
+                            chips
+                            players = insertAt 1 player game.players
+                            stacks = insertAt 1 quantity game.stacks
+                    seeds = insertAt 1 None seeds
+
+        choice Rebuy : ContractId PendingHand
+            with    
+                player : Party
+                stack : ContractId Chips
+            controller player
+            do
+                assert $ elem player game.players
+
+                toAdd <- fmap (.quantity) $ fetch stack
+
+                let quantity = stackFor game player + toAdd
+
+                assert $ quantity >= game.limits.tableStake && quantity <= game.limits.maxBuyIn
+
+                chips <- exercise game.chips AddChips with chips = stack, owner = player
+
+                let stacks = updateAt (playerIndex player game) (quantity +) game.stacks
+
+                create this with
+                    game = game with chips, stacks

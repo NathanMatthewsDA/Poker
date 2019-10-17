@@ -4,6 +4,69 @@ module Chips where
 
 import DA.List
 
+template SharedChips
+    with
+        house : Party
+        owners : [Party]
+        quantity : Int
+        observers : [Party]
+    where
+        signatory house, owners
+        observer observers
+
+        choice AddChips : ContractId SharedChips
+            with
+                chips : ContractId Chips
+                owner : Party
+            controller owner, owners
+            do
+                amount <- fmap (.quantity) $ fetch chips
+                exercise chips Archive
+
+                create this with
+                    owners = dedup $ owner :: owners
+                    observers = delete owner observers
+                    quantity = quantity + amount
+        
+        controller owners can                
+            AddSharedChipsObserver : ContractId SharedChips
+                with
+                    obs : Party
+                do create this with observers = dedup $ obs :: observers
+
+            Claim : ContractId Chips
+                do
+                    case owners of
+                        [owner] ->
+                            create Chips with house, owner, quantity, observers
+                        owners -> error "TODO"
+
+            Give : (ContractId Chips, ContractId SharedChips)
+                with
+                    owner : Party
+                    amount : Int
+                do
+                    assert $ amount < quantity
+                    assert $ elem owner owners
+
+                    chips <- create Chips with 
+                                owner
+                                house
+                                quantity = amount
+                                observers = []
+                    
+                    shared <- create this with
+                                quantity = quantity - amount
+
+                    return (chips, shared)
+                                
+            RemoveOwner : ContractId SharedChips
+                with
+                    owner : Party
+                do
+                    create this with owners = delete owner owners
+        
+
 template TransferChips
     with
         chips : Chips
@@ -22,85 +85,131 @@ template TransferChips
             CancelTransfer : ContractId Chips
                 do create chips 
 
-splitPot : [(Party, Int)] -> ContractId Pot -> Update [(Party, ContractId Chips)]
-splitPot [] pot = error "TODO"
-splitPot ((owner, amount) :: shares) pot = 
-    do
-        (chips, pot) <- exercise pot LeaveWith with owner, amount
+-- splitPot : [(Party, Int)] -> ContractId Pot -> Update [(Party, ContractId Chips)]
+-- splitPot [] pot = error "TODO"
+-- splitPot ((owner, amount) :: shares) pot = 
+--     do
+--         (chips, pot) <- exercise pot LeaveWith with owner, amount
 
-        case (shares, pot) of
-            ([], None) -> return [(owner, chips)]
-            ([], Some _) -> error "TODO"
-            (_, Some pot) ->
-                do
-                    shares <- splitPot shares pot
-                    return $ (owner, chips) :: shares
+--         case (shares, pot) of
+--             ([], None) -> return [(owner, chips)]
+--             ([], Some _) -> error "TODO"
+--             (_, Some pot) ->
+--                 do
+--                     shares <- splitPot shares pot
+--                     return $ (owner, chips) :: shares
 
-template Pot 
-    with 
-        owners : [Party]
-        house : Party
-        quantity : Int
-        observers : [Party]
-    where
-        signatory house, owners
-        observer observers
+-- template Pot 
+--     with 
+--         owners : [Party]
+--         house : Party
+--         quantity : Int
+--         stake : Int
+--         observers : [Party]
+--     where
+--         signatory house, owners
+--         observer observers
         
-        choice AddChips : ContractId Pot
-            with
-                owner : Party
-                chips : ContractId Chips
-            controller owner, owners
-            do 
-                c <- fetch chips
-                assert $ c.owner == owner
-                exercise chips Archive
+--         -- choice Join : (Optional ContractId Pot)
+--         choice Join : ContractId Pot
+--             with
+--                 owner : Party
+--                 chips : ContractId Chips
+--             controller owner, owners
+--             do 
+--                 c <- fetch chips
+--                 assert $ house == c.house
+--                 assert $ c.owner == owner
+--                 assert $ c.quantity == stake
+--                 assert $ not $ elem owner owners
+--                 exercise chips Archive
 
-                create this with 
-                    owners = dedup $ owner :: owners
-                    quantity = quantity + c.quantity
+--                 create this with 
+--                     owners = owner :: owners
+--                     quantity = quantity + c.quantity
 
-        controller owners can 
-            Leave : ContractId Pot -- (ContractId Chips, ContractId Pot)
-                with                
-                    owner : Party            
-                do
-                    assertMsg ("Party: " <> show owner <> " must be an owner to leave") $ elem owner owners
-                    assertMsg ("Party: " <> show owner <> " tried to relinqush ownership on chips for which it was the only owner") $ length owners > 1
+--         controller owners can 
+--             LeavePot : ContractId Pot
+--                 with
+--                     player : Party
+--                 do
+--                     assert $ length owners > 1
+--                     assert $ elem player owners
 
-                    create this with 
-                        owners = delete owner owners
-                        observers = delete owner observers
+--                     create this with 
+--                         owners = delete player owners
 
-            LeaveWith : (ContractId Chips, Optional (ContractId Pot))
-                with
-                    amount : Int
-                    owner : Party            
-                do
-                    assert $ amount > 0
-                    assert $ amount <= quantity
-                    assert $ elem owner owners
+--             MergePot : ContractId Pot
+--                 with
+--                     other : ContractId Pot
+--                 do
+--                     o <- fetch other
+--                     assert $ sort o.owners == sort owners
+--                     assert $ house == o.house
 
-                    chips <- create Chips with
-                                owner
-                                house
-                                quantity = amount
-                                observers = []
+--                     create this with
+--                         quantity = quantity + o.quantity
+--                         stake = stake + o.stake
+
+--             SplitPot : ((ContractId Pot), (ContractId Pot))
+--                 with
+--                     amount : Int
+--                 do
+--                     assert $ amount > 0 && amount < stake
+
+--                     let leftQuantity = amount / stake * quantity
+
+--                     left <- create Pot with owners, house, observers
+--                                             quantity = leftQuantity
+--                                             stake = amount
+                                    
+--                     right <- create Pot with owners, house, observers
+--                                              quantity = quantity - leftQuantity
+--                                              stake = stake - amount
+
+--                     return (left, right)
+
+--             Leave : Either (ContractId Pot) (ContractId Chips)
+--                 with                
+--                     owner : Party            
+--                 do
+--                     assertMsg ("Party: " <> show owner <> " must be an owner to leave") $ elem owner owners
+--                     assertMsg ("Party: " <> show owner <> " tried to relinqush ownership on chips for which it was the only owner") $ length owners > 1
+
+--                     error "TODO"
+--                     -- create this with 
+--                     --     owners = delete owner owners
+--                     --     observers = delete owner observers
+
+--             LeaveWith : (ContractId Chips, Optional (ContractId Pot))
+--                 with
+--                     amount : Int
+--                     owner : Party            
+--                 do
+--                     assert $ amount > 0
+--                     assert $ amount <= quantity
+--                     assert $ elem owner owners
+
+--                     chips <- create Chips with
+--                                 owner
+--                                 house
+--                                 quantity = amount
+--                                 observers = []
                     
-                    pot <- if amount == quantity then
-                             return None
-                           else 
-                             fmap Some $ 
-                                create this with 
-                                    quantity = quantity - amount
-                                    owners = delete owner owners
+--                     pot <- if amount == quantity then
+--                              return None
+--                            else 
+--                              fmap Some $ 
+--                                 create this with 
+--                                     quantity = quantity - amount
+--                                     owners = delete owner owners
 
-                    return (chips, pot)
+--                     return (chips, pot)
 
-            AddPotObserver : ContractId Pot
-                with
-                    player : Party
-                do create this with observers = player :: observers
+--             AddPotObserver : ContractId Pot
+--                 with
+--                     player : Party
+--                 do create this with observers = player :: observers
 
 
 template Chips 
@@ -138,13 +247,23 @@ template Chips
         --             owners = delete leaver owners, observers = delete leaver observers
 
         controller owner can
-            CreatePot : ContractId Pot
+            CreateSharedChips : ContractId SharedChips
                 do
-                    create Pot with
-                        owners = [owner]
+                    create SharedChips with
                         house
+                        owners = [owner]
                         quantity
                         observers
+
+
+            -- CreatePot : ContractId Pot
+            --     do
+            --         create Pot with
+            --             owners = [owner]
+            --             house
+            --             quantity
+            --             stake = quantity
+            --             observers
                          
             Merge : ContractId Chips
                 with

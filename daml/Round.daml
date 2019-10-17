@@ -2,382 +2,193 @@ daml 1.2
 
 module Round where
 
-import Table
-import Utils
-import DA.List (head, last, delete, dedup)
-import Chips
-import Seat
-import SidePot (SidePot)
 import Cards
-import Random (shuffle)
+import Chips
+import DA.List (elemIndex, delete, (!!), head, tail)
+import DA.Tuple (swap)
 import DA.Foldable (maximum)
+import DA.Optional (fromSome, fromOptional)
+import SidePot (createSidePots1, allocate)
 
-data Phase = Check | Betting Int | Showdown deriving (Eq, Show)
+type Stack = Int
+type Stake = Int
 
-data Next = 
-    AwaitingDealer (ContractId Flip) | 
-    AwaitingPlayer (ContractId Play) | 
-    Finished (ContractId PendingNextRound)
+data Limits = Limits with
+    smallBlind : Int
+    bigBlind : Int
+    tableStake : Stake
+    maxBuyIn : Stake
+       deriving (Eq, Show)
 
-fromAwaitingPlayer : Next -> ContractId Play
-fromAwaitingPlayer (AwaitingPlayer play) = play
-fromAwaitingPlayer (Finished _) = error "Expected AwaitingPlayer but got Finished"
-fromAwaitingPlayer (AwaitingDealer _) = error "Expected AwaitingPlayer but got AwaitingDealer"
-
-fromFinished : Next -> ContractId PendingNextRound
-fromFinished (Finished pending) = pending
-fromFinished _ = error "TODO"
-
-fromAwaitingDealer : Next -> ContractId Flip
-fromAwaitingDealer (AwaitingDealer flip) = flip
-fromAwaitingDealer _ = error "TODO"
-
-finishRound : Table -> Update (ContractId PendingNextRound)
-finishRound table =
-    do
-        (table, sidePots) <- finish table
-
-        waitingFor <- playersWithAtLeast table.tableStake table.seats
-
-        create PendingNextRound with
-                ready = []
-                waitingFor 
-                seeds = []
-                previous = Some sidePots
-                table
-
-toShowdown : Table -> Update (ContractId Play)
-toShowdown table = 
-    create Play with
-            table
-            player = head $ activePlayers table.seats
-            phase = Showdown
-
-nextBet : Party -> Table -> Update Next
-nextBet lastPlayer table = 
-    do
-        let player = nextToBet lastPlayer table.seats
-        let phase = Betting (requiredBet player table.seats)
-
-        fmap AwaitingPlayer $ create Play with
-                        phase
-                        player
-                        table  
-
-callOrCheck : ContractId Play -> Update Next
-callOrCheck play =
-    do
-        phase <- fmap (.phase) $ fetch play 
-
-        case phase of
-            Betting required -> exercise play Bet with amount = required
-            Check -> exercise play Bet with amount = 0
-            Showdown -> error "Cannot call or check on a showdown round"
-
-raise : Int -> ContractId Play -> Update Next
-raise amount play =
-    if amount == 0 then
-        exercise play AllIn
-    else do
-        phase <- fmap (.phase) $ fetch play 
-
-        case phase of
-            Betting required -> exercise play Bet with amount = amount + required
-            Check -> exercise play Bet with amount
-            Showdown -> error "Cannot raise on a showdown round"
-
-next : Party -> Phase -> Table -> Update Next
-next lastPlayer lastPhase table = 
-    do
-        case lastPhase of
-            Check | lastPlayer == lastCheck && allStakesEqual ->
-                if communityFull then
-                    fmap AwaitingPlayer $ toShowdown table
-                else
-                    fmap AwaitingDealer $ create Flip with table
-
-            Check | allStakesEqual ->
-                fmap AwaitingPlayer $ create Play with
-                    phase = Check
-                    player = nextToBet lastPlayer table.seats
-                    table
-
-            Check ->
-                nextBet lastPlayer table
-
-            Betting _ | allStakesEqual ->
-                if communityFull then
-                    case nextToReveal lastPlayer table.seats of
-                        Some player ->
-                            fmap AwaitingPlayer $
-                                create Play with
-                                        table
-                                        player
-                                        phase = Showdown
-                        None ->
-                           fmap Finished $ finishRound table 
-                else
-                    fmap AwaitingDealer $ create Flip with table
-
-            Betting _ -> nextBet lastPlayer table
-            
-            Showdown ->
-                case nextToReveal lastPlayer table.seats of 
-                    Some player ->
-                        fmap AwaitingPlayer $ create Play with
-                            phase = Showdown
-                            player
-                            table
-                    None ->
-                        fmap Finished $ finishRound table
-    where
-        maxStake = maximum $ map (.stake) table.seats
-        allStakesEqual = all (maxStake == ) $ map (.stake) $ filterInPlay table.seats
-        communityFull = length table.community == 5
-        lastCheck = (.player) . last $ filterInPlay table.seats
-
-template Flip
-    with 
-        table : Table
-    where
-        signatory map (.player) table.seats
-
-        controller table.dealer can
-            FlipCommunityCards : ContractId Play
-                do
-                    table <- showCommunity table
-
-                    if isShowdownTime table.seats then
-                        toShowdown table
-                    else
-                        create Play with
-                            table
-                            player = nextInPlay table.seats
-                            phase = Check
-
-createTable : Party -> Party -> Int -> Int -> Update (ContractId PendingNextRound)
-createTable player dealer smallBlind tableStake =
-    do
-        let seat = Seat with player, hand = AwaitingHand, stake = 0, stack = ChipsAllIn
-
-        create PendingNextRound with
-            previous = None
-            seeds = []
-            waitingFor = []
-            ready = []
-            table = Table with
-                        pot = None
-                        seats = [seat]
-                        unturned = []
-                        community = []
-                        dealer
-                        tableStake
-                        smallBlind
-                        observers = []
-
-dealAndStartHand : Party -> ContractId AwaitingDealOfCards -> Update (ContractId Play)
-dealAndStartHand dealer pending =
-    do
-        p <- fetch pending
-
-        let table = p.table
-        
-        assertMsg "Cannot start game with less than 2 players" $ 
-            length table.seats > 1
-
-        seeds <- mapA (fmap (.seed) . fetch) $ p.seeds
-
-        let cards = shuffle (sum seeds) deck
-
-        let n = length table.seats
-
-        let players = map (.player) table.seats
-
-        hands <- sequence $ zipWith3 (\holder card1 card2 -> 
-                            create HiddenHand with holder, dealer, card1, card2)
-                    players
-                    cards
-                    (drop n cards)
-
-        community <- mapA (\card -> create CommunityCard with dealer, card)
-                        $ take 5 $ drop (n + n) cards
-
-        exercise pending StartRound with hands, community
-
-template AwaitingDealOfCards
+template Unturned 
     with
-        table : Table
-        seeds : [ContractId HiddenSeed]
+        dealer : Party
+        card : Card
     where
-        signatory map (.player) table.seats
-        observer table.observers
+        signatory dealer
 
-        controller table.dealer can
-            StartRound : ContractId Play
-                with
-                    hands: [ContractId HiddenHand]
-                    community : [ContractId CommunityCard]
-                do
-                    let seats = zipWith (\seat hand -> seat with hand = Hidden hand)
-                                    table.seats
-                                    hands
-
-                    round <- create Play with                                        
-                                        table = table with seats, unturned = community
-                                        phase = Betting 0
-                                        player = (.player) $ head table.seats
-
-                    round <- fmap fromAwaitingPlayer $ 
-                                    exercise round Bet with amount = table.smallBlind
-
-                    round <- fmap fromAwaitingPlayer $ 
-                                    exercise round Bet with amount = table.smallBlind * 2
-
-                    return round
-
-createPendingDeal : [Party] -> [ContractId HiddenSeed] -> Table -> Update (ContractId AwaitingDealOfCards)
-createPendingDeal players seeds table =
-    create AwaitingDealOfCards with
-                            table 
-                            seeds
-
-nextPending : PendingNextRound -> Update (Either (ContractId PendingNextRound) (ContractId AwaitingDealOfCards))
-nextPending pending =
-    if pending.waitingFor == [] && length pending.ready >= 2 then
-        do
-            let seats = filter (\seat -> elem seat.player pending.ready) pending.table.seats
-
-            fmap Right $ create AwaitingDealOfCards with 
-                seeds = pending.seeds
-                table = pending.table with seats
-    else
-        fmap Left $ create pending
-
-template PendingNextRound
-    with 
-        previous : Optional [SidePot]
-        table : Table
-        seeds : [ContractId HiddenSeed]
-        waitingFor : [Party]
-        ready : [Party]
-    where
-        signatory map (.player) table.seats
-        observer table.observers
-        
-        ensure table.tableStake >= table.smallBlind * 2
-
-        choice BuyIn : ContractId PendingNextRound
-            with
-                player : Party
-                chips : ContractId Chips
-            controller player
-            do
-                chipsOwner <- fmap (.owner) $ fetch chips
-                assert $ player == chipsOwner
-                assert $ not $ elem player ready
-                
-                let observers = delete player table.observers
-                chips <- addObservers chips (table.dealer :: observers)
-                seats <- buyIn player chips table.tableStake table.seats
-
-                create this with 
-                              table = table with seats, observers
-                              waitingFor = dedup $ player :: waitingFor
-
-        choice AddObserver : ContractId PendingNextRound
-            with
-                inviter : Party 
-                watcher : Party
-            controller inviter
-            do
-                table <- addObserver watcher table
-                create this with table
-
-        choice Ready : Either (ContractId PendingNextRound) (ContractId AwaitingDealOfCards)
-            with
-                player : Party
-                seed : ContractId HiddenSeed
-            controller player
-            do 
-                assert $ elem player waitingFor
-                
-                nextPending $ 
-                    this with 
-                        ready = player :: ready 
-                        seeds = seed :: seeds
-                        waitingFor = delete player waitingFor
-
-        choice LeaveTable : Either (ContractId PendingNextRound) (ContractId AwaitingDealOfCards)
-            with
-                player : Party
-            controller player
-            do 
-                nextPending $ 
-                    this with 
-                        ready = delete player ready
-                        waitingFor = delete player waitingFor
-
-
-template Play
+template PlayerCard
     with
-        table : Table
+        dealer : Party
         player : Party
-        phase : Phase
+        card : Card
     where
-        signatory map (.player) table.seats
-        observer table.observers
+        signatory dealer
+        observer player 
 
-        choice RevealAfterFold : ContractId Play 
-            with
-                toReveal : Party
-            controller toReveal
-            do
-                let seat = findSeat toReveal table.seats
-                assertMsg 
-                    ("Can only reveal players: " <> show toReveal <> " after they have folded") 
-                    $ isFolded seat.stack
-                
-                table <- reveal table player
+data Game = Game with
+    limits : Limits
+    players : [Party]
+    dealer : Party
+    chips : ContractId SharedChips
+    invited : [Party]
+    stacks : [Stack]
+        deriving (Eq, Show)
 
-                create this with table
-
-        controller player can
-            AllIn : Next
-                do
-                    assertMsg "TODO" $ phase /= Showdown
-
-                    amount <- avaliable (findSeat player table.seats).stack
-
-                    table <- bet table player amount
-
-                    next player phase table
-
-            Bet : Next
-                with 
-                    amount : Int
-                do
-                    assertMsg "TODO" $ phase /= Showdown
-
-                    table <- bet table player amount
-
-                    next player phase table
+rotateButton : Game -> Game
+rotateButton game =
+    game with
+        players = rotate game.players
+        stacks = rotate game.stacks
         
-            Fold : Next
-                do                
-                    table <- fold table player
+data Round = Round with
+    game : Game
+    hands : [(ContractId PlayerCard, ContractId PlayerCard)]
+    stakes : [Stake]
+    active : [Party]
+    unturned : [ContractId Unturned]
+    community : [Card]
+    lastRaise : Party
+        deriving (Eq, Show)
 
-                    if length table.seats == 1 then
-                        fmap Finished $ finishRound table
-                    else
-                        next player phase table
+checkChips : Round -> Update ()
+checkChips round = do
+    total <- fmap (.quantity) $ fetch round.game.chips
+    assert $ total == sum round.stakes + sum round.game.stacks
+    return ()
 
-            Reveal : Next
-                do
-                    assertMsg "Can only reveal hand in showdown round" $ phase == Showdown
+playerIndex : Party -> Game -> Int
+playerIndex player game = 
+    case elemIndex player game.players of
+        Some index -> index
+        None -> error $ "Player: " <> show player <> " not seated at table"
 
-                    table <- reveal table player
+stakeFor : Round -> Party -> Stake
+stakeFor round player = round.stakes !! (playerIndex player round.game)
 
-                    if phase == Showdown then
-                        next player phase table
-                    else
-                        fmap AwaitingPlayer $ create this with table
+stackFor : Game -> Party -> Stake
+stackFor game player = game.stacks !! (playerIndex player game)
+
+inPlay : Round -> Party -> Bool
+inPlay round player = stackFor round.game player > 0 && elem player round.active
+
+toPlay : Round -> [Party]
+toPlay round = filter (inPlay round) round.active
+
+maxStake : Round -> Stake
+maxStake round = maximum round.stakes
+
+stakesEqual : Round -> Bool
+stakesEqual round = all (maxStake round ==) $ map (stakeFor round) $ toPlay round
+
+fold : Party -> Round -> Round
+fold player round = round with active = delete player round.active
+
+setAt : Int -> a -> [a] -> [a]
+setAt index x xs = (take index xs) ++ (x :: (drop (index + 1) xs)) 
+
+updateAt : Int -> (a -> a) -> [a] -> [a]
+updateAt index f xs = (take index xs) ++ (f (xs !! index) :: (drop (index + 1) xs))
+
+increaseStake : Int -> Party -> Round -> Round
+increaseStake amount player round =
+    round with 
+            game = round.game with stacks = updateAt index 
+                                                (\s -> s - amount)
+                                                round.game.stacks
+            stakes = updateAt index (amount +) round.stakes
+    where
+        index = playerIndex player round.game
+
+bet : Int -> Party -> Round -> Round
+bet amount player round = 
+    if amount > stack then
+        error $ "Player: " <> show player <> 
+                " attempted to bet: " <> show amount <>
+                " which is more than they have avaliable: " <> show stack
+    else if amount < required && amount < stack then
+        error $ "Player: " <> show player <> 
+                " attempted to bet: " <> show amount <>
+                " which is less than required: " <> show required
+    else
+        increaseStake amount player round
+    where
+        stack = stackFor round.game player
+        required = maxStake round - (stakeFor round player)
+
+allinOrRequired : Party -> Round -> Round
+allinOrRequired player round = 
+    increaseStake (min stack required) player round 
+    where
+        stack = stackFor round.game player
+        required = maxStake round - (stakeFor round player)
+
+rotateTo : (a -> Bool) -> [a] -> [a]
+rotateTo p = (uncurry (++)) . swap . break p
+
+rotate : [a] -> [a]
+rotate [] = []
+rotate (x :: xs) = xs ++ [x]
+
+handFor : Round -> Party -> (ContractId PlayerCard, ContractId PlayerCard)
+handFor round player = round.hands !! (playerIndex player round.game)
+
+nextPlay : Party -> Round -> Party
+nextPlay played round =
+    head $ filter (inPlay round) $ tail $ rotateTo (played ==) round.game.players
+
+allin : Game -> [Party]
+allin game = map fst $ filter ((0 ==) . snd) $ zip game.players game.stacks
+
+removeAllin : Game -> Game
+removeAllin game =
+    game with
+        players = filter (\p -> not (elem p (allin game))) game.players
+        stacks = delete 0 game.stacks
+
+deal : Party -> [Party] -> [Card] -> Update [ContractId PlayerCard]
+deal dealer players cards =
+    mapA (\(player, card) -> create PlayerCard with dealer, player, card) $ zip players cards
+
+deleteAt : Int -> [a] -> [a]
+deleteAt n xs = take n xs ++ drop (n + 1) xs
+
+insertAt : Int -> a -> [a] -> [a]
+insertAt n x xs = take n xs ++ (x :: drop n xs)
+
+turnCard : Round -> Update Round 
+turnCard round = do
+    card <- fmap (.card) $ fetch (head round.unturned)
+    return round with community = round.community ++ [card], unturned = tail round.unturned
+
+turnAllCards : Round -> Update Round
+turnAllCards round =
+    if round.unturned == [] then
+        return round
+    else do
+        round <- turnCard round
+        turnAllCards round
+
+calculateWinnings : [(Party, (Card, Card))] -> [Card] -> [Stake] -> [Party] -> [Stack]
+calculateWinnings revealed community stakes players =
+    map (\p -> fromOptional 0 $ lookup p allocations) players
+    where
+        stakeFor player = stakes !! (fromSome $ elemIndex player players)
+        active = map fst revealed
+        folded = filter (\p -> not (elem p active)) $ players
+        sidePots = createSidePots1 
+                        community 
+                        (map stakeFor folded)
+                        (zipWith (\(player, cards) stake -> (player, stake, cards)) revealed stakes)
+        allocations = concatMap allocate sidePots 
+

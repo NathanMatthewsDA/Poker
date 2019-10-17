@@ -1,0 +1,218 @@
+15:25:02.576 [main] INFO  c.d.navigator.config.Config$ - Loading SDK config file from /Users/nathanmatthews/Documents/dev/tutorials/Poker/daml.yaml 
+15:25:04.745 [da-ui-backend-akka.actor.default-dispatcher-3] INFO  akka.event.slf4j.Slf4jLogger - Slf4jLogger started 
+15:25:04.911 [da-ui-backend-akka.actor.default-dispatcher-7] INFO  c.d.n.store.platform.PlatformStore - Connecting to localhost:6865, using a plaintext connection sourceThread=da-ui-backend-akka.actor.default-dispatcher-3, akkaSource=akka://da-ui-backend/user/$a, sourceActorSystem=da-ui-backend, akkaTimestamp=14:25:04.910UTC
+15:25:05.527 [main] INFO  c.d.navigator.NavigatorBackend$ - DA UI backend server listening on port 7500 
+15:25:05.645 [da-ui-backend-akka.actor.default-dispatcher-5] INFO  c.d.n.store.platform.PlatformStore - Time service is available, platform time is 1970-01-01T00:00:00Z sourceThread=scala-execution-context-global-14, akkaSource=akka://da-ui-backend/user/$a, sourceActorSystem=da-ui-backend, akkaTimestamp=14:25:05.644UTC
+15:25:05.647 [da-ui-backend-akka.actor.default-dispatcher-5] INFO  c.d.n.store.platform.PlatformStore - Connected to platform at 'localhost:6865' sourceThread=scala-execution-context-global-13, akkaTimestamp=14:25:05.647UTC, akkaSource=akka://da-ui-backend/user/$a, sourceActorSystem=da-ui-backend
+15:25:06.941 [da-ui-backend-akka.actor.default-dispatcher-14] INFO  c.d.n.s.platform.PlatformSubscriber - Successfully loaded packages [54bb827835ddc03a71a1e831cd7bc2412929ef472d297eb1fd99609f5074afb0, 2389821eeef98ed06bf9f3a7c143d0e87ea452f0c98d7dde6ef2723ddc61e62d, af2dcc60cbded63a27d79dfce9ed7f8d4e881e2d700335ffe5bd7bf4d1664c83] sourceThread=da-ui-backend-akka.actor.default-dispatcher-13, akkaSource=akka://da-ui-backend/user/$a/party-Dealer, sourceActorSystem=da-ui-backend, akkaTimestamp=14:25:06.941UTC
+15:25:06.942 [da-ui-backend-akka.actor.default-dispatcher-14] INFO  c.d.n.s.platform.PlatformSubscriber - Successfully loaded packages [54bb827835ddc03a71a1e831cd7bc2412929ef472d297eb1fd99609f5074afb0, 2389821eeef98ed06bf9f3a7c143d0e87ea452f0c98d7dde6ef2723ddc61e62d, af2dcc60cbded63a27d79dfce9ed7f8d4e881e2d700335ffe5bd7bf4d1664c83] sourceThread=da-ui-backend-akka.actor.default-dispatcher-6, akkaTimestamp=14:25:06.941UTC, akkaSource=akka://da-ui-backend/user/$a/party-Eve, sourceActorSystem=da-ui-backend
+15:25:06.943 [da-ui-backend-akka.actor.default-dispatcher-14] INFO  c.d.n.s.platform.PlatformSubscriber - Successfully loaded packages [54bb827835ddc03a71a1e831cd7bc2412929ef472d297eb1fd99609f5074afb0, 2389821eeef98ed06bf9f3a7c143d0e87ea452f0c98d7dde6ef2723ddc61e62d, af2dcc60cbded63a27d79dfce9ed7f8d4e881e2d700335ffe5bd7bf4d1664c83] sourceThread=da-ui-backend-akka.actor.default-dispatcher-4, akkaTimestamp=14:25:06.941UTC, akkaSource=akka://da-ui-backend/user/$a/party-Alice, sourceActorSystem=da-ui-backend
+15:25:06.943 [da-ui-backend-akka.actor.default-dispatcher-14] INFO  c.d.n.s.platform.PlatformSubscriber - Successfully loaded packages [54bb827835ddc03a71a1e831cd7bc2412929ef472d297eb1fd99609f5074afb0, 2389821eeef98ed06bf9f3a7c143d0e87ea452f0c98d7dde6ef2723ddc61e62d, af2dcc60cbded63a27d79dfce9ed7f8d4e881e2d700335ffe5bd7bf4d1664c83] sourceThread=da-ui-backend-akka.actor.default-dispatcher-2, akkaTimestamp=14:25:06.941UTC, akkaSource=akka://da-ui-backend/user/$a/party-Mallory, sourceActorSystem=da-ui-backend
+15:25:06.943 [da-ui-backend-akka.actor.default-dispatcher-14] INFO  c.d.n.s.platform.PlatformSubscriber - Successfully loaded packages [54bb827835ddc03a71a1e831cd7bc2412929ef472d297eb1fd99609f5074afb0, 2389821eeef98ed06bf9f3a7c143d0e87ea452f0c98d7dde6ef2723ddc61e62d, af2dcc60cbded63a27d79dfce9ed7f8d4e881e2d700335ffe5bd7bf4d1664c83] sourceThread=da-ui-backend-akka.actor.default-dispatcher-5, akkaTimestamp=14:25:06.941UTC, akkaSource=akka://da-ui-backend/user/$a/party-Bob, sourceActorSystem=da-ui-backend
+15:25:06.944 [da-ui-backend-akka.actor.default-dispatcher-14] INFO  c.d.n.s.platform.PlatformSubscriber - Successfully loaded packages [54bb827835ddc03a71a1e831cd7bc2412929ef472d297eb1fd99609f5074afb0, 2389821eeef98ed06bf9f3a7c143d0e87ea452f0c98d7dde6ef2723ddc61e62d, af2dcc60cbded63a27d79dfce9ed7f8d4e881e2d700335ffe5bd7bf4d1664c83] sourceThread=da-ui-backend-akka.actor.default-dispatcher-3, akkaTimestamp=14:25:06.941UTC, akkaSource=akka://da-ui-backend/user/$a/party-Trent, sourceActorSystem=da-ui-backend
+15:25:58.686 [da-ui-backend-akka.actor.default-dispatcher-19] INFO  c.d.navigator.NavigatorBackend$ - Logged out user 'Eve' 
+15:26:11.671 [da-ui-backend-akka.actor.default-dispatcher-14] INFO  c.d.n.s.platform.PlatformSubscriber - Command 'aedcd133f2d97b03' completed successfully. sourceThread=da-ui-backend-akka.actor.default-dispatcher-22, akkaTimestamp=14:26:11.671UTC, akkaSource=akka://da-ui-backend/user/$a/party-Mallory, sourceActorSystem=da-ui-backend
+15:48:25.454 [da-ui-backend-akka.actor.default-dispatcher-30] INFO  c.d.navigator.NavigatorBackend$ - Logged out user 'Mallory' 
+15:49:08.028 [da-ui-backend-akka.actor.default-dispatcher-32] INFO  c.d.navigator.NavigatorBackend$ - Logged out user 'Mallory' 
+21:45:19.190 [da-ui-backend-akka.actor.default-dispatcher-40] WARN  c.d.l.c.s.c.CommandTrackerFlow$ - Completion Stream failed with an error. Trying to recover in 1 second .. 
+io.grpc.StatusRuntimeException: UNAVAILABLE: Channel shutdownNow invoked
+	at io.grpc.Status.asRuntimeException(Status.java:533)
+	at io.grpc.stub.ClientCalls$StreamObserverToCallListenerAdapter.onClose(ClientCalls.java:442)
+	at io.grpc.PartialForwardingClientCallListener.onClose(PartialForwardingClientCallListener.java:39)
+	at io.grpc.ForwardingClientCallListener.onClose(ForwardingClientCallListener.java:23)
+	at io.grpc.ForwardingClientCallListener$SimpleForwardingClientCallListener.onClose(ForwardingClientCallListener.java:40)
+	at io.grpc.internal.CensusStatsModule$StatsClientInterceptor$1$1.onClose(CensusStatsModule.java:700)
+	at io.grpc.PartialForwardingClientCallListener.onClose(PartialForwardingClientCallListener.java:39)
+	at io.grpc.ForwardingClientCallListener.onClose(ForwardingClientCallListener.java:23)
+	at io.grpc.ForwardingClientCallListener$SimpleForwardingClientCallListener.onClose(ForwardingClientCallListener.java:40)
+	at io.grpc.internal.CensusTracingModule$TracingClientInterceptor$1$1.onClose(CensusTracingModule.java:399)
+	at io.grpc.internal.ClientCallImpl.closeObserver(ClientCallImpl.java:507)
+	at io.grpc.internal.ClientCallImpl.access$300(ClientCallImpl.java:66)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl.close(ClientCallImpl.java:627)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl.access$700(ClientCallImpl.java:515)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl$1StreamClosed.runInternal(ClientCallImpl.java:686)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl$1StreamClosed.runInContext(ClientCallImpl.java:675)
+	at io.grpc.internal.ContextRunnable.run(ContextRunnable.java:37)
+	at io.grpc.internal.SerializingExecutor.run(SerializingExecutor.java:123)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+21:45:19.190 [da-ui-backend-akka.actor.default-dispatcher-37] WARN  c.d.l.c.s.c.CommandTrackerFlow$ - Completion Stream failed with an error. Trying to recover in 1 second .. 
+io.grpc.StatusRuntimeException: UNAVAILABLE: Channel shutdownNow invoked
+	at io.grpc.Status.asRuntimeException(Status.java:533)
+	at io.grpc.stub.ClientCalls$StreamObserverToCallListenerAdapter.onClose(ClientCalls.java:442)
+	at io.grpc.PartialForwardingClientCallListener.onClose(PartialForwardingClientCallListener.java:39)
+	at io.grpc.ForwardingClientCallListener.onClose(ForwardingClientCallListener.java:23)
+	at io.grpc.ForwardingClientCallListener$SimpleForwardingClientCallListener.onClose(ForwardingClientCallListener.java:40)
+	at io.grpc.internal.CensusStatsModule$StatsClientInterceptor$1$1.onClose(CensusStatsModule.java:700)
+	at io.grpc.PartialForwardingClientCallListener.onClose(PartialForwardingClientCallListener.java:39)
+	at io.grpc.ForwardingClientCallListener.onClose(ForwardingClientCallListener.java:23)
+	at io.grpc.ForwardingClientCallListener$SimpleForwardingClientCallListener.onClose(ForwardingClientCallListener.java:40)
+	at io.grpc.internal.CensusTracingModule$TracingClientInterceptor$1$1.onClose(CensusTracingModule.java:399)
+	at io.grpc.internal.ClientCallImpl.closeObserver(ClientCallImpl.java:507)
+	at io.grpc.internal.ClientCallImpl.access$300(ClientCallImpl.java:66)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl.close(ClientCallImpl.java:627)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl.access$700(ClientCallImpl.java:515)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl$1StreamClosed.runInternal(ClientCallImpl.java:686)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl$1StreamClosed.runInContext(ClientCallImpl.java:675)
+	at io.grpc.internal.ContextRunnable.run(ContextRunnable.java:37)
+	at io.grpc.internal.SerializingExecutor.run(SerializingExecutor.java:123)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+21:45:19.190 [da-ui-backend-akka.actor.default-dispatcher-43] WARN  c.d.l.c.s.c.CommandTrackerFlow$ - Completion Stream failed with an error. Trying to recover in 1 second .. 
+io.grpc.StatusRuntimeException: UNAVAILABLE: Channel shutdownNow invoked
+	at io.grpc.Status.asRuntimeException(Status.java:533)
+	at io.grpc.stub.ClientCalls$StreamObserverToCallListenerAdapter.onClose(ClientCalls.java:442)
+	at io.grpc.PartialForwardingClientCallListener.onClose(PartialForwardingClientCallListener.java:39)
+	at io.grpc.ForwardingClientCallListener.onClose(ForwardingClientCallListener.java:23)
+	at io.grpc.ForwardingClientCallListener$SimpleForwardingClientCallListener.onClose(ForwardingClientCallListener.java:40)
+	at io.grpc.internal.CensusStatsModule$StatsClientInterceptor$1$1.onClose(CensusStatsModule.java:700)
+	at io.grpc.PartialForwardingClientCallListener.onClose(PartialForwardingClientCallListener.java:39)
+	at io.grpc.ForwardingClientCallListener.onClose(ForwardingClientCallListener.java:23)
+	at io.grpc.ForwardingClientCallListener$SimpleForwardingClientCallListener.onClose(ForwardingClientCallListener.java:40)
+	at io.grpc.internal.CensusTracingModule$TracingClientInterceptor$1$1.onClose(CensusTracingModule.java:399)
+	at io.grpc.internal.ClientCallImpl.closeObserver(ClientCallImpl.java:507)
+	at io.grpc.internal.ClientCallImpl.access$300(ClientCallImpl.java:66)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl.close(ClientCallImpl.java:627)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl.access$700(ClientCallImpl.java:515)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl$1StreamClosed.runInternal(ClientCallImpl.java:686)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl$1StreamClosed.runInContext(ClientCallImpl.java:675)
+	at io.grpc.internal.ContextRunnable.run(ContextRunnable.java:37)
+	at io.grpc.internal.SerializingExecutor.run(SerializingExecutor.java:123)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+21:45:19.190 [da-ui-backend-akka.actor.default-dispatcher-51] ERROR akka.stream.Materializer - [completion at client] Upstream failed. sourceThread=da-ui-backend-akka.actor.default-dispatcher-37, akkaSource=akka.stream.Log(akka://da-ui-backend/user/$a/party-Trent/StreamSupervisor-7), sourceActorSystem=da-ui-backend, akkaTimestamp=20:45:19.186UTC
+io.grpc.StatusRuntimeException: UNAVAILABLE: Channel shutdownNow invoked
+	at io.grpc.Status.asRuntimeException(Status.java:533)
+	at io.grpc.stub.ClientCalls$StreamObserverToCallListenerAdapter.onClose(ClientCalls.java:442)
+	at io.grpc.PartialForwardingClientCallListener.onClose(PartialForwardingClientCallListener.java:39)
+	at io.grpc.ForwardingClientCallListener.onClose(ForwardingClientCallListener.java:23)
+	at io.grpc.ForwardingClientCallListener$SimpleForwardingClientCallListener.onClose(ForwardingClientCallListener.java:40)
+	at io.grpc.internal.CensusStatsModule$StatsClientInterceptor$1$1.onClose(CensusStatsModule.java:700)
+	at io.grpc.PartialForwardingClientCallListener.onClose(PartialForwardingClientCallListener.java:39)
+	at io.grpc.ForwardingClientCallListener.onClose(ForwardingClientCallListener.java:23)
+	at io.grpc.ForwardingClientCallListener$SimpleForwardingClientCallListener.onClose(ForwardingClientCallListener.java:40)
+	at io.grpc.internal.CensusTracingModule$TracingClientInterceptor$1$1.onClose(CensusTracingModule.java:399)
+	at io.grpc.internal.ClientCallImpl.closeObserver(ClientCallImpl.java:507)
+	at io.grpc.internal.ClientCallImpl.access$300(ClientCallImpl.java:66)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl.close(ClientCallImpl.java:627)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl.access$700(ClientCallImpl.java:515)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl$1StreamClosed.runInternal(ClientCallImpl.java:686)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl$1StreamClosed.runInContext(ClientCallImpl.java:675)
+	at io.grpc.internal.ContextRunnable.run(ContextRunnable.java:37)
+	at io.grpc.internal.SerializingExecutor.run(SerializingExecutor.java:123)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+21:45:19.191 [da-ui-backend-akka.actor.default-dispatcher-64] WARN  c.d.l.c.s.c.CommandTrackerFlow$ - Completion Stream failed with an error. Trying to recover in 1 second .. 
+io.grpc.StatusRuntimeException: UNAVAILABLE: Channel shutdownNow invoked
+	at io.grpc.Status.asRuntimeException(Status.java:533)
+	at io.grpc.stub.ClientCalls$StreamObserverToCallListenerAdapter.onClose(ClientCalls.java:442)
+	at io.grpc.PartialForwardingClientCallListener.onClose(PartialForwardingClientCallListener.java:39)
+	at io.grpc.ForwardingClientCallListener.onClose(ForwardingClientCallListener.java:23)
+	at io.grpc.ForwardingClientCallListener$SimpleForwardingClientCallListener.onClose(ForwardingClientCallListener.java:40)
+	at io.grpc.internal.CensusStatsModule$StatsClientInterceptor$1$1.onClose(CensusStatsModule.java:700)
+	at io.grpc.PartialForwardingClientCallListener.onClose(PartialForwardingClientCallListener.java:39)
+	at io.grpc.ForwardingClientCallListener.onClose(ForwardingClientCallListener.java:23)
+	at io.grpc.ForwardingClientCallListener$SimpleForwardingClientCallListener.onClose(ForwardingClientCallListener.java:40)
+	at io.grpc.internal.CensusTracingModule$TracingClientInterceptor$1$1.onClose(CensusTracingModule.java:399)
+	at io.grpc.internal.ClientCallImpl.closeObserver(ClientCallImpl.java:507)
+	at io.grpc.internal.ClientCallImpl.access$300(ClientCallImpl.java:66)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl.close(ClientCallImpl.java:627)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl.access$700(ClientCallImpl.java:515)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl$1StreamClosed.runInternal(ClientCallImpl.java:686)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl$1StreamClosed.runInContext(ClientCallImpl.java:675)
+	at io.grpc.internal.ContextRunnable.run(ContextRunnable.java:37)
+	at io.grpc.internal.SerializingExecutor.run(SerializingExecutor.java:123)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+21:45:19.191 [da-ui-backend-akka.actor.default-dispatcher-51] ERROR akka.stream.Materializer - [completion at client] Upstream failed. sourceThread=da-ui-backend-akka.actor.default-dispatcher-40, akkaTimestamp=20:45:19.186UTC, akkaSource=akka.stream.Log(akka://da-ui-backend/user/$a/party-Alice/StreamSupervisor-6), sourceActorSystem=da-ui-backend
+io.grpc.StatusRuntimeException: UNAVAILABLE: Channel shutdownNow invoked
+	at io.grpc.Status.asRuntimeException(Status.java:533)
+	at io.grpc.stub.ClientCalls$StreamObserverToCallListenerAdapter.onClose(ClientCalls.java:442)
+	at io.grpc.PartialForwardingClientCallListener.onClose(PartialForwardingClientCallListener.java:39)
+	at io.grpc.ForwardingClientCallListener.onClose(ForwardingClientCallListener.java:23)
+	at io.grpc.ForwardingClientCallListener$SimpleForwardingClientCallListener.onClose(ForwardingClientCallListener.java:40)
+	at io.grpc.internal.CensusStatsModule$StatsClientInterceptor$1$1.onClose(CensusStatsModule.java:700)
+	at io.grpc.PartialForwardingClientCallListener.onClose(PartialForwardingClientCallListener.java:39)
+	at io.grpc.ForwardingClientCallListener.onClose(ForwardingClientCallListener.java:23)
+	at io.grpc.ForwardingClientCallListener$SimpleForwardingClientCallListener.onClose(ForwardingClientCallListener.java:40)
+	at io.grpc.internal.CensusTracingModule$TracingClientInterceptor$1$1.onClose(CensusTracingModule.java:399)
+	at io.grpc.internal.ClientCallImpl.closeObserver(ClientCallImpl.java:507)
+	at io.grpc.internal.ClientCallImpl.access$300(ClientCallImpl.java:66)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl.close(ClientCallImpl.java:627)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl.access$700(ClientCallImpl.java:515)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl$1StreamClosed.runInternal(ClientCallImpl.java:686)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl$1StreamClosed.runInContext(ClientCallImpl.java:675)
+	at io.grpc.internal.ContextRunnable.run(ContextRunnable.java:37)
+	at io.grpc.internal.SerializingExecutor.run(SerializingExecutor.java:123)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+21:45:19.191 [da-ui-backend-akka.actor.default-dispatcher-51] ERROR akka.stream.Materializer - [completion at client] Upstream failed. sourceThread=da-ui-backend-akka.actor.default-dispatcher-43, akkaTimestamp=20:45:19.188UTC, akkaSource=akka.stream.Log(akka://da-ui-backend/user/$a/party-Dealer/StreamSupervisor-8), sourceActorSystem=da-ui-backend
+io.grpc.StatusRuntimeException: UNAVAILABLE: Channel shutdownNow invoked
+	at io.grpc.Status.asRuntimeException(Status.java:533)
+	at io.grpc.stub.ClientCalls$StreamObserverToCallListenerAdapter.onClose(ClientCalls.java:442)
+	at io.grpc.PartialForwardingClientCallListener.onClose(PartialForwardingClientCallListener.java:39)
+	at io.grpc.ForwardingClientCallListener.onClose(ForwardingClientCallListener.java:23)
+	at io.grpc.ForwardingClientCallListener$SimpleForwardingClientCallListener.onClose(ForwardingClientCallListener.java:40)
+	at io.grpc.internal.CensusStatsModule$StatsClientInterceptor$1$1.onClose(CensusStatsModule.java:700)
+	at io.grpc.PartialForwardingClientCallListener.onClose(PartialForwardingClientCallListener.java:39)
+	at io.grpc.ForwardingClientCallListener.onClose(ForwardingClientCallListener.java:23)
+	at io.grpc.ForwardingClientCallListener$SimpleForwardingClientCallListener.onClose(ForwardingClientCallListener.java:40)
+	at io.grpc.internal.CensusTracingModule$TracingClientInterceptor$1$1.onClose(CensusTracingModule.java:399)
+	at io.grpc.internal.ClientCallImpl.closeObserver(ClientCallImpl.java:507)
+	at io.grpc.internal.ClientCallImpl.access$300(ClientCallImpl.java:66)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl.close(ClientCallImpl.java:627)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl.access$700(ClientCallImpl.java:515)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl$1StreamClosed.runInternal(ClientCallImpl.java:686)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl$1StreamClosed.runInContext(ClientCallImpl.java:675)
+	at io.grpc.internal.ContextRunnable.run(ContextRunnable.java:37)
+	at io.grpc.internal.SerializingExecutor.run(SerializingExecutor.java:123)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+21:45:19.191 [da-ui-backend-akka.actor.default-dispatcher-51] ERROR akka.stream.Materializer - [completion at client] Upstream failed. sourceThread=da-ui-backend-akka.actor.default-dispatcher-64, akkaTimestamp=20:45:19.190UTC, akkaSource=akka.stream.Log(akka://da-ui-backend/user/$a/party-Eve/StreamSupervisor-3), sourceActorSystem=da-ui-backend
+io.grpc.StatusRuntimeException: UNAVAILABLE: Channel shutdownNow invoked
+	at io.grpc.Status.asRuntimeException(Status.java:533)
+	at io.grpc.stub.ClientCalls$StreamObserverToCallListenerAdapter.onClose(ClientCalls.java:442)
+	at io.grpc.PartialForwardingClientCallListener.onClose(PartialForwardingClientCallListener.java:39)
+	at io.grpc.ForwardingClientCallListener.onClose(ForwardingClientCallListener.java:23)
+	at io.grpc.ForwardingClientCallListener$SimpleForwardingClientCallListener.onClose(ForwardingClientCallListener.java:40)
+	at io.grpc.internal.CensusStatsModule$StatsClientInterceptor$1$1.onClose(CensusStatsModule.java:700)
+	at io.grpc.PartialForwardingClientCallListener.onClose(PartialForwardingClientCallListener.java:39)
+	at io.grpc.ForwardingClientCallListener.onClose(ForwardingClientCallListener.java:23)
+	at io.grpc.ForwardingClientCallListener$SimpleForwardingClientCallListener.onClose(ForwardingClientCallListener.java:40)
+	at io.grpc.internal.CensusTracingModule$TracingClientInterceptor$1$1.onClose(CensusTracingModule.java:399)
+	at io.grpc.internal.ClientCallImpl.closeObserver(ClientCallImpl.java:507)
+	at io.grpc.internal.ClientCallImpl.access$300(ClientCallImpl.java:66)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl.close(ClientCallImpl.java:627)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl.access$700(ClientCallImpl.java:515)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl$1StreamClosed.runInternal(ClientCallImpl.java:686)
+	at io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl$1StreamClosed.runInContext(ClientCallImpl.java:675)
+	at io.grpc.internal.ContextRunnable.run(ContextRunnable.java:37)
+	at io.grpc.internal.SerializingExecutor.run(SerializingExecutor.java:123)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+21:45:19.192 [da-ui-backend-akka.actor.default-dispatcher-36] WARN  c.d.l.c.s.c.CommandTrackerFlow$ - Completion Stream failed with an error. Trying to recover in 1 second .. 
+akka.stream.AbruptTerminationException: Processor actor [Actor[akka://da-ui-backend/user/$a/party-Bob/StreamSupervisor-4/flow-8-0-ignoreSink#-1422639285]] terminated abruptly
+21:45:19.194 [da-ui-backend-akka.actor.default-dispatcher-53] WARN  c.d.l.c.s.c.CommandTrackerFlow$ - Completion Stream failed with an error. Trying to recover in 1 second .. 
+akka.stream.AbruptTerminationException: Processor actor [Actor[akka://da-ui-backend/user/$a/party-Mallory/StreamSupervisor-5/flow-9-0-ignoreSink#169441030]] terminated abruptly
+21:45:19.196 [da-ui-backend-akka.actor.default-dispatcher-51] INFO  akka.actor.RepointableActorRef - Message [com.digitalasset.grpc.adapter.client.rs.BufferingResponseObserver$$Lambda$4104/1614986007] without sender to Actor[akka://da-ui-backend/user/esf-PlatformStore-10#677832751] was not delivered. [1] dead letters encountered. If this is not an expected behavior, then [Actor[akka://da-ui-backend/user/esf-PlatformStore-10#677832751]] may have terminated unexpectedly, This logging can be turned off or adjusted with configuration settings 'akka.log-dead-letters' and 'akka.log-dead-letters-during-shutdown'. sourceThread=da-ui-backend-akka.actor.default-dispatcher-44, akkaTimestamp=20:45:19.191UTC, akkaSource=akka://da-ui-backend/user/esf-PlatformStore-10, sourceActorSystem=da-ui-backend
+21:45:19.196 [da-ui-backend-akka.actor.default-dispatcher-55] ERROR akka.stream.Materializer - [completion at client] Upstream failed. sourceThread=da-ui-backend-akka.actor.default-dispatcher-36, akkaSource=akka.stream.Log(akka://da-ui-backend/user/$a/party-Bob/StreamSupervisor-4), sourceActorSystem=da-ui-backend, akkaTimestamp=20:45:19.192UTC
+akka.stream.AbruptTerminationException: Processor actor [Actor[akka://da-ui-backend/user/$a/party-Bob/StreamSupervisor-4/flow-8-0-ignoreSink#-1422639285]] terminated abruptly
+21:45:19.197 [da-ui-backend-akka.actor.default-dispatcher-55] INFO  akka.actor.RepointableActorRef - Message [com.digitalasset.grpc.adapter.client.rs.BufferingResponseObserver$$Lambda$4104/1614986007] without sender to Actor[akka://da-ui-backend/user/esf-PlatformStore-11#-513143250] was not delivered. [2] dead letters encountered. If this is not an expected behavior, then [Actor[akka://da-ui-backend/user/esf-PlatformStore-11#-513143250]] may have terminated unexpectedly, This logging can be turned off or adjusted with configuration settings 'akka.log-dead-letters' and 'akka.log-dead-letters-during-shutdown'. sourceThread=da-ui-backend-akka.actor.default-dispatcher-41, akkaTimestamp=20:45:19.193UTC, akkaSource=akka://da-ui-backend/user/esf-PlatformStore-11, sourceActorSystem=da-ui-backend
+21:45:19.202 [da-ui-backend-akka.actor.default-dispatcher-55] INFO  akka.actor.RepointableActorRef - Message [com.digitalasset.grpc.adapter.client.rs.BufferingResponseObserver$$Lambda$4104/1614986007] without sender to Actor[akka://da-ui-backend/user/esf-PlatformStore-12#-786079396] was not delivered. [3] dead letters encountered. If this is not an expected behavior, then [Actor[akka://da-ui-backend/user/esf-PlatformStore-12#-786079396]] may have terminated unexpectedly, This logging can be turned off or adjusted with configuration settings 'akka.log-dead-letters' and 'akka.log-dead-letters-during-shutdown'. sourceThread=da-ui-backend-akka.actor.default-dispatcher-41, akkaTimestamp=20:45:19.193UTC, akkaSource=akka://da-ui-backend/user/esf-PlatformStore-12, sourceActorSystem=da-ui-backend
+21:45:19.204 [da-ui-backend-akka.actor.default-dispatcher-55] ERROR akka.stream.Materializer - [completion at client] Upstream failed. sourceThread=da-ui-backend-akka.actor.default-dispatcher-53, akkaTimestamp=20:45:19.194UTC, akkaSource=akka.stream.Log(akka://da-ui-backend/user/$a/party-Mallory/StreamSupervisor-5), sourceActorSystem=da-ui-backend
+akka.stream.AbruptTerminationException: Processor actor [Actor[akka://da-ui-backend/user/$a/party-Mallory/StreamSupervisor-5/flow-9-0-ignoreSink#169441030]] terminated abruptly
+21:45:19.205 [da-ui-backend-akka.actor.default-dispatcher-55] INFO  akka.actor.RepointableActorRef - Message [com.digitalasset.grpc.adapter.client.rs.BufferingSubscription$$Lambda$4111/846073696] without sender to Actor[akka://da-ui-backend/user/esf-PlatformStore-2#1958233782] was not delivered. [4] dead letters encountered. If this is not an expected behavior, then [Actor[akka://da-ui-backend/user/esf-PlatformStore-2#1958233782]] may have terminated unexpectedly, This logging can be turned off or adjusted with configuration settings 'akka.log-dead-letters' and 'akka.log-dead-letters-during-shutdown'. sourceThread=da-ui-backend-akka.actor.default-dispatcher-67, akkaTimestamp=20:45:19.194UTC, akkaSource=akka://da-ui-backend/user/esf-PlatformStore-2, sourceActorSystem=da-ui-backend
+21:45:19.207 [da-ui-backend-akka.actor.default-dispatcher-55] INFO  akka.actor.RepointableActorRef - Message [com.digitalasset.grpc.adapter.RunnableSequencingActor$ShutdownRequest$] without sender to Actor[akka://da-ui-backend/user/esf-PlatformStore-0#1351241219] was not delivered. [5] dead letters encountered. If this is not an expected behavior, then [Actor[akka://da-ui-backend/user/esf-PlatformStore-0#1351241219]] may have terminated unexpectedly, This logging can be turned off or adjusted with configuration settings 'akka.log-dead-letters' and 'akka.log-dead-letters-during-shutdown'. sourceThread=da-ui-backend-akka.actor.default-dispatcher-55, akkaTimestamp=20:45:19.207UTC, akkaSource=akka://da-ui-backend/user/esf-PlatformStore-0, sourceActorSystem=da-ui-backend
+21:45:19.209 [da-ui-backend-akka.actor.default-dispatcher-55] INFO  akka.actor.RepointableActorRef - Message [com.digitalasset.grpc.adapter.RunnableSequencingActor$ShutdownRequest$] without sender to Actor[akka://da-ui-backend/user/esf-PlatformStore-1#955114948] was not delivered. [6] dead letters encountered. If this is not an expected behavior, then [Actor[akka://da-ui-backend/user/esf-PlatformStore-1#955114948]] may have terminated unexpectedly, This logging can be turned off or adjusted with configuration settings 'akka.log-dead-letters' and 'akka.log-dead-letters-during-shutdown'. sourceThread=da-ui-backend-akka.actor.default-dispatcher-55, akkaTimestamp=20:45:19.209UTC, akkaSource=akka://da-ui-backend/user/esf-PlatformStore-1, sourceActorSystem=da-ui-backend
+21:45:19.209 [da-ui-backend-akka.actor.default-dispatcher-55] INFO  akka.actor.RepointableActorRef - Message [com.digitalasset.grpc.adapter.RunnableSequencingActor$ShutdownRequest$] without sender to Actor[akka://da-ui-backend/user/esf-PlatformStore-2#1958233782] was not delivered. [7] dead letters encountered. If this is not an expected behavior, then [Actor[akka://da-ui-backend/user/esf-PlatformStore-2#1958233782]] may have terminated unexpectedly, This logging can be turned off or adjusted with configuration settings 'akka.log-dead-letters' and 'akka.log-dead-letters-during-shutdown'. sourceThread=da-ui-backend-akka.actor.default-dispatcher-55, akkaTimestamp=20:45:19.209UTC, akkaSource=akka://da-ui-backend/user/esf-PlatformStore-2, sourceActorSystem=da-ui-backend
+21:45:19.210 [da-ui-backend-akka.actor.default-dispatcher-55] INFO  akka.actor.RepointableActorRef - Message [com.digitalasset.grpc.adapter.RunnableSequencingActor$ShutdownRequest$] without sender to Actor[akka://da-ui-backend/user/esf-PlatformStore-3#-218346458] was not delivered. [8] dead letters encountered. If this is not an expected behavior, then [Actor[akka://da-ui-backend/user/esf-PlatformStore-3#-218346458]] may have terminated unexpectedly, This logging can be turned off or adjusted with configuration settings 'akka.log-dead-letters' and 'akka.log-dead-letters-during-shutdown'. sourceThread=da-ui-backend-akka.actor.default-dispatcher-51, akkaTimestamp=20:45:19.209UTC, akkaSource=akka://da-ui-backend/user/esf-PlatformStore-3, sourceActorSystem=da-ui-backend
+21:45:19.210 [da-ui-backend-akka.actor.default-dispatcher-55] INFO  akka.actor.RepointableActorRef - Message [com.digitalasset.grpc.adapter.RunnableSequencingActor$ShutdownRequest$] without sender to Actor[akka://da-ui-backend/user/esf-PlatformStore-4#-30078070] was not delivered. [9] dead letters encountered. If this is not an expected behavior, then [Actor[akka://da-ui-backend/user/esf-PlatformStore-4#-30078070]] may have terminated unexpectedly, This logging can be turned off or adjusted with configuration settings 'akka.log-dead-letters' and 'akka.log-dead-letters-during-shutdown'. sourceThread=da-ui-backend-akka.actor.default-dispatcher-51, akkaTimestamp=20:45:19.209UTC, akkaSource=akka://da-ui-backend/user/esf-PlatformStore-4, sourceActorSystem=da-ui-backend
+21:45:19.210 [da-ui-backend-akka.actor.default-dispatcher-55] INFO  akka.actor.RepointableActorRef - Message [com.digitalasset.grpc.adapter.RunnableSequencingActor$ShutdownRequest$] without sender to Actor[akka://da-ui-backend/user/esf-PlatformStore-5#812012437] was not delivered. [10] dead letters encountered, no more dead letters will be logged. If this is not an expected behavior, then [Actor[akka://da-ui-backend/user/esf-PlatformStore-5#812012437]] may have terminated unexpectedly, This logging can be turned off or adjusted with configuration settings 'akka.log-dead-letters' and 'akka.log-dead-letters-during-shutdown'. sourceThread=da-ui-backend-akka.actor.default-dispatcher-45, akkaTimestamp=20:45:19.209UTC, akkaSource=akka://da-ui-backend/user/esf-PlatformStore-5, sourceActorSystem=da-ui-backend
