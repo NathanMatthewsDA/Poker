@@ -5,6 +5,7 @@ module Utils where
 import DA.List ((!!), elemIndex)
 import DA.Foldable (maximum)
 import DA.Optional (fromSome)
+import DA.Tuple (swap)
 
 deleteAt : Int -> [a] -> [a]
 deleteAt index xs = (take index xs) ++ (drop (index + 1) xs)
@@ -24,10 +25,6 @@ setAt i x xs = take i xs ++ x :: drop (i + 1) xs
 allEqual : (Eq a) => [a] -> Bool
 allEqual [] = True
 allEqual (x :: xs) = all (x ==) xs
-
-rotate : [a] -> [a]
-rotate [] = []
-rotate (x :: xs) = xs ++ [x]
 
 maxOn : (Ord b) => (a -> b) -> [a] -> [a]
 maxOn _ [] = []
@@ -64,3 +61,14 @@ after f xs =
     after ++ before ++ [e]
     where
         (before, (e :: after)) = break f xs
+
+rotateTo : (a -> Bool) -> [a] -> [a]
+rotateTo p = (uncurry (++)) . swap . break p
+
+rotate : [a] -> [a]
+rotate [] = []
+rotate (x :: xs) = xs ++ [x]
+
+insertAt : Int -> a -> [a] -> [a]
+insertAt n x xs = take n xs ++ (x :: drop n xs)
+

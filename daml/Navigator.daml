@@ -5,7 +5,6 @@ module Navigator where
 import Chips
 import Poker
 import Round
-import Utils
 
 createChips : Party -> Party -> Int -> Scenario (ContractId Chips)
 createChips house owner quantity =
@@ -16,16 +15,6 @@ createChips house owner quantity =
         
         submit owner do
             exercise transfer AcceptTransfer
-
-createSeed : Party -> Party -> Int -> Scenario (ContractId PlayerSeed)
-createSeed dealer player seed = 
-    do
-        submit player do
-            create PlayerSeed with player, dealer, seed
-
-toLastPlay : Next -> ContractId LastPlay
-toLastPlay (AwaitingLastPlay awaiting) = awaiting
-toLastPlay _ = error ""
 
 toPendingHand : Next -> ContractId PendingHand
 toPendingHand (AwaitingPendingHand awaiting) = awaiting
@@ -50,16 +39,6 @@ toTurnCommunity other = error $ show other <> " was not expected AwaitingTurnCom
 toShowdown : Next -> ContractId Showdown
 toShowdown (AwaitingShowdown awaiting) = awaiting
 toShowdown other = error $ show other <> " was not expected AwaitingShowdown"
--- data Next =
---     AwaitingLastPlay (ContractId LastPlay) |
---     AwaitingCheckOrRaise (ContractId CheckOrRaise) |
---     AwaitingTurnCommunity (ContractId TurnCommunity) |
---     AwaitingShowdown (ContractId Showdown) |
---     AwaitingPendingHand (ContractId PendingHand) |
---     AwaitingBetOrFold (ContractId BetOrFold) |
---     AwaitingDealHands (ContractId DealHands)
---         deriving (Eq, Show)
-
 
 bootstrap = scenario do
 
@@ -160,7 +139,7 @@ bootstrap = scenario do
                         fmap toBetOrFold $ exercise betOrFold Bet with amount = 30
 
     betOrFold <- submit eve do
-                        fmap toBetOrFold $ exercise betOrFold Fold
+                            fmap toBetOrFold $ exercise betOrFold Fold with leaveTable = False
                 
     turnCommunity <- submit bob do
                         fmap toTurnCommunity $ exercise betOrFold Bet with amount = 30

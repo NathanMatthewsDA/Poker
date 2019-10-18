@@ -55,8 +55,8 @@ toSidePot community (player, bet, (card1, card2)) =
         bet
         pot = bet
 
-createSidePots1 : [Card] -> [Int] -> [(Party, Int, (Card, Card))] -> [SidePot]
-createSidePots1 community folded unfolded =
+createSidePots : [Card] -> [Int] -> [(Party, Int, (Card, Card))] -> [SidePot]
+createSidePots community folded unfolded =
   (\pots -> foldl addFolded pots folded) $
   foldl addSidePot [] $
   map (toSidePot community) $

@@ -8,9 +8,9 @@ import DA.List (head, tail, (!!), delete, elemIndex)
 import DA.Optional (fromSome, catOptionals)
 import Random (shuffle)
 import Round
+import Utils (rotateTo, updateAt, setAt, deleteAt, insertAt)
 
 data Next =
-    AwaitingLastPlay (ContractId LastPlay) |
     AwaitingCheckOrRaise (ContractId CheckOrRaise) |
     AwaitingTurnCommunity (ContractId TurnCommunity) |
     AwaitingShowdown (ContractId Showdown) |
@@ -18,20 +18,6 @@ data Next =
     AwaitingBetOrFold (ContractId BetOrFold) |
     AwaitingDealHands (ContractId DealHands)
         deriving (Eq, Show)
-
-template LastPlay 
-    with
-        round : Round
-        last : Party
-    where
-        signatory round.game.players
-
-        controller last can 
-            LastFold : Next
-                do roundOver $ fold last round
-
-            LastBet : Next
-                do roundOver $ allinOrRequired last round                    
 
 template CheckOrRaise
     with
@@ -142,13 +128,12 @@ postPlay played round =
                 create CheckOrRaise with round, remaining = [round.game.players !! 1]
         else if stakesEqual round then do
             roundOver round
-        else if length (toPlay round) == 1 then do
-            fmap AwaitingLastPlay $
-                create LastPlay with round, last = head (toPlay round)
+        else if toPlay round == [played] then do
+            roundOver round
         else do 
             fmap AwaitingBetOrFold $
                 create BetOrFold with round, next = nextPlay played round
-           
+
 template BetOrFold
     with
         round : Round
@@ -164,9 +149,13 @@ template BetOrFold
                     postPlay next (bet amount next round)                
 
             Fold : Next
+                with
+                    leaveTable : Bool
                 do 
                     checkChips round
-                    postPlay next (fold next round)
+
+                    round <- fold leaveTable next round
+                    postPlay next round
 
 template TurnCommunity 
     with 

@@ -5,10 +5,10 @@ module Round where
 import Cards
 import Chips
 import DA.List (elemIndex, delete, (!!), head, tail)
-import DA.Tuple (swap)
 import DA.Foldable (maximum)
 import DA.Optional (fromSome, fromOptional)
-import SidePot (createSidePots1, allocate)
+import SidePot (createSidePots, allocate)
+import Utils (rotateTo, rotate, updateAt, setAt)
 
 type Stack = Int
 type Stake = Int
@@ -91,14 +91,20 @@ maxStake round = maximum round.stakes
 stakesEqual : Round -> Bool
 stakesEqual round = all (maxStake round ==) $ map (stakeFor round) $ toPlay round
 
-fold : Party -> Round -> Round
-fold player round = round with active = delete player round.active
+fold : Bool -> Party -> Round -> Update Round
+fold leaveTable player round = 
+    if leaveTable then do
+        let amount = stackFor round.game player
+        let stacks = setAt (playerIndex player round.game) 0 round.game.stacks 
 
-setAt : Int -> a -> [a] -> [a]
-setAt index x xs = (take index xs) ++ (x :: (drop (index + 1) xs)) 
+        chips <- fmap snd $ exercise round.game.chips Give with owner = player, amount
+        chips <- exercise chips RemoveOwner with owner = player
 
-updateAt : Int -> (a -> a) -> [a] -> [a]
-updateAt index f xs = (take index xs) ++ (f (xs !! index) :: (drop (index + 1) xs))
+        let game = round.game with chips, stacks
+
+        return round with game, active = delete player round.active
+    else
+        return round with active = delete player round.active
 
 increaseStake : Int -> Party -> Round -> Round
 increaseStake amount player round =
@@ -136,13 +142,6 @@ allinOrRequired player round =
         stack = stackFor round.game player
         required = maxStake round - (stakeFor round player)
 
-rotateTo : (a -> Bool) -> [a] -> [a]
-rotateTo p = (uncurry (++)) . swap . break p
-
-rotate : [a] -> [a]
-rotate [] = []
-rotate (x :: xs) = xs ++ [x]
-
 handFor : Round -> Party -> (ContractId PlayerCard, ContractId PlayerCard)
 handFor round player = round.hands !! (playerIndex player round.game)
 
@@ -162,12 +161,6 @@ removeAllin game =
 deal : Party -> [Party] -> [Card] -> Update [ContractId PlayerCard]
 deal dealer players cards =
     mapA (\(player, card) -> create PlayerCard with dealer, player, card) $ zip players cards
-
-deleteAt : Int -> [a] -> [a]
-deleteAt n xs = take n xs ++ drop (n + 1) xs
-
-insertAt : Int -> a -> [a] -> [a]
-insertAt n x xs = take n xs ++ (x :: drop n xs)
 
 turnCard : Round -> Update Round 
 turnCard round = do
@@ -189,9 +182,19 @@ calculateWinnings revealed community stakes players =
         stakeFor player = stakes !! (fromSome $ elemIndex player players)
         active = map fst revealed
         folded = filter (\p -> not (elem p active)) $ players
-        sidePots = createSidePots1 
+        sidePots = createSidePots 
                         community 
                         (map stakeFor folded)
                         (zipWith (\(player, cards) stake -> (player, stake, cards)) revealed stakes)
         allocations = concatMap allocate sidePots 
+
+leaveRound : Party -> Round -> Update (ContractId Chips, Round)
+leaveRound player round = do
+    let amount = stackFor round.game player
+    let stacks = setAt (playerIndex player round.game) 0 round.game.stacks 
+
+    (stack, chips) <- exercise round.game.chips Give with owner = player, amount
+    chips <- exercise chips RemoveOwner with owner = player
+
+    return (stack, round with game = round.game with chips, stacks)
 
